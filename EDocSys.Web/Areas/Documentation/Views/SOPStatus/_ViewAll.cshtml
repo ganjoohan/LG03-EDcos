@@ -1,0 +1,53 @@
+﻿@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<ProcedureStatusViewModel>
+<table id="sopTable" class="table table-striped" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            @*<th>Id</th>*@
+            <th>Remarks</th>
+            <th>Status</th>
+            @*<th>Created By</th>*@
+            <th>Created On</th>
+            @*<th>Action</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+            var count = Model.Count();
+        }
+
+        @foreach (var procedure in Model)
+        {
+            <tr>
+                @*<td>@procedure.Id</td>*@
+                <td text-wrap>@procedure.Remarks</td>
+                <td>@procedure.DocumentStatus.Name</td>
+                @*<td>@procedure.CreatedBy</td>*@
+                <td>@procedure.CreatedOn</td>
+                <td>
+                    @if (++i == count)
+                    {
+                        @*<h5>this is the last item</h5>*@
+                        if (@procedure.DocumentStatus.Name == "Rejected" && User.IsInRole("D"))
+                        {
+                            @*<h5>Link to Edit</h5>*@
+                            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.Edit)).Result.Succeeded)
+                            {
+                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.ProcedureId" ,"Edit Procedure")" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Procedure</a>
+
+                            }
+                        }
+
+
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#procedureTable").DataTable();
+    });
+</script>

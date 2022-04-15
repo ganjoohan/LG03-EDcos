@@ -1,0 +1,90 @@
+﻿@using EDocSys.Web.Areas.Admin.Models
+@model UserViewModel
+<form id="create-form" method="post" asp-area="Admin" asp-controller="User" asp-action="OnPostCreate" onsubmit="return jQueryModalPost(this);">
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["FirstName"]</label>
+        <div class="col-md-9">
+            <input type="text" asp-for="FirstName" name="FirstName" class="form-control">
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["LastName"]</label>
+        <div class="col-md-9">
+            <input type="text" asp-for="LastName" name="LastName" class="form-control">
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["Email"]</label>
+        <div class="col-md-9">
+            <input type="email" asp-for="Email" name="Email" class="form-control">
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["Company"]</label>
+
+        <div class="col-md-9">
+            <div class="input-group">
+                <select name="UserCompanyId" class="form-control select2bs4" id="UserCompanyId" asp-for="UserCompanyId" asp-items="@Model.UserCompanies">
+                </select>
+            </div>
+            <span asp-validation-for="UserCompanyId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["Department"]</label>
+
+        <div class="col-md-9">
+            <div class="input-group">
+                <select name="UserDepartmentId" class="form-control select2bs4" id="UserDepartmentId" asp-for="UserDepartmentId" asp-items="@Model.UserDepartments">
+                    <option value="4">Select Department</option>
+                </select>
+            </div>
+            <span asp-validation-for="UserDepartmentId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["Position"]</label>
+        <div class="col-md-9">
+            <input type="text" asp-for="Position" name="Position" class="form-control">
+            <span asp-validation-for="Position" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["Access Category"]</label>
+
+        <div class="col-md-9">
+            <div class="input-group">
+                <select name="RoleName" class="form-control select2bs4" id="RoleName" asp-for="RoleName" asp-items="@Model.RoleList">
+                    <option value="4">Select Access Category</option>
+                </select>
+            </div>
+            <span asp-validation-for="RoleName" class="text-danger"></span>
+        </div>
+    </div>
+
+
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["Password"]</label>
+        <div class="col-md-9">
+            <input type="password" asp-for="Password" name="Password" class="form-control">
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-3 col-form-label">@localizer["ConfirmPassword"]</label>
+        <div class="col-md-9">
+            <input type="password" asp-for="ConfirmPassword" name="ConfirmPassword" class="form-control">
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-default close-button" data-dismiss="modal">Cancel</button>
+    </div>
+</form>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

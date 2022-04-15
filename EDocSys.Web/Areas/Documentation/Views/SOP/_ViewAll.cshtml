@@ -1,0 +1,194 @@
+﻿@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<SOPViewModel>
+<table id="sopTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>WSCP No</th>
+            <th>SOP No</th>
+            <th>SOP Title</th>
+            <th>Company</th>
+            <th>Process</th>
+           @* @if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Delete)).Result.Succeeded
+         || (AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Edit)).Result.Succeeded
+         || (AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Preview)).Result.Succeeded)
+            {*@
+                <th>Actions</th>
+            @*}*@
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var sop in Model)
+        {
+            <tr>
+                <td>WSCP No.:  @sop.WSCPNo</td>
+                <td>@sop.SOPNo</td>
+                <td>@sop.Title</td>
+
+                @*<td>
+                        @if (@sop.hasWI == false)
+                        {
+                            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Create)).Result.Succeeded)
+                            {
+                                <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                   asp-route-wscpno="@sop.WSCPNo"
+                                   asp-route-sopno="@sop.SOPNo"
+                                   asp-route-departmentId="@sop.DepartmentId"
+                                   asp-route-procedureId="@sop.Id"
+                                   class="btn bg-success btn-sm">
+                                    <i class="fa fa-plus-square"></i> Create WI
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            // create a link
+                            <a asp-area="Documentation" asp-controller="SOP" asp-action="Preview"
+                               asp-route-wscpno="@sop.WSCPNo"
+                               asp-route-departmentId="@sop.DepartmentId"
+                               asp-route-procedureId="@sop.ProcedureId"
+                               class="btn bg-success btn-sm">
+                                <i class="fa fa-link"></i> @sop.SOPNo
+                            </a>
+                        }
+                    </td>*@
+                <td>@sop.CompanyName</td>
+                <td>@sop.ProcessName</td>
+                @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Delete)).Result.Succeeded
+                || (AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Edit)).Result.Succeeded
+                || (AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Preview)).Result.Succeeded
+                )
+                {*@
+                    <td text-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Edit)).Result.Succeeded)
+                                {*@
+                                    <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" ,"Edit SOP")" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
+
+                                @*}*@
+                                @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Preview)).Result.Succeeded)
+                                {*@
+                                    <a href="/documentation/sop/Preview?id=@sop.Id" ,"Edit SOP")" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
+
+                                @*}*@
+                                @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Delete)).Result.Succeeded)
+
+                                {*@
+                                    <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                    </form>
+                                @*}*@
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
+                                <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
+
+
+                                <div class="dropdown-divider"></div>
+                                @*<h6 class="dropdown-header">SOP</h6>*@
+                                @*<a class="dropdown-item" href="#"> <i class="fa fa-plus-square"></i> Create SOP</a>*@
+                               @* @if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Create)).Result.Succeeded)
+                                {*@
+                                    @*<a class="dropdown-item" href="#"> <i class="fa fa-plus-square"></i> Create SOP</a>*@
+                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                       asp-route-wscpno="@sop.WSCPNo"
+                                       asp-route-departmentId="@sop.DepartmentId"
+                                       asp-route-procedureId="@sop.Id">
+                                        <i class="fa fa-plus-square"></i> Create WI
+                                    </a>
+                                @*}*@
+                                <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
+
+                                @*<div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">Create WI</a>
+                                    <a class="dropdown-item" href="#">WI List</a>*@
+                            </div>
+                        </div>
+                    </td>
+               @* }*@
+            </tr>
+        }
+
+    </tbody>
+@*    <tfoot>
+        <tr>
+            <th>WSCP No</th>
+            <th>SOP No</th>
+            <th>SOP Title</th>
+            <th>Company</th>
+            <th>Process</th>
+        </tr>
+        </tfoot>*@
+</table>
+<script>
+    $(document).ready(function () {
+        $("#sopTable").DataTable()
+    });
+</script>
+
+
+
+
+@*<script>
+    $(document).ready(function () {
+        $('#sopTable tfoot th').each(function () {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        });
+
+        var groupColumn = 0;
+        var table = $('#sopTable').DataTable({
+            "initComplete": function () {
+                // Apply the search
+                this.api().columns().every(function () {
+                    var that = this;
+
+                    $('input', this.footer()).on('keyup change clear', function () {
+                        if (that.search() !== this.value) {
+                            that
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                });
+            },
+            "columnDefs": [
+                { "visible": false, "targets": groupColumn }
+            ],
+            "order": [[groupColumn, 'asc']],
+            // "displayLength": 25,
+            "drawCallback": function (settings) {
+                var api = this.api();
+                var rows = api.rows({ page: 'current' }).nodes();
+                var last = null;
+
+                api.column(groupColumn, { page: 'current' }).data().each(function (group, i) {
+                    if (last !== group) {
+                        $(rows).eq(i).before(
+                            '<tr class="bg-secondary text-light"><td colspan="5">' + group + '</td></tr>'
+                        );
+
+                        last = group;
+                    }
+                });
+            },
+
+        });
+
+        // Order by the grouping
+        $('#sopTable tbody').on('click', 'tr.group', function () {
+            var currentOrder = table.order()[0];
+            if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+                table.order([groupColumn, 'desc']).draw();
+            }
+            else {
+                table.order([groupColumn, 'asc']).draw();
+            }
+        });
+
+        
+    });
+</script>*@

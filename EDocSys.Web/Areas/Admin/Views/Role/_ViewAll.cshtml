@@ -1,0 +1,106 @@
+﻿@using EDocSys.Web.Areas.Admin.Models
+@model IEnumerable<RoleViewModel>
+<table class="table table-striped" id="roleTable">
+    <thead>
+        <tr>
+            <th>
+                @*@localizer["Role"]*@
+                @localizer["Access Category"]
+            </th>
+            <th>
+                @*@localizer["Id"]*@
+                @localizer["Descriptions"]
+            </th>
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <th style="width:10%">
+                
+                    @localizer["Actions"]
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var role in Model)
+        {
+            <tr>
+                <td>
+                    <b>@role.Name</b>
+                </td>
+                <td class="small">
+                    @*@role.Id*@
+                    @if (role.Name == "A")
+                    {
+                        <note>Group Chairman / HOC / Steering Coomm Chairman / Steel Div. SOP Comm. Chairman
+                            <p class="text-success">See All Documents All Company/Department, Can Approved/Concurred</p></note>
+                    }
+                    else if (role.Name == "B1")
+                    {
+                        <note>Executive Level and Above 
+                            <p class="text-success">See All Documents with Same Company, Allowed to Concurred/Approve Documents </p></note>
+                    }
+                    else if (role.Name == "B2")
+                    {
+                        <note>Executive Level and Above 
+                            <p class="text-success"><b>Read Only</b>, See All Documents with Same Company, Cannot Concurred/Approve Documents </p></note>
+                    }
+                    else if (role.Name == "C")
+                    {
+                        <note>Supervisory Level and below exclude Technical Level (Read Only)</note>
+                    }
+                    else if (role.Name == "D")
+                    {
+                        <note>SOP Department Admin (Full Access by Department)</note>
+                    }
+                    else if (role.Name == "E")
+                    {
+                        <note>QMR / Lead Auditot / SOP Company Admin (Full Access by Company</note>
+                    }
+                    else if (role.Name == "M")
+                    {
+                        <note>Self Manage (Full Access without Approval Cycle</note>
+                    }
+                    else if (role.Name == "SuperAdmin")
+                    {
+                        <note>Full Access</note>
+                    }
+                    else if (role.Name == "None")
+                    {
+                        <note>No Accesse</note>
+                    }
+                </td>
+                <td text-right">
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+
+                                <a onclick="jQueryModalGet('/admin/role/OnGetCreate?id=@role.Id','Edit Role')" class="dropdown-item">
+                                    <i class="fas fa-pencil-alt"></i> @localizer["Edit"]
+                                </a>
+                                <form id="form_delete_@role.Id" asp-controller="Role" method="post" asp-action="OnPostDelete" asp-route-id="@role.Id" onsubmit="return jQueryModalDelete(this)" class="d-inline">
+                                    <a href="javascript:$('#form_delete_@role.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i> @localizer["Delete"]</a>
+                                </form>
+
+                                <a style='margin-right:16px' asp-controller="Permission" asp-action="Index" asp-route-roleId="@role.Id" class="dropdown-item">
+                                    <i class="fas fa-wrench"></i> @localizer["Manage Permissions"]
+                                </a>
+
+                            </div>
+                        </div>
+
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#roleTable").DataTable();
+    });
+</script>

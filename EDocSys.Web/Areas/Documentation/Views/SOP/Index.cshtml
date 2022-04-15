@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = localizer["Standard Operating Practices (SOP)"];
+    ViewData["Caption"] = localizer["Manage Standard Operating Practices here"];
+}
+@using EDocSys.Web.Areas.Documentation.Models
+@model SOPViewModel
+
+<div class="card">
+    <div class="col-sm-12" style="padding:20px">
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Create)).Result.Succeeded)
+        {
+            <a asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit" class="btn bg-success">
+                <i class="fa fa-plus-square"></i> Create
+            </a>
+        }*@
+
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.View).Result.Succeeded)
+        {
+            <form id="create-form" method="post" asp-area="Documentation" asp-controller="SOP" asp-action="View1" asp-route-id="1d">
+
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="submit" class="btn btn-success">Print</button>
+
+                </div>
+            </form>
+        }*@
+
+        <a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>
+
+        <a id="loadallSOP" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Load All SOP
+        </a>
+    </div>
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#sopTable").DataTable();
+            loadData();
+            $('#reload').on('click', function () {
+                loadData();
+            });
+            $('#loadallSOP').on('click', function () {
+                $('#viewAll').load('/documentation/sop/LoadAll');
+            });
+
+
+
+            
+        });
+        function loadData() {
+            if ('@ViewBag.WSCPNo' == '') {
+                $('#viewAll').load('/documentation/sop/LoadAll');
+            }
+            else {
+                $('#viewAll').load('/documentation/sop/LoadByWSCP/?wscpno='+ '@ViewBag.WSCPNo');
+            }
+        }
+
+    </script>
+}

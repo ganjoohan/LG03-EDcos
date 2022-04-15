@@ -1,0 +1,150 @@
+﻿@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<ProcedureViewModel>
+<table id="procedureTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Procedure No</th>
+            <th>Procedure Title</th>
+            <th>Company</th>
+            <th>Process</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var procedure in Model)
+        {
+            <tr>
+                <td style="text-indent: 35px; ">@procedure.WSCPNo</td>
+                <td>@procedure.Title</td>
+                <td>@procedure.CompanyName</td>
+                <td><b>@procedure.ProcessName</b></td>
+                <td align="center">
+                    @*@if (User.IsInRole("SuperAdmin") || User.IsInRole("A") || User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("M") || User.IsInRole("B1"))*@
+                    @if (!User.IsInRole("None"))
+                    {
+                        if (@procedure.ProcedureStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                            <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                            
+                        }
+                        else if (procedure.ProcedureStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
+                    }
+
+                    @* Only Department Admin and Super Admin can view Progess List*@
+                    @*@if (User.IsInRole("SuperAdmin") || User.IsInRole("D") || User.IsInRole("B1"))
+                    {
+                        @if (procedure.ProcedureStatusView != "New" && User.IsInRole("D"))
+                        {
+                            <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-warning btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                        }
+                        else if (procedure.ProcedureStatusView == null || procedure.ProcedureStatusView == "")
+                        {
+
+                        }
+                        else if (procedure.ProcedureStatusView == "Approved")
+                        {
+                            <span class="badge badge-success">@procedure.ProcedureStatusView</span>
+                        }
+                    }*@
+@*                    else if (User.IsInRole("Basic"))
+                    {
+                        @if (procedure.ProcedureStatusView == "In Progress")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
+                        else if (procedure.ProcedureStatusView == "Approved")
+                        {
+                            <span class="badge badge-success">@procedure.ProcedureStatusView</span>
+                        }
+                    }*@
+
+                </td>
+                @if(User.IsInRole("SuperAdmin") || User.IsInRole("D")) // SOP Department Admin (Full Access by Department) 
+                {
+                    <td text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @*Can only Edit if New or Rejected status *@
+                                @if (@procedure.ProcedureStatusView == "New" || @procedure.ProcedureStatusView == "Rejected")
+                                {
+                                    <a href="/documentation/procedure/CreateOrEdit?id=@procedure.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit Procedure")" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        Edit Procedure
+                                    </a>
+                                }
+
+                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                @if ((@procedure.ProcedureStatusView == "New") && (User.IsInRole("D") || User.IsInRole("SuperAdmin")))
+                                {
+                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" ,"Edit Procedure")" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Procedure
+                                    </a>
+
+                                    <form id="form_delete_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDelete" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    </form>
+                                }
+                                else if (@procedure.ProcedureStatusView != "New")
+                                {
+                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" ,"Edit Procedure")" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Procedure
+                                    </a>
+                                }
+
+                                <div class="dropdown-divider"></div>
+                                
+                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit"
+                                       asp-route-wscpno="@procedure.WSCPNo"
+                                       asp-route-departmentId="@procedure.DepartmentId"
+                                       asp-route-procedureId="@procedure.Id">
+                                        <i class="fa fa-plus-square"></i> Create SOP
+                                    </a>
+                                
+                                <a href="/documentation/sop/Index?wscpno=@procedure.WSCPNo" class="dropdown-item"><i class="fa fa-list"></i>  SOP List</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Create WI</a>
+                                <a class="dropdown-item" href="#">WI List</a>
+                            </div>
+                            </div>
+                        </td>
+                }
+
+                @* Read Only Users  *@
+                else if (User.IsInRole("B1") || User.IsInRole("B2") || User.IsInRole("C") || User.IsInRole("E") && procedure.ProcedureStatusView == "Approved")
+                {
+                    <td align="center"><a href="/documentation/procedure/Preview?id=@procedure.Id" ,"Edit Procedure")" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a></td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('#procedureTable').DataTable( {
+        order: [[1, 'asc'], [0, 'asc']],
+        rowGroup: {
+            dataSrc: [ 2,3 ]
+        },
+        columnDefs: [ {
+            targets: [ 2,3 ],
+            visible: false
+        } ]
+    } );
+    });
+</script>
