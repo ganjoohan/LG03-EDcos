@@ -33,6 +33,8 @@ namespace EDocSys.Infrastructure.DbContexts
         public DbSet<UserApprover> UserApprovers { get; set; }
         public DbSet<SOPStatus> SOPStatus { get; set; }
 
+        public DbSet<WIStatus> WIStatus { get; set; }
+
         public IDbConnection Connection => Database.GetDbConnection();
 
         public bool HasChanges => ChangeTracker.HasChanges();

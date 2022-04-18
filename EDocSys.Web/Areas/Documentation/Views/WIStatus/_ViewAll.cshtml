@@ -1,0 +1,53 @@
+﻿@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<WIStatusViewModel>
+<table id="wiTable" class="table table-striped" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Remarks</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Created On</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+            var count = Model.Count();
+        }
+
+        @foreach (var wi in Model)
+        {
+            <tr>
+                <td>@wi.Id</td>
+                <td>@wi.Remarks</td>
+                <td>@wi.DocumentStatus.Name</td>
+                <td>@wi.CreatedBy</td>
+                <td>@wi.CreatedOn</td>
+                <td>
+                    @if (++i == count)
+                    {
+                        @*<h5>this is the last item</h5>*@
+                        if (@wi.DocumentStatus.Name == "Rejected")
+                        {
+                            @*<h5>Link to Edit</h5>*@
+                            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded)
+                            {
+                                <a href="/documentation/wi/CreateOrEdit?id=@wi.WIId" ,"Edit WI")" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit WI</a>
+
+                            }
+                        }
+
+
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#wiTable").DataTable();
+    });
+</script>
