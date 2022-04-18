@@ -181,7 +181,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Subject = "SOP " + responseGetSOPById.Data.WSCPNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + sopStatus.SOPId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/sop/preview/" + sopStatus.SOPId)}'>clicking here</a> to open the document."
                     };
 
                     try

@@ -65,7 +65,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         {
             var response = await _mediator.Send(new GetSOPByIdQuery() { Id = id });
 
-            var statusById = _context.ProcedureStatus.Where(a => a.ProcedureId == id).ToList();
+            var statusById = _context.SOPStatus.Where(a => a.SOPId == id).ToList();
 
             if (response.Succeeded)
             {
@@ -73,7 +73,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 if (statusById.Count() != 0)
                 {
-                    var StatusId = _context.ProcedureStatus.Where(a => a.ProcedureId == id).OrderBy(a => a.CreatedOn)
+                    var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn)
                         .Include(a => a.DocumentStatus)
                         .Last();
 
@@ -283,13 +283,63 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         }
 
+        //public async Task<IActionResult> LoadAll()
+        //{
+        //    var response = await _mediator.Send(new GetAllSOPsCachedQuery());
+
+        //    if (response.Succeeded)
+        //    {
+        //        var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
+
+        //        return PartialView("_ViewAll", viewModel);
+        //    }
+        //    return null;
+        //}
+
         public async Task<IActionResult> LoadAll()
         {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var user = await _userManager.FindByIdAsync(currentUser.Id);
+            var roles = await _userManager.GetRolesAsync(user);
+            var rolesList = roles.ToList();
+
             var response = await _mediator.Send(new GetAllSOPsCachedQuery());
 
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
+
+                // Access Categiry = D  
+                // SOP Department Admin (Full Access by Department)
+                if (rolesList.Contains("D"))
+                {
+                    viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.DepartmentId == user.UserDepartmentId).ToList();
+                }
+
+                // Access Categiry = E  
+                // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
+
+
+                foreach (SOPViewModel item in viewModel)
+                {
+                    var psStatat = _context.SOPStatus.Where(a => a.SOPId == item.Id).ToList();
+
+                    if (psStatat.Count != 0)
+                    {
+                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == item.Id).OrderBy(a => a.CreatedOn)
+                            .Include(a => a.DocumentStatus)
+                            .Last();
+                        item.SOPStatusView = StatusId.DocumentStatus.Name;
+                    }
+                    else
+                    {
+                        item.SOPStatusView = "New";
+                    }
+                }
+                if (rolesList.Contains("E") || rolesList.Contains("B1"))
+                {
+                    viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.SOPStatusView == "Approved").ToList();
+                }
 
                 return PartialView("_ViewAll", viewModel);
             }

@@ -22,8 +22,88 @@
                 <td>@sop.Title</td>
                 <td>@sop.CompanyName</td>
                 <td><b>@sop.ProcessName</b></td>
-                <td><a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a></td>
-                <td text-right">
+                @*<td><a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a></td>*@
+                <td align="center">
+                    @if (!User.IsInRole("None"))
+                    {
+                        if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
+                        {
+                            <span class="badge badge-warning">@sop.SOPStatusView</span>
+                            <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                        }
+                        else if (sop.SOPStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@sop.SOPStatusView</span>
+                        }
+                    }
+                </td>
+                
+                @if(User.IsInRole("SuperAdmin") || User.IsInRole("D")) // SOP Department Admin (Full Access by Department) 
+                {
+                    <td text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @*Can only Edit if New or Rejected status *@
+                                @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
+                                {
+                                    <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit SOP")" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        Edit SOP
+                                    </a>
+                                }
+
+                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                @if ((@sop.SOPStatusView == "New") && (User.IsInRole("D") || User.IsInRole("SuperAdmin")))
+                                {
+                                    <a href="/documentation/sop/Preview?id=@sop.Id" ,"Edit Procedure")" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview SOP
+                                    </a>
+
+                                    <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    </form>
+                                }
+                                else if (@sop.SOPStatusView != "New")
+                                {
+                                    <a href="/documentation/sop/Preview?id=@sop.Id" ,"Edit SOP")" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview SOP
+                                    </a>
+                                }
+
+                                <div class="dropdown-divider"></div>
+                                
+                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit"
+                                       asp-route-wscpno="@sop.WSCPNo"
+                                       asp-route-departmentId="@sop.DepartmentId"
+                                       asp-route-procedureId="@sop.Id">
+                                        <i class="fa fa-plus-square"></i> Create SOP
+                                    </a>
+                                
+                                <a href="/documentation/sop/Index?wscpno=@sop.WSCPNo" class="dropdown-item"><i class="fa fa-list"></i>  SOP List</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Create WI</a>
+                                <a class="dropdown-item" href="#">WI List</a>
+                            </div>
+                            </div>
+                        </td>
+                }
+
+                @* Read Only Users  *@
+                else if (User.IsInRole("B1") || User.IsInRole("B2") || User.IsInRole("C") || User.IsInRole("E") && sop.SOPStatusView == "Approved")
+                {
+                    <td align="center"><a href="/documentation/sop/Preview?id=@sop.Id" ,"Edit SOP")" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a></td>
+                }
+                else
+                {
+                    <td></td>
+                }
+
+                @*<td text-right">
                     <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Action
@@ -50,7 +130,7 @@
                                 <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
                         </div>
                     </div>
-                </td>
+                </td>*@
             </tr>
         }
     </tbody>

@@ -1,92 +1,102 @@
 ﻿@model EDocSys.Web.Areas.Documentation.Models.SOPViewModel
+@using EDocSys.Infrastructure.Identity.Models;
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
-    <div class="row">
-        <div class="col-12">
-            <div class="documentation p-3 mb-3 print-container">
-                <div class="row">
-                    <div class="col-sm-4 documentation-col">
-                        <h4>
-                            <img src="~/images/logo.png" />
-                        </h4>
-                    </div>
-                    <div class="col-sm-4 documentation-col text-center">
-                        <h1>
-                            STEEL DIVISION <br /><small>@Model.CompanyName</small>
-                        </h1>
-                    </div>
-                    <div class="col-sm-4 documentation-col">
-                        <h3 class="float-right">Approved</h3><br>
+<div class="row">
+    <div class="col-12">
+        <div class="documentation p-3 mb-3 print-container">
+            <div class="row">
+                <div class="col-sm-4 documentation-col">
+                    <h4>
+                        <img src="~/images/logo.png" />
+                    </h4>
+                </div>
+                <div class="col-sm-4 documentation-col text-center">
+                    <h1>
+                        STEEL DIVISION <br /><small>@Model.CompanyName</small>
+                    </h1>
+                </div>
+                <div class="col-sm-4 documentation-col">
+                    @if (@Model.SOPStatusView != "Approved")
+                    {
+                        <h3 class="float-right">@Model.SOPStatusView</h3><br>
+                    }
+                    else if (@Model.SOPStatusView == "Approved")
+                    {
+                        <h3 class="float-right">@Model.SOPStatusView</h3><br>
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-12 text-center">
+                    <div class="color-palette-set">
+                        <h3 class="bg-secondary color-palette">STANDARD OPERATING PRACTICE (SOP)</h3>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12 col-md-12 text-center">
-                        <div class="color-palette-set">
-                            <h3 class="bg-secondary color-palette">STANDARD OPERATING PRACTICE (SOP)</h3>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td>Process</td>
+                                <td>@Model.ProcessName</td>
+                                <td>Effective Date</td>
+                                <td>@Html.DisplayFor(model => model.EffectiveDate)</td>
+                            </tr>
+                            <tr>
+                                <td>WSCP No</td>
+                                <td>@Model.WSCPNo</td>
+                                <td>Revision Date</td>
+                                <td>@Html.DisplayFor(model => model.RevisionDate)</td>
+                            </tr>
+                            <tr>
+                                <td>SOP No</td>
+                                <td>@Model.SOPNo</td>
+                                <td>Revision No</td>
+                                <td>@Model.RevisionNo</td>
+                            </tr>
+                            <tr>
+                                <td>WI No</td>
+                                <td>@Model.WINo</td>
+                                <td>Established Date</td>
+                                <td>@Html.DisplayFor(model => model.EstalishedDate)</td>
+                            </tr>
+                            <tr>
+                                <td><b>TITLE</b></td>
+                                <td colspan="3"><b>@Model.Title</b></td>
+                            </tr>
+                            <tr>
+                                <td>PURPOSE</td>
+                                <td colspan="3">@Model.Purpose</td>
+                            </tr>
+                            <tr>
+                                <td>SCOPE</td>
+                                <td colspan="3">@Model.Scope</td>
+                            </tr>
+                            <tr>
+                                <td>DIFINITIONS</td>
+                                <td colspan="3">@Model.Definition</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <div class="col">
+                            <textarea hidden id="editor" asp-for="Body" class="form-control"></textarea>
                         </div>
+
                     </div>
                 </div>
+            </div>
 
-                <div class="row">
-                    <div class="col-12">
-                        <table class="table table-bordered table-sm">
-                            <tbody>
-                                <tr>
-                                    <td>Process</td>
-                                    <td>@Model.ProcessName</td>
-                                    <td>Effective Date</td>
-                                    <td>@Html.DisplayFor(model => model.EffectiveDate)</td>
-                                </tr>
-                                <tr>
-                                    <td>WSCP No</td>
-                                    <td>@Model.WSCPNo</td>
-                                    <td>Revision Date</td>
-                                    <td>@Html.DisplayFor(model => model.RevisionDate)</td>
-                                </tr>
-                                <tr>
-                                    <td>SOP No</td>
-                                    <td>@Model.SOPNo</td>
-                                    <td>Revision No</td>
-                                    <td>@Model.RevisionNo</td>
-                                </tr>
-                                <tr>
-                                    <td>WI No</td>
-                                    <td>@Model.WINo</td>
-                                    <td>Established Date</td>
-                                    <td>@Html.DisplayFor(model => model.EstalishedDate)</td>
-                                </tr>
-                                <tr>
-                                    <td><b>TITLE</b></td>
-                                    <td colspan="3"><b>@Model.Title</b></td>
-                                </tr>
-                                <tr>
-                                    <td>PURPOSE</td>
-                                    <td colspan="3">@Model.Purpose</td>
-                                </tr>
-                                <tr>
-                                    <td>SCOPE</td>
-                                    <td colspan="3">@Model.Scope</td>
-                                </tr>
-                                <tr>
-                                    <td>DIFINITIONS</td>
-                                    <td colspan="3">@Model.Definition</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group row">
-                            <div class="col">
-                                <textarea hidden id="editor" asp-for="Body" class="form-control"></textarea>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
+            <div class="row">
                 <div class="col-12">
                     <table class="table table-bordered table-sm">
                         <tbody>
@@ -125,31 +135,33 @@
                 </div>
             </div>
 
-                <div class="row">
-                    <div class="col-12">
-                        <table class="table table-bordered table-sm">
-                            <tbody>
-                                <tr>
-                                    <td colspan="2">
-                                        <h6><b>CONTROLLED DOCUMENT</b></h6>
-                                        <p>Note: This document is the proprty of the Company. It shall not be reproduced, copied, altered or disclosed
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    <h6><b>CONTROLLED DOCUMENT</b></h6>
+                                    <p>
+                                        Note: This document is the proprty of the Company. It shall not be reproduced, copied, altered or disclosed
                                         to any person without written consent of the HOC/HOD and shall be returned to the Company.
-                                        </p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%">CONTROLLED COPY</td>
-                                    <td>ELECTRONIC - 0</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">CONTROLLED COPY</td>
+                                <td>ELECTRONIC - 0</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+            
         </div>
     </div>
+</div>
 
-    <!-- this row will not appear when printing -->
+<!-- this row will not appear when printing -->
             <div class="row no-print">
                 <div class="col-12">
                     @if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
@@ -161,7 +173,7 @@
                     {
                         if (Model.SOPStatusView == "New" || Model.SOPStatusView == "Rejected")
                             {
-                                <a href="/documentation/sop/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit Procedure")" class="btn bg-success">
+                                <a href="/documentation/sop/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit SOP")" class="btn bg-success">
                                     <i class="fas fa-pencil-alt"></i>
                                     Edit SOP
                                 </a>
@@ -175,26 +187,26 @@
                     @* Check if status is "Submitted" and Role is E => to Approved Formatting Check*@
                     @if (Model.SOPStatusView == "Submitted" && User.IsInRole("E"))
                     {
-                        <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
-                        <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
+                        <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
+                        <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
                     }
 
                     @if (Model.SOPStatusView == "Format Checked" && User.IsInRole("B1"))
                     {
                         if(Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
                         {
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=2','Concurre 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=2','Concurre 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                         else if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true)
                         {
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                         else if (Model.Concurred2 != null && ViewBag.IsApp == true)
                         {
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve</a>
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                         
                     }
@@ -203,85 +215,85 @@
                     {
                         if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) // 
                         {
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                         else if (Model.Concurred2 == null && Model.Concurred1 != null && ViewBag.IsApp == true) { // if Concurred 1 To Approver
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
-                            <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                            <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                     }
                     
                     @if (Model.SOPStatusView == "Concurred2" && User.IsInRole("B1") && ViewBag.IsApp == true)
                     {
-                        <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
-                        <a onclick="jQueryModalGet('/documentation/procedurestatus/OnGetSubmit?procedureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                        <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                     }
 
                 </div>
             </div>
 
-    @section Scripts {
+@section Scripts {
 
-        <script>
-            document.getElementById("btnPrint").onclick = function () {
-                printElement(document.getElementById("printThis"));
+    <script>
+        document.getElementById("btnPrint").onclick = function () {
+            printElement(document.getElementById("printThis"));
 
-                var modThis = document.querySelector("#printSection .modifyMe");
-                modThis.appendChild(document.createTextNode(" new"));
+            var modThis = document.querySelector("#printSection .modifyMe");
+            modThis.appendChild(document.createTextNode(" new"));
 
-                window.print();
+            window.print();
+        }
+
+        function printElement(elem) {
+            var domClone = elem.cloneNode(true);
+
+            var $printSection = document.getElementById("printSection");
+
+            if (!$printSection) {
+                var $printSection = document.createElement("div");
+                $printSection.id = "printSection";
+                document.body.appendChild($printSection);
             }
 
-            function printElement(elem) {
-                var domClone = elem.cloneNode(true);
+            $printSection.innerHTML = "";
 
-                var $printSection = document.getElementById("printSection");
+            $printSection.appendChild(domClone);
+        }
+    </script>
 
-                if (!$printSection) {
-                    var $printSection = document.createElement("div");
-                    $printSection.id = "printSection";
-                    document.body.appendChild($printSection);
-                }
+    <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
 
-                $printSection.innerHTML = "";
+    <script>
+        document.getElementById("btnPrint").onclick = function () {
+            printElement(document.getElementById("printThis"));
 
-                $printSection.appendChild(domClone);
+            var modThis = document.querySelector("#printSection .modifyMe");
+            modThis.appendChild(document.createTextNode(" new"));
+
+            window.print();
+        }
+
+        function printElement(elem) {
+            var domClone = elem.cloneNode(true);
+
+            var $printSection = document.getElementById("printSection");
+
+            if (!$printSection) {
+                var $printSection = document.createElement("div");
+                $printSection.id = "printSection";
+                document.body.appendChild($printSection);
             }
-        </script>
 
-        <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
+            $printSection.innerHTML = "";
 
-        <script>
-            document.getElementById("btnPrint").onclick = function () {
-                printElement(document.getElementById("printThis"));
+            $printSection.appendChild(domClone);
+        }
+    </script>
 
-                var modThis = document.querySelector("#printSection .modifyMe");
-                modThis.appendChild(document.createTextNode(" new"));
+    <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
 
-                window.print();
-            }
-
-            function printElement(elem) {
-                var domClone = elem.cloneNode(true);
-
-                var $printSection = document.getElementById("printSection");
-
-                if (!$printSection) {
-                    var $printSection = document.createElement("div");
-                    $printSection.id = "printSection";
-                    document.body.appendChild($printSection);
-                }
-
-                $printSection.innerHTML = "";
-
-                $printSection.appendChild(domClone);
-            }
-        </script>
-
-        <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
-
-        <script>
+    <script>
     class MyUploadAdapter {
         constructor(loader) {
             // The file loader instance to use during the upload. It sounds scary but do not
@@ -314,7 +326,7 @@
             // integration to choose the right communication channel. This example uses
             // a POST request with JSON as a data structure but your configuration
             // could be different.
-            xhr.open('POST', '@Url.Action("UploadImage","SOP")', true);
+            xhr.open('POST', '@Url.Action("UploadImage","Procedure")', true);
             xhr.responseType = 'json';
         }
 
@@ -404,5 +416,5 @@
         .catch(error => {
             console.error(error);
         });
-        </script>
-    }
+    </script>
+}
