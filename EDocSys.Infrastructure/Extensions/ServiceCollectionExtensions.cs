@@ -49,6 +49,9 @@ namespace EDocSys.Infrastructure.Extensions
             services.AddTransient<IProcedureStatusRepository, ProcedureStatusRepository>();
             services.AddTransient<IProcedureStatusCacheRepository, ProcedureStatusCacheRepository>();
 
+            services.AddTransient<IWIStatusRepository, WIStatusRepository>();
+            services.AddTransient<IWIStatusCacheRepository, WIStatusCacheRepository>();
+
             services.AddTransient<IUserApproverRepository, UserApproverRepository>();
             services.AddTransient<IUserApproverCacheRepository, UserApproverCacheRepository>();
 
