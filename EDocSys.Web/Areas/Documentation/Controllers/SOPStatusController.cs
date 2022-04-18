@@ -1,11 +1,6 @@
 ﻿using EDocSys.Application.Constants;
 using EDocSys.Application.Features.Departments.Queries.GetAllCached;
 using EDocSys.Application.Features.Companies.Queries.GetAllCached;
-using EDocSys.Application.Features.ProcedureStatuses.Queries.GetAllCached;
-// using EDocSys.Application.Features.ProcedureStatuses.Commands.Create;
-using EDocSys.Application.Features.Procedures.Queries.GetAllCached;
-//using EDocSys.Application.Features.Procedures.Commands.Delete;
-//using EDocSys.Application.Features.Procedures.Commands.Update;
 using EDocSys.Web.Abstractions;
 using EDocSys.Web.Areas.Documentation.Models;
 using EDocSys.Web.Extensions;
@@ -24,7 +19,7 @@ using MediatR;
 using EDocSys.Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Html;
-using EDocSys.Application.Features.ProcedureStatuses.Commands.Create;
+
 using EDocSys.Application.DTOs.Mail;
 using System.Net.Mail;
 using EDocSys.Application.Interfaces.Shared;
@@ -33,7 +28,10 @@ using EDocSys.Application.Features.Procedures.Queries.GetById;
 using Microsoft.AspNetCore.Identity;
 using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Application.Features.SOPs.Queries.GetAllCached;
-// using EDocSys.Application.Features.SOPStatuses.Queries.GetAllCached;
+using EDocSys.Application.Features.SOPStatuses.Queries.GetAllCached;
+using EDocSys.Application.Features.SOPs.Queries.GetById;
+using EDocSys.Application.Features.ProcedureStatuses.Commands.Create;
+using EDocSys.Application.Features.SOPStatuses.Commands.Create;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -74,23 +72,23 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             return null;
         }
 
-        //public async Task<IActionResult> LoadAll(int sopId)
-        //{
-        //    var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
+        public async Task<IActionResult> LoadAll(int sopId)
+        {
+            var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
 
-        //    if (response.Succeeded)
-        //    {
-        //        var viewModel = _mapper.Map<List<SOPStatusViewModel>>(response.Data);
-        //        var viewModelbyWSCPNo = viewModel.Where(a => a.SOPId == sopId).ToList();
+            if (response.Succeeded)
+            {
+                var viewModel = _mapper.Map<List<SOPStatusViewModel>>(response.Data);
+                var viewModelbyWSCPNo = viewModel.Where(a => a.SOPId == sopId).ToList();
 
-        //        return PartialView("_ViewAll", viewModelbyWSCPNo);
-        //    }
-        //    return null;
-        //}
+                return PartialView("_ViewAll", viewModelbyWSCPNo);
+            }
+            return null;
+        }
 
         public async Task<JsonResult> OnGetCreateOrEdit(int id = 0, int procedureId = 0)
         {
-            var procedureStatusResponse = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
+            var procedureStatusResponse = await _mediator.Send(new GetAllSOPStatusCachedQuery());
 
             if (id == 0)
             {
@@ -105,17 +103,17 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
         }
 
-        public async Task<JsonResult> OnGetSubmit(int id = 0, int procedureId = 0, int status = 0)
+        public async Task<JsonResult> OnGetSubmit(int id = 0, int sopId = 0, int status = 0)
         {
-            var procedureStatusResponse = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
+            var sopStatusResponse = await _mediator.Send(new GetAllSOPStatusCachedQuery());
 
             if (id == 0)
             {
-                var procedurestatusViewModel = new ProcedureStatusViewModel();
-                procedurestatusViewModel.DocumentStatusId = status;
-                procedurestatusViewModel.ProcedureId = procedureId;
+                var sopstatusViewModel = new SOPStatusViewModel();
+                sopstatusViewModel.DocumentStatusId = status;
+                sopstatusViewModel.SOPId = sopId;
 
-                return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_Submit", procedurestatusViewModel) });
+                return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_Submit", sopstatusViewModel) });
             }
             else
             {
@@ -123,51 +121,32 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
         }
 
-        //public async Task<JsonResult> OnGetSubmitSOP(int id = 0, int sopId = 0, int status = 0)
-        //{
-        //    var sopStatusResponse = await _mediator.Send(new GetAllSOPStatusCachedQuery());
-
-        //    if (id == 0)
-        //    {
-        //        var sopstatusViewModel = new SOPStatusViewModel();
-        //        sopstatusViewModel.DocumentStatusId = status;
-        //        sopstatusViewModel.ProcedureId = sopId;
-
-        //        return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_Submit", sopstatusViewModel) });
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
-
         [HttpPost]
-        public async Task<JsonResult> OnPostSubmit(int id, ProcedureStatusViewModel procedureStatus)
+        public async Task<JsonResult> OnPostSubmit(int id, SOPStatusViewModel sopStatus)
         {
             if (ModelState.IsValid)
             {
-                var responseGetProcedureById = await _mediator.Send(new GetProcedureByIdQuery() { Id = procedureStatus.ProcedureId });
-                if (responseGetProcedureById.Succeeded)
+                var responseGetSOPById = await _mediator.Send(new GetSOPByIdQuery() { Id = sopStatus.SOPId });
+                if (responseGetSOPById.Succeeded)
                 {
-                    c1 = responseGetProcedureById.Data.Concurred1;
-                    c2 = responseGetProcedureById.Data.Concurred2;
-                    app = responseGetProcedureById.Data.ApprovedBy;
-                    //emailTo = _userManager.Users.Where(a => a.Id == lTo).Select(a => a.Email).SingleOrDefault();
+                    c1 = responseGetSOPById.Data.Concurred1;
+                    c2 = responseGetSOPById.Data.Concurred2;
+                    app = responseGetSOPById.Data.ApprovedBy;
                 }
 
-                var createProcedureStatusCommand = _mapper.Map<CreateProcedureStatusCommand>(procedureStatus);
-                var result = await _mediator.Send(createProcedureStatusCommand);
+                var createSOPStatusCommand = _mapper.Map<CreateSOPStatusCommand>(sopStatus);
+                var result = await _mediator.Send(createSOPStatusCommand);
 
-                if (procedureStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
+                if (sopStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
                 {
                     MailRequest mail = new MailRequest()
                     {
                         //To = userModel.Email,
                         To = "lgcompadmin@lion.com.my",
-                        Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
+                        Subject = "SOP " + responseGetSOPById.Data.WSCPNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/sop/preview/" + sopStatus.SOPId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -179,7 +158,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     }
                 }
-                else if (procedureStatus.DocumentStatusId == 6) // FORMAT CHECKED: check C1, C2 and APP is available
+                else if (sopStatus.DocumentStatusId == 6) // FORMAT CHECKED: check C1, C2 and APP is available
                 {
                     if (c1 != null)
                     {
@@ -199,10 +178,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
+                        Subject = "SOP " + responseGetSOPById.Data.WSCPNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + sopStatus.SOPId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -215,7 +194,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     }
                 }
 
-                else if (procedureStatus.DocumentStatusId == 2) // CONCURRED 1: check C2 and APP is available
+                else if (sopStatus.DocumentStatusId == 2) // CONCURRED 1: check C2 and APP is available
                 {
                     if (c2 != null)
                     {
@@ -231,10 +210,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
+                        Subject = "SOP " + responseGetSOPById.Data.WSCPNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/sop/preview/" + sopStatus.SOPId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -246,7 +225,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     }
                 }
-                else if (procedureStatus.DocumentStatusId == 3) // CONCURRED 2: check C2 and APP is available
+                else if (sopStatus.DocumentStatusId == 3) // CONCURRED 2: check C2 and APP is available
                 {
 
                     emailTo = _userManager.Users.Where(a => a.Id == app).Select(a => a.Email).SingleOrDefault();
@@ -260,7 +239,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Subject = "Thank you for registering",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/sop/preview/" + sopStatus.SOPId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -276,7 +255,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 if (result.Succeeded)
                 {
                     id = result.Data;
-                    _notify.Success($"Procedure with ID {result.Data} Submitted. ");
+                    _notify.Success($"SOP with ID {result.Data} Submitted. ");
                 }
                 else _notify.Error(result.Message);
                 //}
@@ -286,10 +265,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 //}
 
-                var response = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
+                var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
                 if (response.Succeeded)
                 {
-                    var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
+                    var viewModel = _mapper.Map<List<SOPStatusViewModel>>(response.Data);
                     var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
                     return new JsonResult(new { isValid = true, html = html });
                 }
@@ -301,11 +280,13 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
             else
             {
-                var html = await _viewRenderer.RenderViewToStringAsync("_Submit", procedureStatus);
+                var html = await _viewRenderer.RenderViewToStringAsync("_Submit", sopStatus);
                 return new JsonResult(new { isValid = false, html = html });
             }
         }
 
+
+        /*
         [HttpPost]
         public async Task<JsonResult> OnPostCreateOrEdit(int id, ProcedureStatusViewModel procedureStatus)
         {
@@ -313,7 +294,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             {
                 if (id == 0)
                 {
-                    var createProcedureStatusCommand = _mapper.Map<CreateProcedureStatusCommand>(procedureStatus);
+                    var createProcedureStatusCommand = _mapper.Map<CreateSOPStatusCommand>(procedureStatus);
                     var result = await _mediator.Send(createProcedureStatusCommand);
                     if (result.Succeeded)
                     {
@@ -329,7 +310,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     //var result = await _mediator.Send(updateBrandCommand);
                     //if (result.Succeeded) _notify.Information($"Brand with ID {result.Data} Updated.");
                 }
-                var response = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
+                var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
                 if (response.Succeeded)
                 {
                     var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
@@ -348,5 +329,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return new JsonResult(new { isValid = false, html = html });
             }
         }
+        */
     }
 }

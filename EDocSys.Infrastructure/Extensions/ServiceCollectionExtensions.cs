@@ -43,6 +43,9 @@ namespace EDocSys.Infrastructure.Extensions
             services.AddTransient<ISOPRepository, SOPRepository>();
             services.AddTransient<ISOPCacheRepository, SOPCacheRepository>();
 
+            services.AddTransient<ISOPStatusRepository, SOPStatusRepository>();
+            services.AddTransient<ISOPStatusCacheRepository, SOPStatusCacheRepository>();
+
             services.AddTransient<IWIRepository, WIRepository>();
             services.AddTransient<IWICacheRepository, WICacheRepository>();
 

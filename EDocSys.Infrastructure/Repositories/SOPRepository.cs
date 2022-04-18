@@ -36,12 +36,16 @@ namespace EDocSys.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<SOP> GetByWSCPNoAsync(string wscpno)
+        {
+            return await _repository.Entities.Where(p => p.WSCPNo == wscpno)
+                .FirstOrDefaultAsync();
+        }
+
+
         public async Task<List<SOP>> GetListAsync()
         {
-            return await _repository.Entities
-                .Include(a => a.Department)
-                .Include(a => a.Company)
-                .ToListAsync();
+            return await _repository.Entities.ToListAsync();
         }
 
         public async Task<int> InsertAsync(SOP sop)

@@ -1,5 +1,5 @@
 ﻿@using EDocSys.Web.Areas.Documentation.Models
-@model IEnumerable<ProcedureStatusViewModel>
+@model IEnumerable<SOPStatusViewModel>
 <table id="sopTable" class="table table-striped" width="100%" cellspacing="0">
     <thead>
         <tr>
@@ -34,7 +34,7 @@
                             @*<h5>Link to Edit</h5>*@
                             @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.Edit)).Result.Succeeded)
                             {
-                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.ProcedureId" ,"Edit Procedure")" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Procedure</a>
+                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.SOPId" ,"Edit Procedure")" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Procedure</a>
 
                             }
                         }

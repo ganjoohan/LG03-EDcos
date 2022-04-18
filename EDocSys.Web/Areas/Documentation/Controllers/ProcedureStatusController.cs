@@ -2,10 +2,7 @@
 using EDocSys.Application.Features.Departments.Queries.GetAllCached;
 using EDocSys.Application.Features.Companies.Queries.GetAllCached;
 using EDocSys.Application.Features.ProcedureStatuses.Queries.GetAllCached;
-// using EDocSys.Application.Features.ProcedureStatuses.Commands.Create;
 using EDocSys.Application.Features.Procedures.Queries.GetAllCached;
-//using EDocSys.Application.Features.Procedures.Commands.Delete;
-//using EDocSys.Application.Features.Procedures.Commands.Update;
 using EDocSys.Web.Abstractions;
 using EDocSys.Web.Areas.Documentation.Models;
 using EDocSys.Web.Extensions;

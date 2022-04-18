@@ -21,49 +21,18 @@
                 <td>@procedure.CompanyName</td>
                 <td><b>@procedure.ProcessName</b></td>
                 <td align="center">
-                    @*@if (User.IsInRole("SuperAdmin") || User.IsInRole("A") || User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("M") || User.IsInRole("B1"))*@
                     @if (!User.IsInRole("None"))
                     {
                         if (@procedure.ProcedureStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
                         {
                             <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
                             <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                            
                         }
                         else if (procedure.ProcedureStatusView == "Approved")
                         {
                             <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
                         }
                     }
-
-                    @* Only Department Admin and Super Admin can view Progess List*@
-                    @*@if (User.IsInRole("SuperAdmin") || User.IsInRole("D") || User.IsInRole("B1"))
-                    {
-                        @if (procedure.ProcedureStatusView != "New" && User.IsInRole("D"))
-                        {
-                            <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-warning btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (procedure.ProcedureStatusView == null || procedure.ProcedureStatusView == "")
-                        {
-
-                        }
-                        else if (procedure.ProcedureStatusView == "Approved")
-                        {
-                            <span class="badge badge-success">@procedure.ProcedureStatusView</span>
-                        }
-                    }*@
-@*                    else if (User.IsInRole("Basic"))
-                    {
-                        @if (procedure.ProcedureStatusView == "In Progress")
-                        {
-                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
-                        }
-                        else if (procedure.ProcedureStatusView == "Approved")
-                        {
-                            <span class="badge badge-success">@procedure.ProcedureStatusView</span>
-                        }
-                    }*@
-
                 </td>
                 @if(User.IsInRole("SuperAdmin") || User.IsInRole("D")) // SOP Department Admin (Full Access by Department) 
                 {
