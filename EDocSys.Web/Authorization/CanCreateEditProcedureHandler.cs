@@ -24,6 +24,8 @@ namespace EDocSys.Web.Authorization
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CanCreateEditProcedureRequirement requirement)
         {
+
+            
             //MUST BE AUTHENTICATED
             //=====================
             if (context.User == null || !context.User.Identity.IsAuthenticated)

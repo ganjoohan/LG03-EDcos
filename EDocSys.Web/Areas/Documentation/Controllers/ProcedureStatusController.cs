@@ -118,30 +118,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
         }
 
-        //public async Task<JsonResult> OnGetSubmitSOP(int id = 0, int sopId = 0, int status = 0)
-        //{
-        //    var sopStatusResponse = await _mediator.Send(new GetAllSOPStatusCachedQuery());
-
-        //    if (id == 0)
-        //    {
-        //        var sopstatusViewModel = new SOPStatusViewModel();
-        //        sopstatusViewModel.DocumentStatusId = status;
-        //        sopstatusViewModel.ProcedureId = sopId;
-
-        //        return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_Submit", sopstatusViewModel) });
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
-
         [HttpPost]
         public async Task<JsonResult> OnPostSubmit(int id, ProcedureStatusViewModel procedureStatus)
         {
             if (ModelState.IsValid)
             {
                 var responseGetProcedureById = await _mediator.Send(new GetProcedureByIdQuery() { Id = procedureStatus.ProcedureId });
+                var procedureIdx = responseGetProcedureById.Data.CompanyId;
+
+
+
                 if (responseGetProcedureById.Succeeded)
                 {
                     c1 = responseGetProcedureById.Data.Concurred1;
@@ -155,6 +141,9 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     if (procedureStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
                     {
+                        // locate company admin email and send to [TO] sender
+                        var procedureId = responseGetProcedureById.Data.CompanyId;
+
                         MailRequest mail = new MailRequest()
                         {
                             //To = userModel.Email,

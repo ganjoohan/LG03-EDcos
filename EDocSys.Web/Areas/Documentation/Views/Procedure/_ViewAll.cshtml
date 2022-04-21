@@ -32,6 +32,10 @@
                         {
                             <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
                         }
+                        else if (@procedure.ProcedureStatusView == "New")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
                     }
                 </td>
                 @if(User.IsInRole("SuperAdmin") || User.IsInRole("D")) // SOP Department Admin (Full Access by Department) 

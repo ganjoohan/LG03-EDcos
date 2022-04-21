@@ -333,6 +333,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             {
                 var viewModel = _mapper.Map<List<ProcedureViewModel>>(response.Data);
 
+
                 // Access Categiry = D  
                 // SOP Department Admin (Full Access by Department)
                 if (rolesList.Contains("D"))

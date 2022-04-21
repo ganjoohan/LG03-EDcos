@@ -37,5 +37,7 @@ namespace EDocSys.Web.Areas.Documentation.Models
 
         public string UserApproveBy { get; set; }
         public SelectList UserApproveByList { get; set; }
+
+        public string RoleName { get; set; }
     }
 }

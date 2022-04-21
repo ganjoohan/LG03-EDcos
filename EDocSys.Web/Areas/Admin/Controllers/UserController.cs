@@ -68,7 +68,7 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             var responseCompany = await _mediator.Send(new GetAllCompaniesCachedQuery());
             var responseDepartment = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
-            var asdfa = _identityContext.UserClaims.ToList();
+            // var asdfa = _identityContext.UserClaims.ToList();
 
             var allUsersExceptCurrentUserList = (from a1 in allUsersExceptCurrentUser
                                                  join a2 in responseCompany.Data on a1.UserCompanyId equals a2.Id

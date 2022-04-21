@@ -13,6 +13,7 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ProcedureId { get; set; }
+        public int ProcedureCompanyId { get; set; }
 
         //public Procedure Procedure { get; set; }
         public int DocumentStatusId { get; set; }
