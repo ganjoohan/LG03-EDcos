@@ -51,11 +51,24 @@ namespace EDocSys.Web
                     policyBuilder.AddRequirements(
                         new CanCreateEditProcedureRequirement());
                 });
+                options.AddPolicy("CanViewWI", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewWIRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditWI", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditWIRequirement());
+                });
             });
 
             services.AddHttpContextAccessor();
             services.AddScoped<IAuthorizationHandler, CanViewProcedureHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditProcedureHandler>();
+            services.AddScoped<IAuthorizationHandler, CanViewWIHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditWIHandler>();
 
             services.AddNotyf(o =>
             {

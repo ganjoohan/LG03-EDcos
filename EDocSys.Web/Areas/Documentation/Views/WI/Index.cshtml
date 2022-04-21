@@ -8,7 +8,7 @@
     <div class="col-sm-12" style="padding:20px">
         @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Create)).Result.Succeeded)
         {*@
-            <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit" class="btn bg-success">
+            <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"  asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
                 <i class="fa fa-plus-square"></i> Create
             </a>
         @*}*@
