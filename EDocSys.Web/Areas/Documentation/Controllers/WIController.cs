@@ -180,7 +180,70 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         }
 
+        //public async Task<IActionResult> LoadAll()
+        //{
+        //    var response = await _mediator.Send(new GetAllWIsCachedQuery());
+
+        //    if (response.Succeeded)
+        //    {
+        //        var viewModel = _mapper.Map<List<WIViewModel>>(response.Data);
+
+        //        return PartialView("_ViewAll", viewModel);
+        //    }
+        //    return null;
+        //}
+
         public async Task<IActionResult> LoadAll()
+        {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var user = await _userManager.FindByIdAsync(currentUser.Id);
+            var roles = await _userManager.GetRolesAsync(user);
+            var rolesList = roles.ToList();
+
+            var response = await _mediator.Send(new GetAllWIsCachedQuery());
+
+            if (response.Succeeded)
+            {
+                var viewModel = _mapper.Map<List<WIViewModel>>(response.Data);
+
+                // Access Categiry = D  
+                // SOP Department Admin (Full Access by Department)
+                if (rolesList.Contains("D"))
+                {
+                    viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.DepartmentId == user.UserDepartmentId).ToList();
+                }
+
+                // Access Categiry = E  
+                // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
+
+
+                foreach (WIViewModel item in viewModel)
+                {
+                    var psStatat = _context.WIStatus.Where(a => a.WIId == item.Id).ToList();
+
+                    if (psStatat.Count != 0)
+                    {
+                        var StatusId = _context.WIStatus.Where(a => a.WIId == item.Id).OrderBy(a => a.CreatedOn)
+                            .Include(a => a.DocumentStatus)
+                            .Last();
+                        item.WIStatusView = StatusId.DocumentStatus.Name;
+                    }
+                    else
+                    {
+                        item.WIStatusView = "New";
+                    }
+                }
+                if (rolesList.Contains("E") || rolesList.Contains("B1"))
+                {
+                    viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.WIStatusView == "Approved").ToList();
+                }
+
+                return PartialView("_ViewAll", viewModel);
+            }
+            return null;
+        }
+
+        public async Task<IActionResult> LoadBySOP(string sopno)
         {
             var response = await _mediator.Send(new GetAllWIsCachedQuery());
 
@@ -188,7 +251,9 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             {
                 var viewModel = _mapper.Map<List<WIViewModel>>(response.Data);
 
-                return PartialView("_ViewAll", viewModel);
+                var viewModelbySOPNo = viewModel.Where(a => a.SOPNo == sopno).ToList();
+
+                return PartialView("_ViewAll", viewModelbySOPNo);
             }
             return null;
         }

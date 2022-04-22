@@ -136,6 +136,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             return null;
         }
 
+        [Authorize(Policy = "CanCreateEditSOP")]
         public async Task<IActionResult> CreateOrEdit(int id = 0, string wscpno = "", int departmentId = 0, int procedureId = 0)
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
@@ -282,19 +283,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
 
         }
-
-        //public async Task<IActionResult> LoadAll()
-        //{
-        //    var response = await _mediator.Send(new GetAllSOPsCachedQuery());
-
-        //    if (response.Succeeded)
-        //    {
-        //        var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
-
-        //        return PartialView("_ViewAll", viewModel);
-        //    }
-        //    return null;
-        //}
 
         public async Task<IActionResult> LoadAll()
         {

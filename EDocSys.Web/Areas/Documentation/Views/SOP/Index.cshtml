@@ -7,25 +7,6 @@
 
 <div class="card">
     <div class="col-sm-12" style="padding:20px">
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Create)).Result.Succeeded)
-        {
-            <a asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit" class="btn bg-success">
-                <i class="fa fa-plus-square"></i> Create
-            </a>
-        }*@
-
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.SOPs.View).Result.Succeeded)
-        {
-            <form id="create-form" method="post" asp-area="Documentation" asp-controller="SOP" asp-action="View1" asp-route-id="1d">
-
-
-                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
-                    <button type="submit" class="btn btn-success">Print</button>
-
-                </div>
-            </form>
-        }*@
-
         <a id="reload" class="btn btn-primary text-white">
             <i class="fa fas fa-bolt"></i>
             Reload

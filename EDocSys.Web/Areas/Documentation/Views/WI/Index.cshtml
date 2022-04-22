@@ -6,28 +6,14 @@
 @model WIViewModel
 <div class="card">
     <div class="col-sm-12" style="padding:20px">
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Create)).Result.Succeeded)
-        {*@
-            <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"  asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
-                <i class="fa fa-plus-square"></i> Create
-            </a>
-        @*}*@
-
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.WIs.View).Result.Succeeded)
-        {
-            <form id="create-form" method="post" asp-area="Documentation" asp-controller="WI" asp-action="View1" asp-route-id="1d">
-
-
-                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
-                    <button type="submit" class="btn btn-success">Print</button>
-
-                </div>
-            </form>
-        }*@
-
         <a id="reload" class="btn btn-primary text-white">
             <i class="fa fas fa-bolt"></i>
             Reload
+        </a>
+
+        <a id="loadallWI" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Load All WI
         </a>
     </div>
     <div id="viewAll" class="card-body table-responsive">
@@ -35,7 +21,7 @@
 </div>
 @section Scripts
 {
-    <script src="~/js/site.js"></script>
+        <script src="~/js/site.js"></script>
     <script>
         $(document).ready(function () {
             $("#wiTable").DataTable();
@@ -43,9 +29,22 @@
             $('#reload').on('click', function () {
                 loadData();
             });
+            $('#loadallWI').on('click', function () {
+                $('#viewAll').load('/documentation/wi/LoadAll');
+            });
+
+
+
+            
         });
         function loadData() {
-            $('#viewAll').load('/documentation/wi/LoadAll');
+            if ('@ViewBag.SOPNo' == '') {
+                $('#viewAll').load('/documentation/wi/LoadAll');
+            }
+            else {
+                $('#viewAll').load('/documentation/wi/LoadBySOP/?sopno='+ '@ViewBag.SOPNo');
+            }
         }
+
     </script>
 }
