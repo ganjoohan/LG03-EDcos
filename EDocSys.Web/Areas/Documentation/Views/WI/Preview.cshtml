@@ -106,21 +106,23 @@
                                 </tr>
                                 <tr>
                                     <td><b>Name</b></td>
-                                    <td>Jackie Chan</td>
-                                    <td>Jet Li</td>
-                                    <td>Sylvester Stallone</td>
-                                    <td>Tom Cruise</td>
+                                    <td>@Model.PreparedBy</td>
+                                    <td>@Model.Concurred1Name</td>
+                                    <td>@Model.Concurred2Name</td>
+                                    <td>@Model.ApprovedBy</td>
                                 </tr>
                                 <tr>
                                     <td><b>Position</b></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>@Model.PreparedByPosition</td>
+                                    <td>@Model.PositionC1</td>
+                                    <td>@Model.PositionC2</td>
+                                    <td>@Model.PositionApp</td>
                                 </tr>
                                 <tr>
                                     <td><b>Date</b></td>
-                                    <td></td>
+                                    <td>
+                                     @Html.DisplayFor(model => model.PreparedByDate, "{0:d MMM yyyy}")
+                                    </td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -151,24 +153,95 @@
                     </div>
                 </div>
                 <!-- this row will not appear when printing -->
-                <div class="row no-print">
-                    <div class="col-12">
+                <!--<div class="row no-print">-->
+                <!--    <div class="col-12">-->
                         @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Print)).Result.Succeeded)
                         {*@
-                            <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>
+                  <!--          <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>-->
                         @*}*@
 
                         @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded)
                         {*@
-                            <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">
-                                <i class="fas fa-pencil-alt"></i> Edit
-                            </a>
+                  <!--          <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">-->
+                  <!--              <i class="fas fa-pencil-alt"></i> Edit-->
+                  <!--          </a>-->
                         @*}*@
-                    </div>
-                </div>
+                   <!-- </div>-->
+                <!--</div>-->
             </div>
         </div>
     </div>
+    <!-- this row will not appear when printing -->
+                <div class="row no-print">
+                <div class="col-12">
+                    @if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
+                    {
+                        <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>
+                    }
+
+                    @if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
+                    {
+                        if (Model.WIStatusView == "New" || Model.WIStatusView == "Rejected")
+                            {
+                                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit WI")" class="btn bg-success">
+                                    <i class="fas fa-pencil-alt"></i>
+                                    Edit WI
+                                </a>
+
+                                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?sopId=@Model.Id'
+                                    + '&&status=1', 'Submit for Formatting Check')"
+                                   class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
+                        }
+                    }
+
+                    @* Check if status is "Submitted" and Role is E => to Approved Formatting Check*@
+                    @if (Model.WIStatusView == "Submitted" && User.IsInRole("E"))
+                    {
+                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
+                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
+                    }
+
+                    @if (Model.WIStatusView == "Format Checked" && User.IsInRole("B1"))
+                    {
+                        if(Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
+                        {
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=2','Concurre 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        }
+                        else if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true)
+                        {
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        }
+                        else if (Model.Concurred2 != null && ViewBag.IsApp == true)
+                        {
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        }
+                        
+                    }
+
+                    @if (Model.WIStatusView == "Concurred1" && User.IsInRole("B1"))
+                    {
+                        if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) // 
+                        {
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        }
+                        else if (Model.Concurred2 == null && Model.Concurred1 != null && ViewBag.IsApp == true) { // if Concurred 1 To Approver
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        }
+                    }
+                    
+                    @if (Model.WIStatusView == "Concurred2" && User.IsInRole("B1") && ViewBag.IsApp == true)
+                    {
+                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                    }
+
+                </div>
+            </div>
 
     @section Scripts {
 
