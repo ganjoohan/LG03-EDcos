@@ -31,6 +31,7 @@ using EDocSys.Application.Features.Procedures.Commands.Update;
 using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 
+
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
     [Area("Documentation")]
@@ -39,9 +40,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly ApplicationDbContext _context;        
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;       
-
-
+        private readonly RoleManager<IdentityRole> _roleManager;
+        
         public WIController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, 
@@ -396,6 +396,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
         }
 
+ 
+
         [HttpPost]
         public async Task<IActionResult> OnPostCreateOrEdit(int id, WIViewModel wi)
         {
@@ -470,7 +472,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return View(nameof(Index));
             }
         }
-
         [HttpPost]
         public async Task<JsonResult> OnPostDelete(int id)
         {
