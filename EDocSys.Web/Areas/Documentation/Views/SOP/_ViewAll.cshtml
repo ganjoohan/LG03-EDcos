@@ -29,9 +29,13 @@
                         if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
                         {
                             <span class="badge badge-warning">@sop.SOPStatusView</span>
-                            <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                            <a href="/documentation/ProcedureStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
                         }
                         else if (sop.SOPStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@sop.SOPStatusView</span>
+                        }
+                        else if (@sop.SOPStatusView == "New")
                         {
                             <span class="badge badge-warning">@sop.SOPStatusView</span>
                         }
