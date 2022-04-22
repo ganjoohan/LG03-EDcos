@@ -60,7 +60,7 @@
                                 {
                                     <a href="/documentation/wi/Preview?id=@wi.Id" ,"Edit WI")" class="dropdown-item">
                                         <i class="fas fa-eye"></i>
-                                        Preview SOP
+                                        Preview WI
                                     </a>
 
                                     <form id="form_delete_@wi.Id" asp-area="Documentation" asp-controller="WI" method="post" asp-action="OnPostDelete" asp-route-id="@wi.Id" onsubmit="return jQueryModalDelete(this)">
@@ -75,7 +75,7 @@
                                     </a>
                                 }
 
-                                <div class="dropdown-divider"></div>
+                                @*<div class="dropdown-divider"></div>
                                 
                                     <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
                                        asp-route-wscpno="@wi.WSCPNo"
@@ -85,7 +85,7 @@
                                     </a>
 
                                 <a href="/documentation/wi/Index?wscpno=@wi.WINo" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
-
+                                *@
                             </div>
                             </div>
                         </td>
