@@ -29,7 +29,7 @@
                         if (@wi.WIStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
                         {
                             <span class="badge badge-warning">@wi.WIStatusView</span>
-                            <a href="/documentation/ProcedureStatus/Index?id=@wi.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                            <a href="/documentation/WIStatus/Index?id=@wi.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
                         }
                         else if (wi.WIStatusView == "Approved")
                         {
