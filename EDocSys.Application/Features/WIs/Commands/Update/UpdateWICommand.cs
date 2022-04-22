@@ -24,6 +24,13 @@ namespace EDocSys.Application.Features.WIs.Commands.Update
         public int? RevisionNo { get; set; }
         public DateTime? EstalishedDate { get; set; }
         public int CompanyId { get; set; }
+        
+        public string Concurred1 { get; set; }
+        public string Concurred2 { get; set; }
+        public string ApprovedBy { get; set; }
+        public string PreparedBy { get; set; }
+        public string PreparedByPosition { get; set; }
+        public DateTime? PreparedByDate { get; set; }
 
         public class UpdateWICommandHandler : IRequestHandler<UpdateWICommand, Result<int>>
         {
@@ -64,7 +71,17 @@ namespace EDocSys.Application.Features.WIs.Commands.Update
 
                     wi.DepartmentId = (command.DepartmentId == 0) ? wi.DepartmentId : command.DepartmentId;
                     wi.CompanyId = (command.CompanyId == 0) ? wi.CompanyId : command.CompanyId;
+
                     
+
+                    wi.Concurred1 = command.Concurred1 ?? wi.Concurred1;
+                    wi.Concurred2 = command.Concurred2 ?? wi.Concurred2;
+                    wi.ApprovedBy = command.ApprovedBy ?? wi.ApprovedBy;
+
+                    wi.PreparedBy = command.PreparedBy ?? wi.PreparedBy;
+                    wi.PreparedByDate = command.PreparedByDate ?? wi.PreparedByDate;
+                    wi.PreparedByPosition = command.PreparedByPosition ?? wi.PreparedByPosition;
+
                     await _wiRepository.UpdateAsync(wi);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(wi.Id);

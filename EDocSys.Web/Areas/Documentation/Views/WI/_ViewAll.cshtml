@@ -1,71 +1,123 @@
 ﻿@using EDocSys.Web.Areas.Documentation.Models
 @model IEnumerable<WIViewModel>
-<table id="wiTable" class="table table-striped" width="100%" cellspacing="0">
+<table id="wiTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
     <thead>
         <tr>
-            <th>WI No</th>
-            <th>WI Title</th>
             <th>WSCP No</th>
             <th>SOP No</th>
+            <th>SOP Title</th>
             <th>Company</th>
             <th>Process</th>
-            @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Delete)).Result.Succeeded
-              || (AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded
-              || (AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Preview)).Result.Succeeded)
-            {*@
-                <th>Actions</th>
-            @*}*@
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
 
         @foreach (var wi in Model)
         {
-        <tr>
-            <td>@wi.WINo</td>
-            <td>@wi.Title</td>
-            <td>@wi.WSCPNo</td>
-            <td>@wi.SOPNo</td>
-            <td>@wi.CompanyName</td>
-            <td>@wi.ProcessName</td>
-            @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Delete)).Result.Succeeded
-                  || (AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded
-                  || (AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Preview)).Result.Succeeded
-                  )
-            {*@
-                <td text-right">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Action
-                        </button>
-                        <div class="dropdown-menu shadow animated--grow-in">
-                            @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded)
-                            {*@
-                                <a href="/documentation/wi/CreateOrEdit?id=@wi.Id" ,"Edit WI")" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit</a>
-
-                            @*}*@
-                            @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Preview)).Result.Succeeded)
-                            {*@
-                                <a href="/documentation/wi/Preview?id=@wi.Id" ,"Edit WI")" class="dropdown-item"><i class="fas fa-eye"></i>  Preview</a>
-
-                            @*}*@
-                            @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Delete)).Result.Succeeded)
-
-                            {*@
-                                <form id="form_delete_@wi.Id" asp-area="Documentation" asp-controller="WI" method="post" asp-action="OnPostDelete" asp-route-id="@wi.Id" onsubmit="return jQueryModalDelete(this)">
-                                    <a href="javascript:$('#form_delete_@wi.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete</a>
-                                </form>
-                            @*}*@
-                        </div>
-                    </div>
+            <tr>
+                <td><b>WSCP No.:  @wi.WSCPNo</b></td>
+                <td style="text-indent: 35px; ">@wi.SOPNo</td>
+                <td>@wi.Title</td>
+                <td>@wi.CompanyName</td>
+                <td><b>@wi.ProcessName</b></td>
+                @*<td><a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a></td>*@
+                <td align="center">
+                    @if (!User.IsInRole("None"))
+                    {
+                        if (@wi.WIStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
+                        {
+                            <span class="badge badge-warning">@wi.WIStatusView</span>
+                            <a href="/documentation/WIStatus/Index?id=@wi.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                        }
+                        else if (wi.WIStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@wi.WIStatusView</span>
+                        }
+                    }
                 </td>
-            @*}*@
-        </tr>
+                
+                @if(User.IsInRole("SuperAdmin") || User.IsInRole("D")) // SOP Department Admin (Full Access by Department) 
+                {
+                    <td text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @*Can only Edit if New or Rejected status *@
+                                @if (@wi.WIStatusView == "New" || @wi.WIStatusView == "Rejected")
+                                {
+                                    <a href="/documentation/wi/CreateOrEdit?id=@wi.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit WI")" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        Edit WI
+                                    </a>
+                                }
+
+                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                @if ((@wi.WIStatusView == "New") && (User.IsInRole("D") || User.IsInRole("SuperAdmin")))
+                                {
+                                    <a href="/documentation/wi/Preview?id=@wi.Id" ,"Edit WI")" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview SOP
+                                    </a>
+
+                                    <form id="form_delete_@wi.Id" asp-area="Documentation" asp-controller="WI" method="post" asp-action="OnPostDelete" asp-route-id="@wi.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@wi.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete WI</a>
+                                    </form>
+                                }
+                                else if (@wi.WIStatusView != "New")
+                                {
+                                    <a href="/documentation/wi/Preview?id=@wi.Id" ,"Edit WI")" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview WI
+                                    </a>
+                                }
+
+                                <div class="dropdown-divider"></div>
+                                
+                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                       asp-route-wscpno="@wi.WSCPNo"
+                                       asp-route-departmentId="@wi.DepartmentId"
+                                       asp-route-procedureId="@wi.Id">
+                                        <i class="fa fa-plus-square"></i> Create WI
+                                    </a>
+
+                                <a href="/documentation/wi/Index?wscpno=@wi.WINo" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+
+                            </div>
+                            </div>
+                        </td>
+                }
+
+                @* Read Only Users  *@
+                else if (User.IsInRole("B1") || User.IsInRole("B2") || User.IsInRole("C") || User.IsInRole("E") && wi.WIStatusView == "Approved")
+                {
+                    <td align="center"><a href="/documentation/wi/Preview?id=@wi.Id" ,"Edit WI")" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview WI</a></td>
+                }
+                else
+                {
+                    <td></td>
+                }
+
+                
+            </tr>
         }
     </tbody>
 </table>
+
 <script>
     $(document).ready(function () {
-        $("#wiTable").DataTable();
+        $('#wiTable').DataTable( {
+        order: [[1, 'asc'], [0, 'asc']],
+        rowGroup: {
+            dataSrc: [ 3,4,0 ]
+        },
+        columnDefs: [ {
+            targets: [ 3,4,0 ],
+            visible: false
+        } ]
+    } );
     });
 </script>

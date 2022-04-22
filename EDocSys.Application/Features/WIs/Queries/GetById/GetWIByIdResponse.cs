@@ -21,6 +21,15 @@ namespace EDocSys.Application.Features.WIs.Queries.GetById
         public DateTime? EstalishedDate { get; set; }
         public int CompanyId { get; set; }
         public string CompanyName { get; set; }
+        public string WIStatusView { get; set; }
+
+        public string Concurred1 { get; set; }
+        public string Concurred2 { get; set; }
+        public string ApprovedBy { get; set; }
+
+        public string PreparedBy { get; set; }
+        public string PreparedByPosition { get; set; }
+        public DateTime? PreparedByDate { get; set; }
     }
 }
 

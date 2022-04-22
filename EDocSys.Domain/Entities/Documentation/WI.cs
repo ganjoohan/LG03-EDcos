@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.Abstractions.Domain;
 using EDocSys.Domain.Entities.DocumentationMaster;
 using System;
+using System.Collections.Generic;
 
 namespace EDocSys.Domain.Entities.Documentation
 {
@@ -25,5 +26,18 @@ namespace EDocSys.Domain.Entities.Documentation
 
         public int CompanyId { get; set; }
         public virtual Company Company { get; set; }
+        public bool hasSOP { get; set; }
+        public ICollection<WIStatus> WIStatus { get; set; }
+
+        public string ProcedureStatusView { get; set; }
+
+
+        public string Concurred1 { get; set; }
+        public string Concurred2 { get; set; }
+        public string ApprovedBy { get; set; }
+
+        public string PreparedBy { get; set; }
+        public string PreparedByPosition { get; set; }
+        public DateTime? PreparedByDate { get; set; }
     }
 }

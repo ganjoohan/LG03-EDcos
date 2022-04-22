@@ -28,6 +28,8 @@ using Microsoft.AspNetCore.Html;
 using EDocSys.Application.Features.Departments.Queries.GetById;
 using EDocSys.Application.Features.SOPs.Commands.Update;
 using EDocSys.Application.Features.Procedures.Commands.Update;
+using EDocSys.Infrastructure.Identity.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -35,21 +37,33 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
     public class WIController : BaseController<WIController>
     {
         private readonly IWebHostEnvironment _env;
+        private readonly ApplicationDbContext _context;        
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;       
 
-        private readonly ApplicationDbContext _context;
 
-        public WIController(ApplicationDbContext context, IWebHostEnvironment env)
+        public WIController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, 
+            IWebHostEnvironment env)
         {
             _env = env;
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string sopno)
         {
             var model = new WIViewModel();
+
+            ViewBag.SOPNo = sopno;
+
             return View(model);
         }
 
+
+        [Authorize(Policy = "CanViewWI")]
         public async Task<IActionResult> Preview(int id)
         {
             var response = await _mediator.Send(new GetWIByIdQuery() { Id = id });
@@ -60,11 +74,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
             return null;
         }
-
+        [Authorize(Policy = "CanCreateEditWI")]
         public async Task<IActionResult> CreateOrEdit(int id = 0, string wscpno = "", string sopno = "", int departmentId = 0, int procedureId = 0)
         {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var user = await _userManager.FindByIdAsync(currentUser.Id);
+            var roles = await _userManager.GetRolesAsync(user);
+            var rolesList = roles.ToList();
+
             var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var companiesResponse = await _mediator.Send(new GetAllCompaniesCachedQuery());
+
+
+            
 
             if (id == 0)
             {
@@ -91,6 +113,39 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
                     wiViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                 }
+
+                // Concurred 1
+                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                var userViewModelC1 = (from a1 in responseC1
+                                       join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                       select new UserApproverViewModel
+                                       {
+                                           UserConcurred1Id = a1.UserId,
+                                           FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                       }).OrderBy(a => a.Email).ToList();
+                wiViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
+
+                // Concurred 2
+                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                var userViewModelC2 = (from a1 in responseC1
+                                       join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                       select new UserApproverViewModel
+                                       {
+                                           UserConcurred2Id = a1.UserId,
+                                           FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                       }).OrderBy(a => a.Email).ToList();
+                wiViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
+
+                // Concurred APP
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                var userViewModelAPP = (from a1 in responseAPP
+                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                        select new UserApproverViewModel
+                                        {
+                                            UserApproveBy = a1.UserId,
+                                            FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                        }).OrderBy(a => a.Email).ToList();
+                wiViewModel.UserListAPP = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
 
                 ViewBag.CreateEditFlag = "Create";
                 string serverMapPath = Path.Combine(_env.WebRootPath, "html_template", "WI_Template.html");

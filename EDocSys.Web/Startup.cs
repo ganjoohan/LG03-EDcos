@@ -51,6 +51,17 @@ namespace EDocSys.Web
                     policyBuilder.AddRequirements(
                         new CanCreateEditProcedureRequirement());
                 });
+                options.AddPolicy("CanViewWI", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewWIRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditWI", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditWIRequirement());
+                });
             });
 
             services.AddAuthorization(options =>
@@ -71,8 +82,13 @@ namespace EDocSys.Web
             services.AddHttpContextAccessor();
             services.AddScoped<IAuthorizationHandler, CanViewProcedureHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditProcedureHandler>();
+<<<<<<< HEAD
             services.AddScoped<IAuthorizationHandler, CanViewSOPHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditSOPHandler>();
+=======
+            services.AddScoped<IAuthorizationHandler, CanViewWIHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditWIHandler>();
+>>>>>>> 91afc1abc862f81c0e4e04a32874d162ad18832b
 
             services.AddNotyf(o =>
             {
