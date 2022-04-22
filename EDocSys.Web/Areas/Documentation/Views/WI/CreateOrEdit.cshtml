@@ -23,6 +23,17 @@
                         <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
                 </div>*@
+
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label">Company</label>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <select name="CompanyId" class="form-control select2bs4" id="CompanyId" asp-for="CompanyId" asp-items="@Model.Companies">
+                                </select>
+                            </div>
+                            <span asp-validation-for="CompanyId" class="text-danger"></span>
+                        </div>
+                    </div>
                     <div>
                         <div class="form-group row">
                             <label class="col-md-4 col-form-label">Department Id</label>
@@ -150,16 +161,8 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
-                        <label class="col-md-4 col-form-label">Company</label>
-                        <div class="col-md-8">
-                            <div class="input-group">
-                                <select name="CompanyId" class="form-control select2bs4" id="CompanyId" asp-for="CompanyId" asp-items="@Model.Companies">
-                                </select>
-                            </div>
-                            <span asp-validation-for="CompanyId" class="text-danger"></span>
-                        </div>
-                    </div>
+
+
                 </div>
             </div>
 
@@ -174,6 +177,88 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td><b>Prepared By</b></td>
+                                <td><b>1st Concurred By</b></td>
+                                <td><b>2nd Concurred By</b></td>
+                                <td><b>Approved By</b></td>
+                            </tr>
+                            <tr>
+                                <td><b>Name</b></td>
+                                <td>
+                                    
+                                                <input type="text" asp-for="PreparedBy" name="PreparedBy" class="form-control">
+                                                <span asp-validation-for="PreparedBy" class="text-danger"></span>
+                                    
+                                </td>
+                                <td>
+                                    <div>
+                                        
+                                            <select name="Concurred1" class="form-control select2bs4" id="Concurred1" asp-for="Concurred1" asp-items="@Model.UserListC1">
+                                            <option value="">Select </option>
+                                            </select>
+                                        
+                                        <span asp-validation-for="Concurred1" class="text-danger"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        
+                                            <select name="Concurred2" class="form-control select2bs4" id="Concurred2" asp-for="Concurred2" asp-items="@Model.UserListC2">
+                                            <option value="">Select </option>
+                                            </select>
+                                        
+                                        <span asp-validation-for="Concurred2" class="text-danger"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        
+                                            <select name="ApprovedBy" class="form-control select2bs4" id="ApprovedBy" asp-for="ApprovedBy" asp-items="@Model.UserListAPP" required >
+                                            <option value="">Select </option>
+                                            </select>
+                                        
+                                        <span asp-validation-for="ApprovedBy" class="text-danger"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Position</b></td>
+                                <td>
+                                    
+                                    <input type="text" asp-for="PreparedByPosition" name="PreparedByPosition" class="form-control">
+                                    <span asp-validation-for="PreparedByPosition" class="text-danger"></span>
+                                    
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><b>Date</b></td>
+                                <td>
+                                    <div class="col-md-12 input-group date" id="PreparedByDate" name="PreparedByDate" asp-for="PreparedByDate" data-target-input="nearest">
+                                        <input type="text" asp-for="PreparedByDate" name="PreparedByDate" class="form-control datetimepicker-input" , data_inputmask_inputformat="dd/mm/yyyy" placeholder="dd/mm/yyyy">
+                                        <div class="input-group-append" data-target="#PreparedByDate" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                        <span asp-validation-for="PreparedByDate" class="text-danger"></span>
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <input type="hidden" asp-for="ProcedureId" name="ProcedureId">
 
             <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
@@ -185,6 +270,7 @@
         </form>
     </div>
 </div>
+
 @section Scripts {
 
 
@@ -266,7 +352,7 @@
             // integration to choose the right communication channel. This example uses
             // a POST request with JSON as a data structure but your configuration
             // could be different.
-            xhr.open('POST', '@Url.Action("UploadImage","WI")', true);
+            xhr.open('POST', '@Url.Action("UploadImage","SOP")', true);
             xhr.responseType = 'json';
         }
 
@@ -361,6 +447,10 @@
         })
         .then(editor => {
             window.editor = editor;
+
+            if ('@ViewBag.CreateEditFlag' == "Create") {
+                editor.setData('@ViewData["DetailTemplate"]');
+            }
         })
 
 
@@ -401,6 +491,9 @@
             });
 
             $('#EstalishedDate').datetimepicker({
+                format: 'L'
+            });
+                        $('#PreparedByDate').datetimepicker({
                 format: 'L'
             });
 
@@ -517,10 +610,5 @@
 
         // DropzoneJS Demo Code End
     </script>
-
-
-
-
-
 
 }

@@ -108,9 +108,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 }
 
+                //if (companiesResponse.Succeeded)
+                //{
+                //     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
+                //     wiViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
+                // }
                 if (companiesResponse.Succeeded)
                 {
                     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
+                    if (rolesList.Contains("D"))
+                    {
+                        companyViewModel = companyViewModel.Where(a => a.Id == user.UserCompanyId).ToList();
+                    }
+
                     wiViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                 }
 
@@ -173,6 +183,39 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
                         wiViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                     }
+                    // Concurred 1
+                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                    var userViewModelC1 = (from a1 in responseC1
+                                           join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                           select new UserApproverViewModel
+                                           {
+                                               UserConcurred1Id = a1.UserId,
+                                               FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                           }).OrderBy(a => a.Email).ToList();
+                    wiViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
+
+                    // Concurred 2
+                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                    var userViewModelC2 = (from a1 in responseC2
+                                           join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                           select new UserApproverViewModel
+                                           {
+                                               UserConcurred2Id = a1.UserId,
+                                               FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                           }).OrderBy(a => a.Email).ToList();
+                    wiViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
+
+                    // Concurred APP
+                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                    var userViewModelAPP = (from a1 in responseAPP
+                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                            select new UserApproverViewModel
+                                            {
+                                                UserApproveBy = a1.UserId,
+                                                FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                            }).OrderBy(a => a.Email).ToList();
+                    wiViewModel.UserListAPP = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
+
                     return View(wiViewModel);
                 }
                 return null;
@@ -206,14 +249,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             {
                 var viewModel = _mapper.Map<List<WIViewModel>>(response.Data);
 
-                // Access Categiry = D  
+                // Access Category = D  
                 // SOP Department Admin (Full Access by Department)
                 if (rolesList.Contains("D"))
                 {
                     viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.DepartmentId == user.UserDepartmentId).ToList();
                 }
 
-                // Access Categiry = E  
+                // Access Category = E  
                 // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
 
 
