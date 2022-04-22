@@ -121,6 +121,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         [HttpPost]
         public async Task<JsonResult> OnPostSubmit(int id, ProcedureStatusViewModel procedureStatus)
         {
+
+
+
+
             if (ModelState.IsValid)
             {
                 var responseGetProcedureById = await _mediator.Send(new GetProcedureByIdQuery() { Id = procedureStatus.ProcedureId });

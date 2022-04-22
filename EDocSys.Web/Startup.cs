@@ -53,9 +53,26 @@ namespace EDocSys.Web
                 });
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanViewSOP", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewSOPRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditSOP", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditSOPRequirement());
+                });
+            });
+
             services.AddHttpContextAccessor();
             services.AddScoped<IAuthorizationHandler, CanViewProcedureHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditProcedureHandler>();
+            services.AddScoped<IAuthorizationHandler, CanViewSOPHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditSOPHandler>();
 
             services.AddNotyf(o =>
             {
