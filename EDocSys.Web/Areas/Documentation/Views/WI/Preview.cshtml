@@ -4,20 +4,27 @@
         <div class="col-12">
             <div class="documentation p-3 mb-3 print-container">
                 <div class="row">
-                    <div class="col-sm-4 documentation-col">
-                        <h4>
-                            <img src="~/images/logo.png" />
-                        </h4>
-                    </div>
-                    <div class="col-sm-4 documentation-col text-center">
-                        <h1>
-                            STEEL DIVISION <br /><small>@Model.CompanyName</small>
-                        </h1>
-                    </div>
-                    <div class="col-sm-4 documentation-col">
-                        <h3 class="float-right">Approved</h3><br>
-                    </div>
+                <div class="col-sm-4 documentation-col">
+                    <h4>
+                        <img src="~/images/logo.png" />
+                    </h4>
                 </div>
+                <div class="col-sm-4 documentation-col text-center">
+                    <h1>
+                        STEEL DIVISION <br /><small>@Model.CompanyName</small>
+                    </h1>
+                </div>
+                <div class="col-sm-4 documentation-col">
+                    @if (@Model.WIStatusView != "Approved")
+                    {
+                        <h3 class="float-right">@Model.WIStatusView</h3><br>
+                    }
+                    else if (@Model.WIStatusView == "Approved")
+                    {
+                        <h3 class="float-right">@Model.WIStatusView</h3><br>
+                    }
+                </div>
+            </div>
                 <div class="row">
                     <div class="col-sm-12 col-md-12 text-center">
                         <div class="color-palette-set">

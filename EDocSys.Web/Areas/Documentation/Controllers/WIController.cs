@@ -67,9 +67,73 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public async Task<IActionResult> Preview(int id)
         {
             var response = await _mediator.Send(new GetWIByIdQuery() { Id = id });
+
+            var statusById = _context.WIStatus.Where(a => a.WIId == id).ToList();
+
             if (response.Succeeded)
             {
                 var wiViewModel = _mapper.Map<WIViewModel>(response.Data);
+
+                if (statusById.Count() != 0)
+                {
+                    var StatusId = _context.WIStatus.Where(a => a.WIId == id).OrderBy(a => a.CreatedOn)
+                        .Include(a => a.DocumentStatus)
+                        .Last();
+
+                    wiViewModel.WIStatusView = StatusId.DocumentStatus.Name;
+                }
+                else
+                {
+                    wiViewModel.WIStatusView = "New";
+                }
+
+                if (wiViewModel.Concurred1 != null)
+                {
+                    var concurred1User = _userManager.Users.Where(a => a.Id == wiViewModel.Concurred1).SingleOrDefault();
+                    wiViewModel.Concurred1Name = concurred1User.FirstName + " " + concurred1User.LastName;
+                    wiViewModel.Concurred1 = concurred1User.Id;
+                    wiViewModel.PositionC1 = concurred1User.Position;
+                }
+
+                if (wiViewModel.Concurred2 != null)
+                {
+                    var concurred2User = _userManager.Users.Where(a => a.Id == wiViewModel.Concurred2).SingleOrDefault();
+                    wiViewModel.Concurred2Name = concurred2User.FirstName + " " + concurred2User.LastName;
+                    wiViewModel.Concurred2 = concurred2User.Id;
+                    wiViewModel.PositionC2 = concurred2User.Position;
+                }
+
+                if (wiViewModel.ApprovedBy != null)
+                {
+                    var ApprovedByUser = _userManager.Users.Where(a => a.Id == wiViewModel.ApprovedBy).SingleOrDefault();
+                    wiViewModel.ApprovedBy = ApprovedByUser.FirstName + " " + ApprovedByUser.LastName;
+                    wiViewModel.PositionApp = ApprovedByUser.Position;
+                }
+
+                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+
+                var currentyUserId = currentUser.Id;
+                var concurred1 = response.Data.Concurred1;
+                var concurred2 = response.Data.Concurred2;
+                var app = response.Data.ApprovedBy;
+
+                if (currentyUserId == concurred1)
+                {
+                    ViewBag.IsConcurred1 = true;
+                }
+
+                if (currentyUserId == concurred2)
+                {
+                    ViewBag.IsConcurred2 = true;
+                }
+
+                if (currentyUserId == app)
+                {
+                    ViewBag.IsApp = true;
+                }
+
+
+
                 return View(wiViewModel);
             }
             return null;
