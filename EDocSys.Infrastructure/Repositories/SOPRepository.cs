@@ -45,7 +45,10 @@ namespace EDocSys.Infrastructure.Repositories
 
         public async Task<List<SOP>> GetListAsync()
         {
-            return await _repository.Entities.ToListAsync();
+            return await _repository.Entities
+                .Include(a => a.Department)
+                .Include(a => a.Company)
+                .ToListAsync();
         }
 
         public async Task<int> InsertAsync(SOP sop)

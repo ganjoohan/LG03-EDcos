@@ -3,11 +3,13 @@
 <table id="wiTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
     <thead>
         <tr>
-            <th>WSCP No</th>
-            <th>SOP No</th>
-            <th>SOP Title</th>
+            <th>WI No</th>
+            <th>WI Title</th>
             <th>Company</th>
             <th>Process</th>
+            <th>WSCP No</th>
+            <th>SOP No</th>
+            
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -17,11 +19,15 @@
         @foreach (var wi in Model)
         {
             <tr>
-                <td><b>WSCP No.:  @wi.WSCPNo     SOPNo: @wi.SOPNo</b></td>
-                <td style="text-indent: 35px; ">@wi.WINo</td>
+                <td style="text-indent: 80px; ">» @wi.WINo</td>
                 <td>@wi.Title</td>
                 <td>@wi.CompanyName</td>
-                <td><b>@wi.ProcessName</b></td>
+                <td><b>@Html.Encode(@wi.ProcessName).ToUpper()</b> </td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@wi.WSCPNo</td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@wi.SOPNo</td>*
+                @*<td style="text-indent: 35px; ">@wi.WINo</td>*@
+                
+                
                 @*<td><a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a></td>*@
                 <td align="center">
                     @if (!User.IsInRole("None"))
@@ -111,17 +117,20 @@
     </tbody>
 </table>
 
+
+
 <script>
     $(document).ready(function () {
         $('#wiTable').DataTable( {
         order: [[1, 'asc'], [0, 'asc']],
         rowGroup: {
-            dataSrc: [ 3,4,0 ]
+            dataSrc: [ 2,3,4,5 ]
         },
         columnDefs: [ {
-            targets: [ 3,4,0 ],
+            targets: [ 5,4,3,2 ],
             visible: false
         } ]
     } );
     });
 </script>
+

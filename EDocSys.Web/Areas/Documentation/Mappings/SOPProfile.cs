@@ -16,20 +16,15 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
                 .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
                 .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
-            
-                
-
             CreateMap<SOP, GetSOPByIdResponse>()
                 .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
                 .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
-
-
             CreateMap<GetAllSOPsCachedResponse, SOPViewModel>().ReverseMap();
 
-
-            
-
+            CreateMap<GetSOPByIdResponse, SOPViewModel>().ReverseMap();
+            CreateMap<CreateSOPCommand, SOPViewModel>().ReverseMap();
+            CreateMap<UpdateSOPCommand, SOPViewModel>().ReverseMap();
 
             CreateMap<GetSOPByIdResponse, SOPViewModel>().ReverseMap();
             CreateMap<CreateSOPCommand, SOPViewModel>().ReverseMap();

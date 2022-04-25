@@ -13,7 +13,7 @@ namespace EDocSys.Web.Areas.Documentation.Mappings
         {
             CreateMap<CreateWIStatusCommand, WIStatusViewModel>().ReverseMap();
 
-            CreateMap<SOP, GetAllWIStatusCachedResponse>();
+            CreateMap<WI, GetAllWIStatusCachedResponse>();
 
             CreateMap<GetAllWIStatusCachedResponse, WIStatusViewModel>().ReverseMap();
         }

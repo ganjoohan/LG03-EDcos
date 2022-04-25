@@ -16,10 +16,10 @@
         @foreach (var procedure in Model)
         {
             <tr>
-                <td style="text-indent: 35px; ">@procedure.WSCPNo</td>
+                <td style="text-indent: 35px; ">» @procedure.WSCPNo</td>
                 <td>@procedure.Title</td>
                 <td>@procedure.CompanyName</td>
-                <td><b>@procedure.ProcessName</b></td>
+                <td><b>@Html.Encode(@procedure.ProcessName).ToUpper()</b> </td>
                 <td align="center">
                     @if (!User.IsInRole("None"))
                     {

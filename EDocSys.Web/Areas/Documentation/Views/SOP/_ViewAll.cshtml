@@ -3,11 +3,11 @@
 <table id="sopTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
     <thead>
         <tr>
-            <th>WSCP No</th>
             <th>SOP No</th>
             <th>SOP Title</th>
             <th>Company</th>
             <th>Process</th>
+            <th>WSCP No</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -17,19 +17,20 @@
         @foreach (var sop in Model)
         {
             <tr>
-                <td><b>WSCP No.:  @sop.WSCPNo</b></td>
-                <td style="text-indent: 35px; ">@sop.SOPNo</td>
+                <td style="text-indent: 45px; ">» @sop.SOPNo</td>
                 <td>@sop.Title</td>
+                
+                
                 <td>@sop.CompanyName</td>
-                <td><b>@sop.ProcessName</b></td>
-                @*<td><a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a></td>*@
+                <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
                 <td align="center">
                     @if (!User.IsInRole("None"))
                     {
                         if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
                         {
                             <span class="badge badge-warning">@sop.SOPStatusView</span>
-                            <a href="/documentation/ProcedureStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                            <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
                         }
                         else if (sop.SOPStatusView == "Approved")
                         {
@@ -145,12 +146,13 @@
         $('#sopTable').DataTable( {
         order: [[1, 'asc'], [0, 'asc']],
         rowGroup: {
-            dataSrc: [ 3,4,0 ]
+            dataSrc: [ 2,3,4 ]
         },
         columnDefs: [ {
-            targets: [ 3,4,0 ],
+            targets: [ 4,3,2 ],
             visible: false
         } ]
     } );
     });
 </script>
+
