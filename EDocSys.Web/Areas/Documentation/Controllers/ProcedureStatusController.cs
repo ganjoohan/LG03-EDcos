@@ -37,6 +37,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
     {
         private readonly IMailService _mailService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IdentityContext _identityContext;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public string c1 { get; private set; }
         public string c2 { get; private set; }
@@ -44,10 +46,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public string emailTo { get; private set; }
         
 
-        public ProcedureStatusController(IMailService mailService, UserManager<ApplicationUser> userManager)
+        public ProcedureStatusController(IMailService mailService, UserManager<ApplicationUser> userManager, IdentityContext identityContext, RoleManager<IdentityRole> roleManager)
         {
             _mailService = mailService;
             _userManager = userManager;
+            _identityContext = identityContext;
+            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Index(int Id)
@@ -145,13 +149,29 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     if (procedureStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
                     {
-                        // locate company admin email and send to [TO] sender
-                        var procedureId = responseGetProcedureById.Data.CompanyId;
+                    // locate company admin email and send to [TO] sender
 
-                        MailRequest mail = new MailRequest()
+                    
+                        var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetProcedureById.Data.CompanyId).ToList();
+
+                        var companyAdmin = (from a1 in allUsersByCompany
+                                            join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+                                            join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+                                            select new UserViewModel
+                                            {
+                                                Email = a1.Email,
+                                                RoleName = a3.Name
+                                            }).ToList();
+                        string companyAdminEmail = companyAdmin.Where(a => a.RoleName == "E").Select(a => a.Email).FirstOrDefault();
+
+
+
+
+                    MailRequest mail = new MailRequest()
                         {
                             //To = userModel.Email,
-                            To = "lgcompadmin@lion.com.my",
+                            // To = "lgcompadmin@lion.com.my",
+                            To = companyAdminEmail,
                             Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
                             // 
                             //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
