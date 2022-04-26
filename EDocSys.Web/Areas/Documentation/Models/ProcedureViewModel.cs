@@ -62,6 +62,10 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:dd MM yyyy}")]
+        public DateTime? DateApprovedC1 { get; set; }
+        public DateTime? DateApprovedC2 { get; set; }
+        public DateTime? DateApprovedAPP { get; set; }
     }
 
 }

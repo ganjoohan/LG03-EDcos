@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Html;
 using EDocSys.Application.Features.ProcedureStatuses.Queries.GetAllCached;
 using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Net;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -37,16 +38,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
         public ProcedureController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            IWebHostEnvironment hostEnvironment)
         {
             _env = env;
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            webHostEnvironment = hostEnvironment;
         }
 
         public IActionResult Index()
@@ -91,6 +95,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     procedureViewModel.Concurred1Name = concurred1User.FirstName + " " + concurred1User.LastName;
                     procedureViewModel.Concurred1 = concurred1User.Id;
                     procedureViewModel.PositionC1 = concurred1User.Position;
+                    procedureViewModel.DateApprovedC1 = _context.ProcedureStatus.Where(a => a.ProcedureId == id && a.DocumentStatusId==2).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
                 }
 
                 if (procedureViewModel.Concurred2 != null)
@@ -99,6 +104,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     procedureViewModel.Concurred2Name = concurred2User.FirstName + " " + concurred2User.LastName;
                     procedureViewModel.Concurred2 = concurred2User.Id;
                     procedureViewModel.PositionC2 = concurred2User.Position;
+                    procedureViewModel.DateApprovedC2 = _context.ProcedureStatus.Where(a => a.ProcedureId == id && a.DocumentStatusId == 3).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
                 }
 
                 if (procedureViewModel.ApprovedBy != null)
@@ -106,6 +112,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var ApprovedByUser = _userManager.Users.Where(a => a.Id == procedureViewModel.ApprovedBy).SingleOrDefault();
                     procedureViewModel.ApprovedBy = ApprovedByUser.FirstName + " " + ApprovedByUser.LastName;
                     procedureViewModel.PositionApp = ApprovedByUser.Position;
+                    procedureViewModel.DateApprovedAPP = _context.ProcedureStatus.Where(a => a.ProcedureId == id && a.DocumentStatusId == 4).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
                 }
 
                 var currentUser = await _userManager.GetUserAsync(HttpContext.User);
@@ -129,6 +136,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 {
                     ViewBag.IsApp = true;
                 }
+
+
 
 
 
@@ -187,7 +196,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 // Concurred 2
                 var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
-                var userViewModelC2 = (from a1 in responseC1
+                var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
                                        {

@@ -4,6 +4,8 @@
 }
 @using EDocSys.Web.Areas.Documentation.Models
 @model ProcedureViewModel
+
+<p>@ViewBag.WebRootPath</p>
 <div class="card">
     <div class="col-sm-12" style="padding:20px">
         @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.Create)).Result.Succeeded)
