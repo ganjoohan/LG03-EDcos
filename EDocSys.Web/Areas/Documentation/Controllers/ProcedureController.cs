@@ -77,6 +77,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 var procedureViewModel = _mapper.Map<ProcedureViewModel>(response.Data);
                 // procedureViewModel.pro String.Format("{0:y yy yyy yyyy}", dt);  // "8 08 008 2008"   year
 
+                // procedureViewModel.PreparedByDate = String.Format("{0:dd/mm/yyyy}", procedureViewModel.PreparedByDate);
+
                 if (statusById.Count() != 0)
                 {
                     var StatusId = _context.ProcedureStatus.Where(a => a.ProcedureId == id).OrderBy(a => a.CreatedOn)
@@ -440,6 +442,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         [HttpPost]
         public async Task<IActionResult> OnPostCreateOrEdit(int id, ProcedureViewModel procedure)
         {
+            // procedure.EffectiveDate.Value.ToString("g");
+            
+
+
             if (ModelState.IsValid)
             {
                 if (id == 0)

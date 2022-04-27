@@ -90,6 +90,15 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     sopViewModel.Concurred1Name = concurred1User.FirstName + " " + concurred1User.LastName;
                     sopViewModel.Concurred1 = concurred1User.Id;
                     sopViewModel.PositionC1 = concurred1User.Position;
+
+                    if (statusById.Count() != 0)
+                    {
+                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
+                        if (StatusId == 4)
+                        {
+                            sopViewModel.DateApprovedC1 = _context.SOPStatus.Where(a => a.SOPId == id && a.DocumentStatusId == 2).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
+                        }
+                    }
                 }
 
                 if (sopViewModel.Concurred2 != null)
@@ -98,6 +107,15 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     sopViewModel.Concurred2Name = concurred2User.FirstName + " " + concurred2User.LastName;
                     sopViewModel.Concurred2 = concurred2User.Id;
                     sopViewModel.PositionC2 = concurred2User.Position;
+
+                    if (statusById.Count() != 0)
+                    {
+                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
+                        if (StatusId == 4)
+                        {
+                            sopViewModel.DateApprovedC2 = _context.SOPStatus.Where(a => a.SOPId == id && a.DocumentStatusId == 3).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
+                        }
+                    }
                 }
 
                 if (sopViewModel.ApprovedBy != null)
@@ -105,6 +123,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var ApprovedByUser = _userManager.Users.Where(a => a.Id == sopViewModel.ApprovedBy).SingleOrDefault();
                     sopViewModel.ApprovedBy = ApprovedByUser.FirstName + " " + ApprovedByUser.LastName;
                     sopViewModel.PositionApp = ApprovedByUser.Position;
+
+                    if (statusById.Count() != 0)
+                    {
+                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
+
+                        if (StatusId == 4)
+                        {
+                            sopViewModel.DateApprovedAPP = _context.SOPStatus.Where(a => a.SOPId == id && a.DocumentStatusId == 4).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
+                        }
+                    }
                 }
 
                 var currentUser = await _userManager.GetUserAsync(HttpContext.User);
@@ -195,7 +223,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 // Concurred 2
                 var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
-                var userViewModelC2 = (from a1 in responseC1
+                var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
                                        {

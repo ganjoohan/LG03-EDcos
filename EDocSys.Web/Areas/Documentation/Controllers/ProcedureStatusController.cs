@@ -175,8 +175,9 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
                             // 
                             //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                            Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
-                        };
+                            //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                            Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                    };
 
                         try
                         {
@@ -187,7 +188,55 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                         }
                     }
-                    else if (procedureStatus.DocumentStatusId == 6) // FORMAT CHECKED: check C1, C2 and APP is available
+
+                else if (procedureStatus.DocumentStatusId == 5) // REJECTED: send email to department admin
+                {
+                    // locate company admin email and send to [TO] sender
+
+
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetProcedureById.Data.CompanyId
+                                                                       && a.UserDepartmentId == responseGetProcedureById.Data.DepartmentId
+                                                                       ).ToList();
+
+                    var deptAdmin = (from a1 in allUsersByCompany
+                                        join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+                                        join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+                                        select new UserViewModel
+                                        {
+                                            Email = a1.Email,
+                                            RoleName = a3.Name
+                                        }).ToList();
+                    string deptAdminEmail = deptAdmin.Where(a => a.RoleName == "D").Select(a => a.Email).FirstOrDefault();
+
+
+
+
+                    MailRequest mail = new MailRequest()
+                    {
+                        //To = userModel.Email,
+                        // To = "lgcompadmin@lion.com.my",
+                        To = deptAdminEmail,
+                        Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " has been rejected.",
+                        // 
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document has been rejected. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                    };
+
+                    try
+                    {
+                        await _mailService.SendAsync(mail);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+
+
+
+
+                else if (procedureStatus.DocumentStatusId == 6) // FORMAT CHECKED: check C1, C2 and APP is available
                     {
                         if(c1!=null)
                         {
@@ -210,7 +259,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
                             // 
                             //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                            Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                            //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                            Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+
+                            
                         };
 
                         try
@@ -242,7 +294,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -268,7 +321,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Subject = "Thank you for registering",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview/" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
                     };
 
                     try

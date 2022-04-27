@@ -21,14 +21,19 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public SelectList Departments { get; set; }
         public string ProcessName { get; set; }
 
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? EffectiveDate { get; set; }
 
+
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? RevisionDate { get; set; }
         
         public int? RevisionNo { get; set; }
 
+
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? EstalishedDate { get; set; }
 
@@ -62,7 +67,22 @@ namespace EDocSys.Web.Areas.Documentation.Models
 
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? PreparedByDate { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime? DateApprovedC1 { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime? DateApprovedC2 { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime? DateApprovedAPP { get; set; }
 
     }
 }

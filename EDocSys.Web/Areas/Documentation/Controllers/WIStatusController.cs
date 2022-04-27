@@ -162,10 +162,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         // To = "lgcompadmin@lion.com.my",
                         To = companyAdminEmail,
-                        Subject = "WI " + responseGetWIById.Data.WSCPNo + " need approval.",
+                        Subject = "WI " + responseGetWIById.Data.WINo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/wi/preview?id=" + wiStatus.WIId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -173,6 +174,49 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         await _mailService.SendAsync(mail);
                     }
                     catch (Exception ex)
+                    {
+
+                    }
+                }
+                else if (wiStatus.DocumentStatusId == 5) // REJECTED: send email to department admin
+                {
+                    // locate company admin email and send to [TO] sender
+
+
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetWIById.Data.CompanyId
+                                                                       && a.UserDepartmentId == responseGetWIById.Data.DepartmentId
+                                                                       ).ToList();
+
+                    var deptAdmin = (from a1 in allUsersByCompany
+                                     join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+                                     join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+                                     select new UserViewModel
+                                     {
+                                         Email = a1.Email,
+                                         RoleName = a3.Name
+                                     }).ToList();
+                    string deptAdminEmail = deptAdmin.Where(a => a.RoleName == "D").Select(a => a.Email).FirstOrDefault();
+
+
+
+
+                    MailRequest mail = new MailRequest()
+                    {
+                        //To = userModel.Email,
+                        // To = "lgcompadmin@lion.com.my",
+                        To = deptAdminEmail,
+                        Subject = "WI " + responseGetWIById.Data.WINo + " has been rejected.",
+                        // 
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document has been rejected. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/wi/preview?id=" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                    };
+
+                    try
+                    {
+                        await _mailService.SendAsync(mail);
+                    }
+                    catch (Exception)
                     {
 
                     }
@@ -197,10 +241,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "WI " + responseGetWIById.Data.WSCPNo + " need approval.",
+                        Subject = "WI " + responseGetWIById.Data.WINo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/wi/preview?id=" + wiStatus.WIId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -229,10 +274,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "WI " + responseGetWIById.Data.WSCPNo + " need approval.",
+                        Subject = "WI " + responseGetWIById.Data.WINo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/wi/preview?id=" + wiStatus.WIId)}'>clicking here</a> to open the document."
                     };
 
                     try
@@ -255,10 +301,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "WI " + responseGetWIById.Data.WINo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/wi/preview/" + wiStatus.WIId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/wi/preview?id=" + wiStatus.WIId)}'>clicking here</a> to open the document."
                     };
 
                     try

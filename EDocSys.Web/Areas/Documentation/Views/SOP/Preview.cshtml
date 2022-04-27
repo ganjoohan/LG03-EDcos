@@ -53,14 +53,14 @@
                                 <td>@Html.DisplayFor(model => model.RevisionDate)</td>
                             </tr>
                             <tr>
-                                <td>SOP No</td>
-                                <td>@Model.SOPNo</td>
+                                <td>@*SOP No*@</td>
+                                <td>@*@Model.SOPNo*@</td>
                                 <td>Revision No</td>
                                 <td>@Model.RevisionNo</td>
                             </tr>
                             <tr>
-                                <td>WI No</td>
-                                <td>@Model.WINo</td>
+                                <td>@*WI No*@</td>
+                                <td>@*@Model.WINo*@</td>
                                 <td>Established Date</td>
                                 <td>@Html.DisplayFor(model => model.EstalishedDate)</td>
                             </tr>
@@ -123,12 +123,10 @@
                             </tr>
                             <tr>
                                 <td><b>Date</b></td>
-                                <td>
-                                    @Html.DisplayFor(model => model.PreparedByDate, "{0:d MMM yyyy}")
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td>@Html.DisplayFor(modelItem => @Model.PreparedByDate)</td>
+                                <td>@Html.DisplayFor(modelItem => @Model.DateApprovedC1)</td>
+                                <td>@Html.DisplayFor(modelItem => @Model.DateApprovedC2)</td>
+                                <td>@Html.DisplayFor(modelItem => @Model.DateApprovedAPP)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -169,7 +167,7 @@
                         <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>
                     }
 
-                    @if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
+                    @*@if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
                     {
                         if (Model.SOPStatusView == "New" || Model.SOPStatusView == "Rejected")
                             {
@@ -182,6 +180,24 @@
                                     + '&&status=1', 'Submit for Formatting Check')"
                                    class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
                         }
+                    }*@
+
+                    @if ((Model.SOPStatusView == "New" || Model.SOPStatusView == "Rejected") && (User.IsInRole("D") || User.IsInRole("SuperAdmin")) )
+                    {
+                        <a href="/documentation/sop/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit SOP")" class="btn bg-success">
+                                    <i class="fas fa-pencil-alt"></i>
+                                    Edit SOP
+                                </a>
+
+                                <a onclick="jQueryModalGet('/documentation/sopstatus/OnGetSubmit?sopId=@Model.Id'
+                                    + '&&status=1', 'Submit for Formatting Check')"
+                                   class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
+                    }
+
+
+                    @if (Model.SOPStatusView == "Rejected" && User.IsInRole("E"))
+                    {
+
                     }
 
                     @* Check if status is "Submitted" and Role is E => to Approved Formatting Check*@
