@@ -78,7 +78,90 @@ namespace EDocSys.Web
                         new CanCreateEditSOPRequirement());
                 });
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanViewDocumentManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewDocumentManualRequirement());
+                });
 
+                options.AddPolicy("CanCreateEditDocumentManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditDocumentManualRequirement());
+                });
+
+                options.AddPolicy("CanViewQualityManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewQualityManualRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditQualityManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditQualityManualRequirement());
+                });
+                options.AddPolicy("CanViewEnvironmentalManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewEnvironmentalManualRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditEnvironmentalManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditEnvironmentalManualRequirement());
+                });
+                options.AddPolicy("CanViewLabAccreditationManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewLabAccreditationManualRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditLabAccreditationManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditLabAccreditationManualRequirement());
+                });
+                options.AddPolicy("CanViewSafetyHealthManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewSafetyHealthManualRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditSafetyHealthManual", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditSafetyHealthManualRequirement());
+                });                
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanViewExternalLionSteel", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewExternalLionSteelRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditExternalLionSteel", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditExternalLionSteelRequirement());
+                });
+                options.AddPolicy("CanViewQualityLionSteel", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewQualityLionSteelRequirement());
+                });
+
+                options.AddPolicy("CanCreateEditQualityLionSteel", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditQualityLionSteelRequirement());
+                });
+            });
             services.AddHttpContextAccessor();
             services.AddScoped<IAuthorizationHandler, CanViewProcedureHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditProcedureHandler>();
@@ -88,6 +171,27 @@ namespace EDocSys.Web
 
             services.AddScoped<IAuthorizationHandler, CanViewWIHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditWIHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewDocumentManualHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditDocumentManualHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewQualityManualHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditQualityManualHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewEnvironmentalManualHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditEnvironmentalManualHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewLabAccreditationManualHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditLabAccreditationManualHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewSafetyHealthManualHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditSafetyHealthManualHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewExternalLionSteelHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditExternalLionSteelHandler>();
+
+            services.AddScoped<IAuthorizationHandler, CanViewQualityLionSteelHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditQualityLionSteelHandler>();
 
 
             services.AddNotyf(o =>

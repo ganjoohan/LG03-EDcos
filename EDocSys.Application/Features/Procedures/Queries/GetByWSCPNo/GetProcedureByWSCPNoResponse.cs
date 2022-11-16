@@ -21,6 +21,11 @@ namespace EDocSys.Application.Features.Procedures.Queries.GetByWSCPNo
         public DateTime? EstalishedDate { get; set; }
         public int CompanyId { get; set; }
         public string CompanyName { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
     }
 }
 

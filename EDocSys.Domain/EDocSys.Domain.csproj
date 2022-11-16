@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Entities\Documentation\Test1Manual.cs" />
+    <Compile Remove="Entities\Documentation\Test1ManualStatus.cs" />
+    <Compile Remove="Entities\Documentation\Test2Manual.cs" />
+    <Compile Remove="Entities\Documentation\Test2ManualStatus.cs" />
+    <Compile Remove="Entities\Documentation\Test3Manual.cs" />
+    <Compile Remove="Entities\Documentation\Test3ManualStatus.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCoreHero.Abstractions" Version="1.0.0" />
     <PackageReference Include="FluentValidation" Version="9.3.0" />

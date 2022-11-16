@@ -3,6 +3,13 @@
 
 <form id="create-form" method="post" asp-area="Admin" asp-controller="User" asp-action="OnPostEdit" onsubmit="return jQueryModalPost(this);">
 
+      <div class="form-group row" hidden>
+        <label class="col-md-3 col-form-label">@localizer["UserName"]</label>
+        <div class="col-md-9">
+            <input type="text" asp-for="UserName" name="UserName" class="form-control">
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+    </div>
     <div class="form-group row">
         <label class="col-md-3 col-form-label">@localizer["FirstName"]</label>
         <div class="col-md-9">
@@ -60,7 +67,7 @@
 
         <div class="col-md-9">
             <div class="input-group">
-                <select name="RoleName" class="form-control select2bs4" id="RoleName" asp-for="RoleName" asp-items="@Model.RoleList">
+                <select name="RoleName" class="form-control select2bs4" id="RoleName" asp-for="RoleName" asp-items="@Model.RoleList" >
                     <option value=@Model.CurrentRoleName>@Model.CurrentRoleName</option>
                 </select>
             </div>

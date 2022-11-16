@@ -15,8 +15,8 @@ namespace EDocSys.Application.Features.SOPs.Queries.GetAllCached
         public string WINo { get; set; }
         public string Title { get; set; }
         public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        public string PIC { get; set; }
+        //public string Definition { get; set; }
         public string Body { get; set; }
         public int DepartmentId { get; set; }
         public string ProcessName { get; set; }
@@ -24,9 +24,17 @@ namespace EDocSys.Application.Features.SOPs.Queries.GetAllCached
         public DateTime RevisionDate { get; set; }
         public int RevisionNo { get; set; }
         public DateTime EstalishedDate { get; set; }
-
         public int CompanyId { get; set; }
         public string CompanyName { get; set; }
         public bool hasWI { get; set; }
+        public string ApprovedBy { get; set; }
+        public string Concurred1 { get; set; }
+        public string Concurred2 { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
+        public int WSCPId { get; set; }
     }
 }

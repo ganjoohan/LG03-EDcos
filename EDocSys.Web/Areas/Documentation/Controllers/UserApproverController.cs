@@ -17,6 +17,7 @@ using EDocSys.Application.Features.Departments.Queries.GetById;
 using EDocSys.Application.Features.Companies.Queries.GetAllCached;
 using EDocSys.Infrastructure.DbContexts;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using AspNetCoreHero.Results;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -28,15 +29,17 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly IdentityContext _identityContext;
         //private List<ApplicationUser> allUsersExceptCurrentUser;
         private List<GetAllCompaniesCachedResponse> responseCompaniesSingle;
 
-        public UserApproverController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public UserApproverController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IdentityContext identityContex)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _context = context;
+            _identityContext = identityContex;
         }
 
         public IActionResult Index(string apt)
@@ -77,13 +80,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 var viewModel = (from a1 in allUsers
                                  join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                 join a4 in _identityContext.UserRoles on a1.UserId equals a4.UserId
+                                 join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
                                  select new UserApproverViewModel
                                  {
                                      Id = a1.Id,
                                      EmailAddress = a2.Email,
                                      CompanyName = a1.CompanyName,
                                      DepartmentName = a1.DepartmentName,
-                                     ApprovalType = a1.ApprovalType
+                                     ApprovalType = a1.ApprovalType,
+                                     Role = a5.Name
                                  }).ToList();
 
                 if (apt == "C1")
@@ -115,13 +121,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 var viewModel = (from a1 in allUsers
                                  join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                 join a4 in _identityContext.UserRoles on a1.UserId equals a4.UserId
+                                 join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
                                  select new UserApproverViewModel
                                  {
                                      Id = a1.Id,
                                      EmailAddress = a2.Email,
                                      CompanyName = a1.CompanyName,
                                      DepartmentName = a1.DepartmentName,
-                                     ApprovalType = a1.ApprovalType
+                                     ApprovalType = a1.ApprovalType,
+                                     Role = a5.Name
                                  }).ToList();
 
                 viewModel = viewModel.Where(a => a.ApprovalType == "C1").ToList();
@@ -140,13 +149,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 var viewModel = (from a1 in allUsers
                                  join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                 join a4 in _identityContext.UserRoles on a1.UserId equals a4.UserId
+                                 join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
                                  select new UserApproverViewModel
                                  {
                                      Id = a1.Id,
                                      EmailAddress = a2.Email,
                                      CompanyName = a1.CompanyName,
                                      DepartmentName = a1.DepartmentName,
-                                     ApprovalType = a1.ApprovalType
+                                     ApprovalType = a1.ApprovalType,
+                                     Role = a5.Name
                                  }).ToList();
 
                 viewModel = viewModel.Where(a => a.ApprovalType == "C2").ToList();
@@ -165,13 +177,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 var viewModel = (from a1 in allUsers
                                  join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                 join a4 in _identityContext.UserRoles on a1.UserId equals a4.UserId
+                                 join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
                                  select new UserApproverViewModel
                                  {
                                      Id = a1.Id,
                                      EmailAddress = a2.Email,
                                      CompanyName = a1.CompanyName,
                                      DepartmentName = a1.DepartmentName,
-                                     ApprovalType = a1.ApprovalType
+                                     ApprovalType = a1.ApprovalType,
+                                     Role = a5.Name
                                  }).ToList();
 
                 viewModel = viewModel.Where(a => a.ApprovalType == "APP").ToList();
@@ -183,19 +198,35 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public async Task<JsonResult> OnGetCreateOrEditC1(int id = 0)
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
             var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
             var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
-            var roleM = _roleManager.Roles.Where(a => a.Name != "B1");
+            var roleM = _roleManager.Roles.Where(a => a.Name != "A" && a.Name != "B1");
+            return await OnGetCreateEdit2C1(id, responseCompanies, responseDepartments, currentUser, roles, "B1");
+        }
+        public async Task<JsonResult> OnGetCreateOrEditAC1(int id = 0)
+        {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
+            var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
+            var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
+            var roleM = _roleManager.Roles.Where(a => a.Name != "A" && a.Name != "B1");
+            return await OnGetCreateEdit2C1(id, responseCompanies, responseDepartments, currentUser, roles, "A");
+        }
+
+        public async Task<JsonResult> OnGetCreateEdit2C1(int id, Result<List<GetAllCompaniesCachedResponse>> responseCompanies, Result<List<GetAllDepartmentsCachedResponse>> responseDepartments, ApplicationUser currentUser, IList<string> roles, string role)
+        {
             if (id == 0)
             {
                 var userViewModel = new UserApproverViewModel();
 
                 if (responseDepartments.Succeeded)
                 {
-                    var departmentViewModel = (from a1 in responseDepartments.Data.Where(a => a.Name != "All Departments")
+                    var departmentViewModel = (from a1 in (role == "A" ? responseDepartments.Data : responseDepartments.Data.Where(a => a.Name != "All Departments"))
                                                select new
                                                {
                                                    a1.Id,
@@ -205,7 +236,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
                 }
 
-                if (currentUser.UserName == "superadmin")
+                if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
                 {
                     responseCompaniesSingle = responseCompanies.Data;
                 }
@@ -233,7 +264,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     Role = string.Join(",", _userManager.GetRolesAsync(c).Result.ToArray())
                 }).ToList();
 
-                var concurred1User = allUsersWithRoles.Where(a => a.Role.Contains("B1")).ToList();
+                var concurred1User = allUsersWithRoles.Where(a => (role == "A" ? a.Role == "A" : a.Role == "B1")).ToList();
                 userViewModel.UserList = new SelectList(concurred1User, "UserId", "EmailAddress");
                 #endregion
 
@@ -247,7 +278,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var userViewModel = _mapper.Map<UserApproverViewModel>(response.Data);
                     if (responseDepartments.Succeeded)
                     {
-                        var departmentViewModel = (from a1 in responseDepartments.Data.Where(a => a.Name != "All Departments")
+                        var departmentViewModel = (from a1 in (role == "A" ? responseDepartments.Data : responseDepartments.Data.Where(a => a.Name != "All Departments"))
                                                    select new
                                                    {
                                                        a1.Id,
@@ -257,7 +288,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
                     }
 
-                    if (currentUser.UserName == "superadmin")
+                    if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
                     {
                         responseCompaniesSingle = responseCompanies.Data;
                     }
@@ -289,7 +320,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Role = string.Join(",", _userManager.GetRolesAsync(c).Result.ToArray())
                     }).ToList();
 
-                    var concurred1User = allUsersWithRoles.Where(a => a.Role.Contains("B1")).ToList();
+                    var concurred1User = allUsersWithRoles.Where(a => (role == "A" ? a.Role == "A" : a.Role == "B1")).ToList();
 
                     userViewModel.UserList = new SelectList(concurred1User, "UserId", "EmailAddress");
                     #endregion
@@ -300,23 +331,38 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return null;
             }
         }
-
         public async Task<JsonResult> OnGetCreateOrEditC2(int id = 0)
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
             var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
             var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
-            var roleM = _roleManager.Roles.Where(a => a.Name != "B1");
+            var roleM = _roleManager.Roles.Where(a => a.Name != "A" && a.Name != "B1");
+            return await OnGetCreateEdit2C2(id, responseCompanies, responseDepartments, currentUser, roles, "B1");
+        }
+        public async Task<JsonResult> OnGetCreateOrEditAC2(int id = 0)
+        {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
+            var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
+            var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
+            var roleM = _roleManager.Roles.Where(a => a.Name != "A" && a.Name != "B1");
+            return await OnGetCreateEdit2C2(id, responseCompanies, responseDepartments, currentUser, roles, "A");
+        }
+
+        public async Task<JsonResult> OnGetCreateEdit2C2(int id, Result<List<GetAllCompaniesCachedResponse>> responseCompanies, Result<List<GetAllDepartmentsCachedResponse>> responseDepartments, ApplicationUser currentUser, IList<string> roles, string role)
+        {
             if (id == 0)
             {
                 var userViewModel = new UserApproverViewModel();
 
                 if (responseDepartments.Succeeded)
                 {
-                    var departmentViewModel = (from a1 in responseDepartments.Data.Where(a => a.Name != "All Departments")
+                    var departmentViewModel = (from a1 in (role == "A" ? responseDepartments.Data : responseDepartments.Data.Where(a => a.Name != "All Departments"))
                                                select new
                                                {
                                                    a1.Id,
@@ -326,7 +372,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
                 }
 
-                if (currentUser.UserName == "superadmin")
+                if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
                 {
                     responseCompaniesSingle = responseCompanies.Data;
                 }
@@ -354,7 +400,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     Role = string.Join(",", _userManager.GetRolesAsync(c).Result.ToArray())
                 }).ToList();
 
-                var concurred1User = allUsersWithRoles.Where(a => a.Role.Contains("B1")).ToList();
+                var concurred1User = allUsersWithRoles.Where(a => (role == "A" ? a.Role == "A" : a.Role == "B1")).ToList();
                 userViewModel.UserList = new SelectList(concurred1User, "UserId", "EmailAddress");
                 #endregion
 
@@ -368,7 +414,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var userViewModel = _mapper.Map<UserApproverViewModel>(response.Data);
                     if (responseDepartments.Succeeded)
                     {
-                        var departmentViewModel = (from a1 in responseDepartments.Data.Where(a => a.Name != "All Departments")
+                        var departmentViewModel = (from a1 in (role == "A" ? responseDepartments.Data : responseDepartments.Data.Where(a => a.Name != "All Departments"))
                                                    select new
                                                    {
                                                        a1.Id,
@@ -378,7 +424,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
                     }
 
-                    if (currentUser.UserName == "superadmin")
+                    if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
                     {
                         responseCompaniesSingle = responseCompanies.Data;
                     }
@@ -410,7 +456,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Role = string.Join(",", _userManager.GetRolesAsync(c).Result.ToArray())
                     }).ToList();
 
-                    var concurred1User = allUsersWithRoles.Where(a => a.Role.Contains("B1")).ToList();
+                    var concurred1User = allUsersWithRoles.Where(a => (role == "A" ? a.Role == "A" : a.Role == "B1")).ToList();
 
                     userViewModel.UserList = new SelectList(concurred1User, "UserId", "EmailAddress");
                     #endregion
@@ -421,23 +467,38 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return null;
             }
         }
-                                      
         public async Task<JsonResult> OnGetCreateOrEditAPP(int id = 0)
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
             var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
             var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
-            // var roleM = _roleManager.Roles.Where(a => a.Name != "B1");
+            var roleM = _roleManager.Roles.Where(a => a.Name != "A" && a.Name != "B1");
+            return await OnGetCreateEdit2APP(id, responseCompanies, responseDepartments, currentUser, roles, "B1");
+        }
+        public async Task<JsonResult> OnGetCreateOrEditAAPP(int id = 0)
+        {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
+            var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
+            var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
+            var roleM = _roleManager.Roles.Where(a => a.Name != "A" && a.Name != "B1");
+            return await OnGetCreateEdit2APP(id, responseCompanies, responseDepartments, currentUser, roles, "A");
+        }
+
+        public async Task<JsonResult> OnGetCreateEdit2APP(int id, Result<List<GetAllCompaniesCachedResponse>> responseCompanies, Result<List<GetAllDepartmentsCachedResponse>> responseDepartments, ApplicationUser currentUser, IList<string> roles, string role)
+        {
             if (id == 0)
             {
                 var userViewModel = new UserApproverViewModel();
 
                 if (responseDepartments.Succeeded)
                 {
-                    var departmentViewModel = (from a1 in responseDepartments.Data.Where(a => a.Name != "All Departments")
+                    var departmentViewModel = (from a1 in (role == "A" ? responseDepartments.Data : responseDepartments.Data.Where(a => a.Name != "All Departments"))
                                                select new
                                                {
                                                    a1.Id,
@@ -447,7 +508,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
                 }
 
-                if (currentUser.UserName == "superadmin")
+                if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
                 {
                     responseCompaniesSingle = responseCompanies.Data;
                 }
@@ -475,7 +536,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     Role = string.Join(",", _userManager.GetRolesAsync(c).Result.ToArray())
                 }).ToList();
 
-                var concurred1User = allUsersWithRoles.Where(a => a.Role.Contains("B1")).ToList();
+                var concurred1User = allUsersWithRoles.Where(a => (role == "A" ? a.Role == "A" : a.Role == "B1")).ToList();
                 userViewModel.UserList = new SelectList(concurred1User, "UserId", "EmailAddress");
                 #endregion
 
@@ -489,7 +550,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var userViewModel = _mapper.Map<UserApproverViewModel>(response.Data);
                     if (responseDepartments.Succeeded)
                     {
-                        var departmentViewModel = (from a1 in responseDepartments.Data.Where(a => a.Name != "All Departments")
+                        var departmentViewModel = (from a1 in (role == "A" ? responseDepartments.Data : responseDepartments.Data.Where(a => a.Name != "All Departments"))
                                                    select new
                                                    {
                                                        a1.Id,
@@ -499,7 +560,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
                     }
 
-                    if (currentUser.UserName == "superadmin")
+                    if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
                     {
                         responseCompaniesSingle = responseCompanies.Data;
                     }
@@ -531,7 +592,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         Role = string.Join(",", _userManager.GetRolesAsync(c).Result.ToArray())
                     }).ToList();
 
-                    var concurred1User = allUsersWithRoles.Where(a => a.Role.Contains("B1")).ToList();
+                    var concurred1User = allUsersWithRoles.Where(a => (role == "A" ? a.Role == "A" : a.Role == "B1")).ToList();
 
                     userViewModel.UserList = new SelectList(concurred1User, "UserId", "EmailAddress");
                     #endregion
@@ -542,83 +603,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return null;
             }
         }
-
-        //[HttpPost]
-        //public async Task<JsonResult> OnPostCreateOrEdit(int id, UserApproverViewModel userApproverViewModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        if (id == 0)
-        //        {
-        //            var createUserApproverVCommand = _mapper.Map<CreateUserApproverCommand>(userApproverViewModel);
-        //            var result = await _mediator.Send(createUserApproverVCommand);
-        //            if (result.Succeeded)
-        //            {
-        //                id = result.Data;
-        //                _notify.Success($"User Approver with ID {result.Data} Created.");
-        //            }
-        //            else _notify.Error(result.Message);
-        //        }
-        //        else
-        //        {
-        //            var updateUserApproverCommand = _mapper.Map<UpdateUserApproverCommand>(userApproverViewModel);
-        //            var result = await _mediator.Send(updateUserApproverCommand);
-        //            if (result.Succeeded) _notify.Information($"User Approver with ID {result.Data} Updated.");
-        //        }
-        //        var response = await _mediator.Send(new GetAllUserApproversCachedQuery());
-
-        //        if (response.Succeeded)
-        //        {
-
-
-        //            var viewModel = _mapper.Map<List<UserApproverViewModel>>(response.Data);
-
-
-        //            var viewModel2 = (from a1 in viewModel
-        //                              join a2 in _userManager.Users on a1.UserId equals a2.Id
-        //                             select new UserApproverViewModel
-        //                             {
-        //                                 Id = a1.Id,
-        //                                 EmailAddress = a2.Email,
-        //                                 CompanyName = a1.CompanyName,
-        //                                 DepartmentName = a1.DepartmentName,
-        //                                 ApprovalType = a1.ApprovalType
-        //                             }).ToList();
-
-
-        //            if(userApproverViewModel.ApprovalType == "C1")
-        //            {
-        //                viewModel2 = viewModel2.Where(a => a.ApprovalType == "C1").ToList();
-        //                var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll_C1", viewModel2);
-        //                return new JsonResult(new { isValid = true, html = html });
-        //            }
-        //            if (userApproverViewModel.ApprovalType == "C2")
-        //            {
-        //                viewModel2 = viewModel2.Where(a => a.ApprovalType == "C2").ToList();
-        //                var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll_C2", viewModel2);
-        //                return new JsonResult(new { isValid = true, html = html });
-        //            }
-        //            if (userApproverViewModel.ApprovalType == "APP")
-        //            {
-        //                viewModel2 = viewModel2.Where(a => a.ApprovalType == "APP").ToList();
-        //                var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll_APP", viewModel2);
-        //                return new JsonResult(new { isValid = true, html = html });
-        //            }
-        //            return null;
-
-        //        }
-        //        else
-        //        {
-        //            _notify.Error(response.Message);
-        //            return null;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        var html = await _viewRenderer.RenderViewToStringAsync("_AddOrEditC1", userApproverViewModel);
-        //        return new JsonResult(new { isValid = false, html = html });
-        //    }
-        //}
 
         [HttpPost]
         public async Task<JsonResult> OnPostCreateOrEditC1(int id, UserApproverViewModel userApproverViewModel)
@@ -859,6 +843,45 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
 
                     var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll_C2", viewModel2);
+                    return new JsonResult(new { isValid = true, html = html });
+                }
+                else
+                {
+                    _notify.Error(response.Message);
+                    return null;
+                }
+            }
+            else
+            {
+                _notify.Error(deleteCommand.Message);
+                return null;
+            }
+        }
+        [HttpPost]
+        public async Task<JsonResult> OnPostDeleteAPP(int id)
+        {
+            var deleteCommand = await _mediator.Send(new DeleteUserApproverCommand { Id = id });
+            if (deleteCommand.Succeeded)
+            {
+                _notify.Information($"User Approver with Id {id} Deleted.");
+                var response = await _mediator.Send(new GetAllUserApproversCachedQuery());
+                if (response.Succeeded)
+                {
+                    var viewModel = _mapper.Map<List<UserApproverViewModel>>(response.Data);
+
+                    var viewModel2 = (from a1 in viewModel
+                                      join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                      select new UserApproverViewModel
+                                      {
+                                          Id = a1.Id,
+                                          EmailAddress = a2.Email,
+                                          CompanyName = a1.CompanyName,
+                                          DepartmentName = a1.DepartmentName,
+                                          ApprovalType = a1.ApprovalType
+                                      }).Where(a => a.ApprovalType == "APP").ToList();
+
+
+                    var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll_C1", viewModel2);
                     return new JsonResult(new { isValid = true, html = html });
                 }
                 else

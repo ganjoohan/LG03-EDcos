@@ -7,7 +7,7 @@
 
 @model ProcedureViewModel
 <div class="card">
-    <div class="card-body">
+    <div class="card-body" style="max-width:1000px">
         <form id="create-form" method="post" asp-area="documentation" asp-controller="Procedure" asp-action="OnPostCreateOrEdit" asp-route-id="@Model.Id" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-7">
@@ -76,6 +76,7 @@
                         <div class="col-md-7">
                             <input type="number" asp-for="RevisionNo" name="RevisionNo" class="form-control">
                             <span asp-validation-for="RevisionNo" class="text-danger"></span>
+                             <input type="number" asp-for="ArchiveId" name="ArchiveId" class="form-control" hidden>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -120,7 +121,8 @@
                         <div class="form-group row">
                             <label class="col-md-2 col-form-label">Definitions</label>
                             <div class="col-md-10">
-                                <input type="text" asp-for="Definition" name="Definition" class="form-control">
+                                @*<input type="text" asp-for="Definition" name="Definition" class="form-control">*@
+                                <textarea hidden id="editor2" asp-for="Definition" name="Definition" class="form-control" ></textarea>
                                 <span asp-validation-for="Definition" class="text-danger"></span>
                             </div>
                         </div>
@@ -181,7 +183,7 @@
                                 <td>
                                     <div>
                                         
-                                            <select name="ApprovedBy" class="form-control select2bs4" id="ApprovedBy" asp-for="ApprovedBy" asp-items="@Model.UserListAPP" required >
+                                            <select name="ApprovedBy" class="form-control select2bs4" id="ApprovedBy" asp-for="ApprovedBy" asp-items="@Model.UserListAPP">
                                             <option value="">Select </option>
                                             </select>
                                         
@@ -422,7 +424,51 @@
             console.error(error);
         });
 
+          function MyCustomUploadAdapterPlugin(editor2) {
+        editor2.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            // Configure the URL to the upload script in your back-end here!
+            return new MyUploadAdapter(loader);
+        };
+    }
 
+    ClassicEditor
+        .create(document.querySelector('#editor2'),
+            {
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'fontfamily', 'fontsize', '|',
+                    'alignment', '|',
+                    'fontColor', 'fontBackgroundColor', '|',
+                    'bold', 'italic', 'strikethrough', 'underline', 'subscript', 'superscript', '|',
+                    'link', '|',
+                    'outdent', 'indent', '|',
+                    'bulletedList', 'numberedList', 'todoList', '|',
+                    'code', 'codeBlock', '|',
+                    'insertTable', '|',
+                    'uploadImage', 'blockQuote', '|',
+                    'undo', 'redo'
+                ],
+                shouldNotGroupWhenFull: true
+            }
+        })
+        .then(editor2 => {
+            window.editor2 = editor2;
+            @*if (@test == "Create") {
+                editor.setData('<p>Some text.</p>');
+            }*@
+
+            if ('@ViewBag.CreateEditFlag' == "Create") {
+                editor2.setData('<p>Some text.</p>');
+            }
+
+        })
+
+
+        .catch(error => {
+            console.error(error);
+        });
 
 
 

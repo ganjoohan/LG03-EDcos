@@ -1,8 +1,12 @@
-﻿using EDocSys.Infrastructure.Identity.Models;
+﻿using EDocSys.Application.Features.Companies.Queries.GetAllCached;
+using EDocSys.Application.Features.Departments.Queries.GetAllCached;
+using EDocSys.Infrastructure.DbContexts;
+using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Web.Abstractions;
 using EDocSys.Web.Areas.Admin.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -16,12 +20,16 @@ namespace EDocSys.Web.Areas.Admin.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IdentityContext _identityContext;
 
-        public UserRoleController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+
+        public UserRoleController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager,
+                              IdentityContext identityContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _identityContext = identityContext;
         }
 
         public async Task<IActionResult> Index(string userId)
@@ -73,5 +81,7 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             //var claim = new Claim("department", "HR");
             //var cresult = await _userManager.AddClaimAsync(user, claim);
         }
+
+       
     }
 }

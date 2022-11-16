@@ -34,6 +34,11 @@ namespace EDocSys.Infrastructure.Identity.Seeds
             await roleManager.AddPermissionClaim(adminRole, "Procedures");
             await roleManager.AddPermissionClaim(adminRole, "SOPs");
             await roleManager.AddPermissionClaim(adminRole, "WIs");
+            await roleManager.AddPermissionClaim(adminRole, "DocumentManuals");
+            await roleManager.AddPermissionClaim(adminRole, "QualityManuals");
+            await roleManager.AddPermissionClaim(adminRole, "EnvironmentalManuals");
+            await roleManager.AddPermissionClaim(adminRole, "LabAccreditationManuals");
+            await roleManager.AddPermissionClaim(adminRole, "SafetyHealthManuals");
         }
 
         public static async Task SeedAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)

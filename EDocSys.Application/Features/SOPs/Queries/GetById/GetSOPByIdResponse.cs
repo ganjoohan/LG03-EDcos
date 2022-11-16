@@ -10,8 +10,8 @@ namespace EDocSys.Application.Features.SOPs.Queries.GetById
         public string WINo { get; set; }
         public string Title { get; set; }
         public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        public string PIC { get; set; }
+        //public string Definition { get; set; }
         public string Body { get; set; }
         public int DepartmentId { get; set; }
         public string ProcessName { get; set; }
@@ -30,6 +30,12 @@ namespace EDocSys.Application.Features.SOPs.Queries.GetById
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
+        public int WSCPId { get; set; }
     }
 }
 

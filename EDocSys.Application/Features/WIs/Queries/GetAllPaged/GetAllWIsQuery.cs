@@ -41,10 +41,13 @@ namespace EDocSys.Application.Features.WIs.Queries.GetAllPaged
                 SOPNo = e.SOPNo,
                 WINo = e.WINo,
                 Title = e.Title,
-                Purpose = e.Purpose,
-                Scope = e.Scope,
-                Definition = e.Definition,
-                Body = e.Body
+                //Purpose = e.Purpose,
+                //Scope = e.Scope,
+                //Definition = e.Definition,
+                Body = e.Body,
+                IsActive = e.IsActive,
+                 WSCPId = e.WSCPId,
+                 SOPId = e.SOPId
             };
             var paginatedList = await _repository.WIs
                 .Select(expression)

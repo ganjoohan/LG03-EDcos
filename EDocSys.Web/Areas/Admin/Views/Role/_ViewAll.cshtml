@@ -11,7 +11,7 @@
                 @*@localizer["Id"]*@
                 @localizer["Descriptions"]
             </th>
-            @if (User.IsInRole("SuperAdmin"))
+            @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
             {
                 <th style="width:10%">
                 
@@ -32,7 +32,7 @@
                     @*@role.Id*@
                     @if (role.Name == "A")
                     {
-                        <note>Group Chairman / HOC / Steering Coomm Chairman / Steel Div. SOP Comm. Chairman
+                        <note>Group Chairman / HOC / Steering Comm Chairman / Steel Div. SOP Comm. Chairman
                             <p class="text-success">See All Documents All Company/Department, Can Approved/Concurred</p></note>
                     }
                     else if (role.Name == "B1")
@@ -55,23 +55,23 @@
                     }
                     else if (role.Name == "E")
                     {
-                        <note>QMR / Lead Auditot / SOP Company Admin (Full Access by Company</note>
+                        <note>QMR / Lead Auditot / SOP Company Admin (Full Access by Company)</note>
                     }
-                    else if (role.Name == "M")
+                   @* else if (role.Name == "M")
                     {
-                        <note>Self Manage (Full Access without Approval Cycle</note>
-                    }
+                        <note>Self Manage (Full Access without Approval Cycle)</note>
+                    }*@
                     else if (role.Name == "SuperAdmin")
                     {
                         <note>Full Access</note>
                     }
                     else if (role.Name == "None")
                     {
-                        <note>No Accesse</note>
+                        <note>No Access</note>
                     }
                 </td>
                 <td text-right">
-                    @if (User.IsInRole("SuperAdmin"))
+                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
                     {
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

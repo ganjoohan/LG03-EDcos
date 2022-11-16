@@ -35,7 +35,7 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             
             //allPermissions.GetPermissions(typeof(Permissions.Dashboard), roleId);
             
-            // diable later
+            // disable later
             //allPermissions.GetPermissions(typeof(Permissions.Products), roleId);
             
             allPermissions.GetPermissions(typeof(Permissions.Users), roleId);
@@ -44,6 +44,12 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             allPermissions.GetPermissions(typeof(Permissions.WIs), roleId);
             allPermissions.GetPermissions(typeof(Permissions.Departments), roleId);
             allPermissions.GetPermissions(typeof(Permissions.Companies), roleId);
+            allPermissions.GetPermissions(typeof(Permissions.DocumentManuals), roleId);
+            allPermissions.GetPermissions(typeof(Permissions.QualityManuals), roleId);
+
+            allPermissions.GetPermissions(typeof(Permissions.EnvironmentalManuals), roleId);
+            allPermissions.GetPermissions(typeof(Permissions.LabAccreditationManuals), roleId);
+            allPermissions.GetPermissions(typeof(Permissions.SafetyHealthManuals), roleId);
             var role = await _roleManager.FindByIdAsync(roleId);
             model.RoleId = roleId;
             var claims = await _roleManager.GetClaimsAsync(role);
@@ -68,8 +74,9 @@ namespace EDocSys.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Update(PermissionViewModel model)
         {
             var role = await _roleManager.FindByIdAsync(model.RoleId);
-            //Remove all Claims First
+            //Remove all displayed Claims First
             var claims = await _roleManager.GetClaimsAsync(role);
+            claims = claims.Where(w => model.RoleClaims.Select(s=> s.Value).Contains(w.Value)).ToList();
             foreach (var claim in claims)
             {
                 await _roleManager.RemoveClaimAsync(role, claim);

@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = localizer["Document Manual Progress List"];
+    ViewData["Caption"] = localizer[""];
+}
+@using EDocSys.Web.Areas.Documentation.Models
+@model DocumentManualStatusViewModel
+<div class="card">
+    @*@await Component.InvokeAsync("DocumentManualDetails", new { Id = 38 })*@
+    <div class="col-sm-12" style="padding:20px">
+        <h2>DOC No: @ViewBag.DOCNo</h2>
+    </div>
+    
+    <div class="col-sm-12" style="padding:20px">
+        <a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>
+         <a href="/documentation/documentmanual" class="btn btn-primary"><i class="fas fa-arrow-left"></i>  Back</a>
+    </div>
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#documentManualTable").DataTable();
+            loadData();
+            $('#reload').on('click', function () {
+                loadData();
+            });
+        });
+        function loadData() {
+            // $('#viewAll').load('/documentation/DocumentManualStatus/LoadAll/?documentManualId = ');
+            $('#viewAll').load('/documentation/DocumentManualStatus/LoadAll/?documentManualId='+ '@ViewBag.documentManualId');
+        }
+    </script>
+}

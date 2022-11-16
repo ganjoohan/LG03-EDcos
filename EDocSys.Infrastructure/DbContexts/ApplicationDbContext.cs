@@ -31,10 +31,20 @@ namespace EDocSys.Infrastructure.DbContexts
         public DbSet<SOP> StandardOperatingPractices { get; set; }
         public DbSet<WI> WorkInstructions{ get; set; }
         public DbSet<UserApprover> UserApprovers { get; set; }
+       
         public DbSet<SOPStatus> SOPStatus { get; set; }
 
         public DbSet<WIStatus> WIStatus { get; set; }
-
+        public DbSet<DocumentManual> DocumentManuals { get; set; }
+        public DbSet<DocumentManualStatus> DocumentManualStatus { get; set; }
+        public DbSet<QualityManual> QualityManuals { get; set; }
+        public DbSet<QualityManualStatus> QualityManualStatus { get; set; }
+        public DbSet<EnvironmentalManual> EnvironmentalManuals { get; set; }
+        public DbSet<EnvironmentalManualStatus> EnvironmentalManualStatus { get; set; }
+        public DbSet<LabAccreditationManual> LabAccreditationManuals { get; set; }
+        public DbSet<LabAccreditationManualStatus> LabAccreditationManualStatus { get; set; }
+        public DbSet<SafetyHealthManual> SafetyHealthManuals { get; set; }
+        public DbSet<SafetyHealthManualStatus> SafetyHealthManualStatus { get; set; }
         public IDbConnection Connection => Database.GetDbConnection();
 
         public bool HasChanges => ChangeTracker.HasChanges();

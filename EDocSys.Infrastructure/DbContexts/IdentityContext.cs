@@ -1,4 +1,5 @@
-﻿using EDocSys.Infrastructure.Identity.Models;
+﻿using EDocSys.Domain.Entities.UserMaster;
+using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,7 @@ namespace EDocSys.Infrastructure.DbContexts
             {
                 entity.ToTable("UserTokens");
             });
+
         }
     }
 }

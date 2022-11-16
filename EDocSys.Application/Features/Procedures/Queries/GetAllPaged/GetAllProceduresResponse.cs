@@ -18,10 +18,16 @@ namespace EDocSys.Application.Features.Procedures.Queries.GetAllPaged
         public int RevisionNo { get; set; }
         public DateTime EstalishedDate { get; set; }
         public bool hasSOP { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
 
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+
+        public DateTime? ArchiveDate { get; set; }
     }
 }
 

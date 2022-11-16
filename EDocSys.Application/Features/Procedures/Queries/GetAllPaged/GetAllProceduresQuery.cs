@@ -45,7 +45,9 @@ namespace EDocSys.Application.Features.Procedures.Queries.GetAllPaged
                 Scope = e.Scope,
                 Definition = e.Definition,
                 Body = e.Body,
-                hasSOP = e.hasSOP
+                hasSOP = e.hasSOP,
+                IsActive = e.IsActive
+               
             };
             var paginatedList = await _repository.Procedures
                 .Select(expression)

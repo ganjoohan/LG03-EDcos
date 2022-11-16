@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,8 +65,8 @@ namespace EDocSys.Web.Areas.Identity.Pages.Account
             {
                 return Page();
             }
-
-            var user = await _userManager.FindByEmailAsync(Input.Email);
+            MailAddress address = new MailAddress(Input.Email);
+            var user = await _userManager.FindByNameAsync(address.User);
             if (user == null)
             {
                 // Don't reveal that the user does not exist

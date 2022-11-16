@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = localizer["Lab Accreditation Manuals"];
+    ViewData["Caption"] = localizer["Manage Lab Accreditation Manuals here"];
+}
+@using EDocSys.Web.Areas.Documentation.Models
+@model LabAccreditationManualViewModel
+
+<p>@ViewBag.WebRootPath</p>
+<div class="card">
+    <div class="col-sm-12" style="padding:20px">
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.LabAccreditationManuals.Create)).Result.Succeeded)
+        {*@
+             @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
+             {
+            <a asp-area="Documentation" asp-controller="LabAccreditationManual" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
+                <i class="fa fa-plus-square"></i> Create
+            </a>
+             }
+        @*}*@
+
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.LabAccreditationManuals.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.LabAccreditationManuals.View).Result.Succeeded)
+        {
+            <form id="create-form" method="post" asp-area="Documentation" asp-controller="LabAccreditationManual" asp-action="View1" asp-route-id="1d">
+
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="submit" class="btn btn-success">Print</button>
+
+                </div>
+            </form>
+        }*@
+
+        <a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>
+    </div>
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#labAccreditationManualTable").DataTable();
+            loadData();
+            $('#reload').on('click', function () {
+                loadData();
+            });
+        });
+        function loadData() {
+            $('#viewAll').load('/documentation/LabAccreditationManual/LoadAll');
+        }
+    </script>
+}

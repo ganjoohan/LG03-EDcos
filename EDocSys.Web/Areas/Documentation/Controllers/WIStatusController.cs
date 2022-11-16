@@ -31,6 +31,7 @@ using EDocSys.Application.DTOs.Mail;
 using System.Text.Encodings.Web;
 using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Application.Features.WIs.Queries.GetById;
+using EDocSys.Application.Features.WIs.Commands.Update;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -81,7 +82,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public async Task<IActionResult> LoadAll(int wiId)
         {
             var response = await _mediator.Send(new GetAllWIStatusCachedQuery());
-
+            ViewBag.RoleD = false;
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<WIStatusViewModel>>(response.Data);
@@ -173,7 +186,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -252,7 +265,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -285,7 +298,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -312,10 +325,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
+                }
+                else if (wiStatus.DocumentStatusId == 4) //APPROVED
+                {
+                    responseGetWIById.Data.EffectiveDate = DateTime.Now;
+                    var updateWiCommand = _mapper.Map<UpdateWICommand>(responseGetWIById.Data);
+                    var result1 = await _mediator.Send(updateWiCommand);
                 }
 
                 if (result.Succeeded)
@@ -330,18 +349,28 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 //{
 
                 //}
-
-                var response = await _mediator.Send(new GetAllWIStatusCachedQuery());
-                if (response.Succeeded)
+                try
                 {
-                    var viewModel = _mapper.Map<List<WIStatusViewModel>>(response.Data);
+                    var response = await _mediator.Send(new GetAllWIStatusCachedQuery());
+                    if (response.Succeeded)
+                    {
+                        var viewModel = _mapper.Map<List<WIStatusViewModel>>(response.Data);
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
+                    else
+                    {
+                        _notify.Error(response.Message);
+                        var viewModel = new List<WIStatusViewModel>();
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
+                }
+                catch
+                {
+                    var viewModel = new List<WIStatusViewModel>();
                     var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
                     return new JsonResult(new { isValid = true, html = html });
-                }
-                else
-                {
-                    _notify.Error(response.Message);
-                    return null;
                 }
             }
             else

@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = localizer["Safety and Health Manuals"];
+    ViewData["Caption"] = localizer["Manage Safety and Health Manuals here"];
+}
+@using EDocSys.Web.Areas.Documentation.Models
+@model SafetyHealthManualViewModel
+
+<p>@ViewBag.WebRootPath</p>
+<div class="card">
+    <div class="col-sm-12" style="padding:20px">
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SafetyHealthManuals.Create)).Result.Succeeded)
+        {*@
+             @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
+             {
+            <a asp-area="Documentation" asp-controller="SafetyHealthManual" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
+                <i class="fa fa-plus-square"></i> Create
+            </a>
+             }
+        @*}*@
+
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.SafetyHealthManuals.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.SafetyHealthManuals.View).Result.Succeeded)
+        {
+            <form id="create-form" method="post" asp-area="Documentation" asp-controller="SafetyHealthManual" asp-action="View1" asp-route-id="1d">
+
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="submit" class="btn btn-success">Print</button>
+
+                </div>
+            </form>
+        }*@
+
+        <a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>
+    </div>
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#safetyHealthManualTable").DataTable();
+            loadData();
+            $('#reload').on('click', function () {
+                loadData();
+            });
+        });
+        function loadData() {
+            $('#viewAll').load('/documentation/SafetyHealthManual/LoadAll');
+        }
+    </script>
+}

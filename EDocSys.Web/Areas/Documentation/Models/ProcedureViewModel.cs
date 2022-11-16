@@ -63,6 +63,10 @@ namespace EDocSys.Web.Areas.Documentation.Models
 
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
 
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
@@ -79,6 +83,10 @@ namespace EDocSys.Web.Areas.Documentation.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateApprovedAPP { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime? ArchiveDate { get; set; }
     }
 
 }

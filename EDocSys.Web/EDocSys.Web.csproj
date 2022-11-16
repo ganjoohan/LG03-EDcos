@@ -10,6 +10,10 @@
   <ItemGroup>
     <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="9.3.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.31" />
+    <PackageReference Include="Hangfire.Core" Version="1.7.31" />
+    <PackageReference Include="Hangfire.InMemory" Version="0.3.4" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.7.31" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
     <PackageReference Include="AspNetCoreHero.Extensions.Logging" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
@@ -35,6 +39,23 @@
     <Folder Include="Areas\Settings\Models\" />
     <Folder Include="Areas\Settings\Views\" />
     <Folder Include="Views\Shared\Components\Menu\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Areas\Documentation\Views\DocumentManualStatus\Index.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManualStatus\_Submit.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManualStatus\_ViewAll.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\CreateOrEdit.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\Index.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\Preview.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_AssignApprovedBy.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_AssignConcurred1.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_AssignConcurred2.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_CreateOrEdit.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_CreateOrEditTask.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_ViewAll.cshtml" />
+    <None Include="Areas\Documentation\Views\DocumentManual\_ViewDocumentManualById.cshtml" />
+    <None Include="Areas\Documentation\Views\Shared\Components\DocumentManualDetails\Default.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

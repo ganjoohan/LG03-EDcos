@@ -1,0 +1,23 @@
+﻿using EDocSys.Domain.Entities.QualityRecord;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EDocSys.Application.Interfaces.Repositories.QualityRepositories
+{
+    public interface ILionSteelRepository
+    {
+        IQueryable<LionSteel> LionSteels { get; }
+
+        Task<List<LionSteel>> GetListAsync();
+
+        Task<LionSteel> GetByIdAsync(int lionSteelId);
+
+        Task<int> InsertAsync(LionSteel lionSteel);
+
+        Task UpdateAsync(LionSteel lionSteel);
+
+        Task DeleteAsync(LionSteel lionSteel);
+        Task<LionSteel> GetByDOCNoAsync(string docno);
+    }
+}

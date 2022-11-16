@@ -7,7 +7,7 @@
             <th>Remarks</th>
             <th>Status</th>
             @*<th>Created By</th>*@
-            <th>Created On</th>
+            <th>Created On (UTC)</th>
             @*<th>Action</th>*@
         </tr>
     </thead>
@@ -29,14 +29,10 @@
                     @if (++i == count)
                     {
                         @*<h5>this is the last item</h5>*@
-                        if (@procedure.DocumentStatus.Name == "Rejected" && User.IsInRole("D"))
+                        if (@procedure.DocumentStatus.Name == "Rejected" && (User.IsInRole("D") || ViewBag.RoleD))
                         {
-                            @*<h5>Link to Edit</h5>*@
-                            @if ((AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.Edit)).Result.Succeeded)
-                            {
-                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.SOPId" ,"Edit Procedure")" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Procedure</a>
 
-                            }
+                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.SOPId&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Procedure</a>
                         }
 
 

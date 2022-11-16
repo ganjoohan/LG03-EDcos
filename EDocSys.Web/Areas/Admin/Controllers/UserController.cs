@@ -52,17 +52,59 @@ namespace EDocSys.Web.Areas.Admin.Controllers
 
         public async Task<IActionResult> LoadAll()
         {
+            ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
+            ViewBag.RoleE = false;
+            ViewBag.RoleD = false;
+            ViewBag.RoleSA = false;
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            var user = await _userManager.FindByEmailAsync(currentUser.Email);
-            var roles = await _userManager.GetRolesAsync(user);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+            }
+            if (rolesList.Contains("A"))
+            {
+                ViewBag.RoleA = true;
+            }
+            if (rolesList.Contains("B1"))
+            {
+                ViewBag.RoleB1 = true;
+            }
+            if (rolesList.Contains("B2"))
+            {
+                ViewBag.RoleB2 = true;
+            }
+            if (rolesList.Contains("C"))
+            {
+                ViewBag.RoleC = true;
+            }
+            if (rolesList.Contains("E"))
+            {
+                ViewBag.RoleE = true;
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
+            if (rolesList.Contains("SuperAdmin"))
+            {
+                ViewBag.RoleSA = true;
+            }
 
-            if (roles.Contains("SuperAdmin"))
+            if (rolesList.Contains("SuperAdmin"))
             {
                 allUsersExceptCurrentUser = await _userManager.Users.Where(a => a.Id != currentUser.Id).ToListAsync();
             }
-            else if (roles.Contains("E"))
+            else if (rolesList.Contains("E"))
             {
-                allUsersExceptCurrentUser = await _userManager.Users.Where(a => a.Id != currentUser.Id && a.UserCompanyId == currentUser.UserCompanyId && a.UserName != "superadmin").ToListAsync();
+                allUsersExceptCurrentUser = await _userManager.Users.Where(a => a.Id != currentUser.Id && a.UserCompanyId == currentUser.UserCompanyId && a.UserName != "superadmin" && a.Position != "Super Admin").ToListAsync();
+                var userRoleA = await _userManager.Users.Where(a => a.Id != currentUser.Id && a.UserCompanyId == 0 && a.UserName != "superadmin" && a.Position != "Super Admin").ToListAsync();
+                allUsersExceptCurrentUser.AddRange(userRoleA);
             }
 
             var responseCompany = await _mediator.Send(new GetAllCompaniesCachedQuery());
@@ -72,23 +114,44 @@ namespace EDocSys.Web.Areas.Admin.Controllers
 
             var allUsersExceptCurrentUserList = (from a1 in allUsersExceptCurrentUser
                                                  join a2 in responseCompany.Data on a1.UserCompanyId equals a2.Id
-                                             join a3 in responseDepartment.Data on a1.UserDepartmentId equals a3.Id
-                                             join a4 in _identityContext.UserRoles on a1.Id equals a4.UserId
-                                             join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
-                                             select new UserViewModel
-                                             {
-                                                 Id = a1.Id,
-                                                 FirstName = a1.FirstName,
-                                                 LastName = a1.LastName,
-                                                 ProfilePicture = a1.ProfilePicture,
-                                                 IsActive = a1.IsActive,
-                                                 UserName = a1.UserName,
-                                                 Email = a1.Email,
-                                                 EmailConfirmed = a1.EmailConfirmed,
-                                                 UserCompanyName = a2.Name,
-                                                 UserDepartmentName = a3.Name,
-                                                 RoleName = a5.Name
-                                             }).ToList();
+                                                 join a3 in responseDepartment.Data on a1.UserDepartmentId equals a3.Id
+                                                 join a4 in _identityContext.UserRoles on a1.Id equals a4.UserId
+                                                 join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
+                                                 select new UserViewModel
+                                                 {
+                                                     Id = a1.Id,
+                                                     FirstName = a1.FirstName,
+                                                     LastName = a1.LastName,
+                                                     ProfilePicture = a1.ProfilePicture,
+                                                     IsActive = a1.IsActive,
+                                                     UserName = a1.UserName,
+                                                     Email = a1.Email,
+                                                     EmailConfirmed = a1.EmailConfirmed,
+                                                     UserCompanyName = a2.Name,
+                                                     UserDepartmentName = a3.Name,
+                                                     RoleName = a5.Name
+                                                 }).ToList();
+
+                //var allUsersExceptCurrentUser0 = allUsersExceptCurrentUser.Where(w => w.UserCompanyId == 0 && w.UserDepartmentId == 0).ToList();
+                var allSuperUsers = (from a1 in allUsersExceptCurrentUser
+                                     join a4 in _identityContext.UserRoles on a1.Id equals a4.UserId
+                                     join a5 in _roleManager.Roles on a4.RoleId equals a5.Id
+                                     where !allUsersExceptCurrentUserList.Select(x => x.Id).Contains(a1.Id) && a5.Name != "SuperAdmin"
+                                     select new UserViewModel
+                                     {
+                                         Id = a1.Id,
+                                         FirstName = a1.FirstName,
+                                         LastName = a1.LastName,
+                                         ProfilePicture = a1.ProfilePicture,
+                                         IsActive = a1.IsActive,
+                                         UserName = a1.UserName,
+                                         Email = a1.Email,
+                                         EmailConfirmed = a1.EmailConfirmed,
+                                         UserCompanyName = "",
+                                         UserDepartmentName = "",
+                                         RoleName = a5.Name
+                                     }).ToList();
+                allUsersExceptCurrentUserList.AddRange(allSuperUsers);
 
             // var model_ORI = _mapper.Map<IEnumerable<UserViewModel>>(allUsersExceptCurrentUser_ORI);
 
@@ -105,8 +168,9 @@ namespace EDocSys.Web.Areas.Admin.Controllers
 
             var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
 
-
-            if(currentUser.UserName == "superadmin")
+            var user = await _userManager.FindByNameAsync(currentUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
             {
                 responseCompaniesSingle = responseCompanies.Data;
             }
@@ -134,8 +198,16 @@ namespace EDocSys.Web.Areas.Admin.Controllers
                         
             userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
 
-            var roles = _roleManager.Roles.ToList();
-            userViewModel.RoleList = new SelectList(roles, "Name", "Name");
+            var roles0 = _roleManager.Roles.ToList();
+            if (currentUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
+            {
+                userViewModel.RoleList = new SelectList(roles0, "Name", "Name");
+            }
+            else
+            {
+                roles0 = roles0.Where(w => w.Name != "SuperAdmin").ToList();
+                userViewModel.RoleList = new SelectList(roles0, "Name", "Name");
+            }
 
             return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_Create", userViewModel) });
         }
@@ -145,6 +217,8 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             var currentLogUser = await _userManager.GetUserAsync(HttpContext.User);
 
             var currentUser = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByNameAsync(currentLogUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
 
             var userViewModel = new UserViewModel();
 
@@ -152,7 +226,7 @@ namespace EDocSys.Web.Areas.Admin.Controllers
 
             var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
 
-            if (currentLogUser.UserName == "lgsuperadmin")
+            if (currentLogUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
             {
                 responseCompaniesSingle = responseCompanies.Data;
 
@@ -176,13 +250,22 @@ namespace EDocSys.Web.Areas.Admin.Controllers
 
             userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
 
-            var roles = _roleManager.Roles.ToList();
-            userViewModel.RoleList = new SelectList(roles, "Name", "Name");
+            var roles0 = _roleManager.Roles.ToList();
+            if (currentLogUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
+            {
+                userViewModel.RoleList = new SelectList(roles0, "Name", "Name");
+            }
+            else
+            {
+                roles0 = roles0.Where(w => w.Name != "SuperAdmin").ToList();
+                userViewModel.RoleList = new SelectList(roles0, "Name", "Name");
+            }
 
             userViewModel.FirstName = currentUser.FirstName;
             userViewModel.LastName = currentUser.LastName;
             userViewModel.Email = currentUser.Email;
             userViewModel.Position = currentUser.Position;
+            userViewModel.UserName = currentUser.UserName;
 
             // Get current user company
             userViewModel.CurrentCompanyId = responseCompanies.Data.Where(a => a.Id == currentUser.UserCompanyId).Select(a=>a.Id).SingleOrDefault();
@@ -208,6 +291,16 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             {
                 MailAddress address = new MailAddress(userModel.Email);
                 string userName = address.User;
+                var oldUsers = _userManager.Users.Where(w => w.UserName == userName).ToList();
+                if(oldUsers.Count > 0)
+                {
+                    if (oldUsers.Select(s=> s.Email).Where(w=> w == userModel.Email).FirstOrDefault() == null)
+                    {
+                        List<string> lstEmail = userModel.Email.Split('@').ToList();
+                        List<string> lstEmail2 = lstEmail[1].Split('.').ToList();
+                        userName = (lstEmail[0] + ((lstEmail2.Count > 3 ? (lstEmail2[0] + lstEmail2[1]) : lstEmail2[0])));
+                    }
+                }
                 var user = new ApplicationUser
                 {
                     UserName = userName,
@@ -215,14 +308,15 @@ namespace EDocSys.Web.Areas.Admin.Controllers
                     FirstName = userModel.FirstName,
                     LastName = userModel.LastName,
                     EmailConfirmed = true,
-                    UserCompanyId = userModel.UserCompanyId,
-                    UserDepartmentId = userModel.UserDepartmentId,
+                    UserCompanyId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserCompanyId),
+                    UserDepartmentId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserDepartmentId),
                     Position = userModel.Position,
+                    IsActive = (userModel.RoleName == "SuperAdmin" ? false : true),
                 };
                 var result = await _userManager.CreateAsync(user, userModel.Password);
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, userModel.RoleName);
+                    await _userManager.AddToRoleAsync(user, userModel.RoleName == "4" ? "None" : userModel.RoleName);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var currentUser = await _userManager.GetUserAsync(HttpContext.User);
                     var allUsersExceptCurrentUser = await _userManager.Users.Where(a => a.Id != currentUser.Id).ToListAsync();
@@ -244,28 +338,25 @@ namespace EDocSys.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> OnPostEdit(UserViewModel userModel)
         {
-            ApplicationUser user = await _userManager.FindByEmailAsync(userModel.Email);
+            ApplicationUser user = await _userManager.FindByNameAsync(userModel.UserName);
 
             if (ModelState.IsValid)
             {
-                MailAddress address = new MailAddress(userModel.Email);
-                
-                string userName = address.User;
-
-                user.UserName = userName;
+                user.UserName = userModel.UserName;
                 user.Email = userModel.Email;
                 user.FirstName = userModel.FirstName;
                 user.LastName = userModel.LastName;
                 user.EmailConfirmed = true;
-                user.UserCompanyId = userModel.UserCompanyId;
-                user.UserDepartmentId = userModel.UserDepartmentId;
+                user.UserCompanyId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserCompanyId);
+                user.UserDepartmentId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserDepartmentId);
                 user.Position = userModel.Position;
+                user.IsActive = (userModel.RoleName == "SuperAdmin" ? false : true);
 
                 var result = await _userManager.UpdateAsync(user);
 
                 if(result.Succeeded)
                 {
-                    var userR = await _userManager.FindByEmailAsync(userModel.Email);
+                    var userR = await _userManager.FindByNameAsync(userModel.UserName);
                     var rolesR = await _userManager.GetRolesAsync(userR);
                     var resultR = await _userManager.RemoveFromRolesAsync(userR, rolesR);
                     resultR = await _userManager.AddToRoleAsync(user, userModel.RoleName);
@@ -310,6 +401,132 @@ namespace EDocSys.Web.Areas.Admin.Controllers
                 return new JsonResult(new { isValid = false, html = html });
             }
             return default;
+        }
+        public async Task<IActionResult> OnPostCreateUserRole(UserViewModel userModel)
+        {
+            if (ModelState.IsValid)
+            {
+                MailAddress address = new MailAddress(userModel.Email);
+                int count = 0;
+                string userName = await GetDummyUserName(address.User, count);
+                var user = new ApplicationUser
+                {
+                    UserName = userName,
+                    NormalizedUserName = userName.ToUpper(),
+                    Email = userModel.Email,
+                    FirstName = userModel.FirstName,
+                    LastName = userModel.LastName,
+                    EmailConfirmed = true,
+                    UserCompanyId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserCompanyId),
+                    UserDepartmentId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserDepartmentId),
+                    Position = userModel.Position,
+                    IsActive = (userModel.RoleName == "SuperAdmin" ? false : true),
+                };
+                string tempPwd = "Urole@Pwd1";
+                userModel.Password = tempPwd;
+                userModel.ConfirmPassword = tempPwd;
+                var result = await _userManager.CreateAsync(user, userModel.Password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, userModel.RoleName);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                    var allUsersExceptCurrentUser = await _userManager.Users.Where(a => a.Id != currentUser.Id).ToListAsync();
+                    var users = _mapper.Map<IEnumerable<UserViewModel>>(allUsersExceptCurrentUser);
+                    var htmlData = await _viewRenderer.RenderViewToStringAsync("_ViewAll", users);
+                    _notify.Success($"Account for {user.Email} created.");
+                    return new JsonResult(new { isValid = true, html = htmlData });
+                }
+                foreach (var error in result.Errors)
+                {
+                    _notify.Error(error.Description);
+                }
+                var html = await _viewRenderer.RenderViewToStringAsync("_CreateUserRole", userModel);
+                return new JsonResult(new { isValid = false, html = html });
+            }
+            return default;
+        }
+
+        public async Task<string> GetDummyUserName(string s_prefix, int count)
+        {
+            count++;
+            string s_userName = s_prefix + count;
+            var chkUserName = await _userManager.FindByNameAsync(s_userName);
+            if (chkUserName == null)
+                return s_userName;
+            else
+                return await GetDummyUserName(s_prefix, count);
+        }
+
+        public async Task<IActionResult> OnGetCreateUserRole(string id)
+        {
+            var currentLogUser = await _userManager.GetUserAsync(HttpContext.User);
+
+            var currentUser = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByNameAsync(currentLogUser.UserName);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var userViewModel = new UserViewModel();
+
+            var responseCompanies = await _mediator.Send(new GetAllCompaniesCachedQuery());
+
+            var responseDepartments = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+
+            if (currentLogUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
+            {
+                responseCompaniesSingle = responseCompanies.Data;
+
+                responseDepartmentAll = responseDepartments.Data;
+            }
+            else
+            {
+                responseCompaniesSingle = responseCompanies.Data.Where(a => a.Id == currentUser.UserCompanyId).ToList();
+                responseDepartmentAll = responseDepartments.Data.ToList();
+            }
+
+            var companyViewModel = responseCompanies.Data.ToList();
+            userViewModel.UserCompanies = new SelectList(responseCompaniesSingle, "Id", "Name", null, null);
+
+            var departmentViewModel = (from a1 in responseDepartmentAll
+                                       select new
+                                       {
+                                           a1.Id,
+                                           a1.Name
+                                       }).OrderBy(a => a.Name).ToList();
+
+            userViewModel.UserDepartments = new SelectList(departmentViewModel, "Id", "Name");
+
+            var roles0 = _roleManager.Roles.ToList();
+            if (currentLogUser.UserName == "superadmin" || roles.Contains("SuperAdmin"))
+            {
+                userViewModel.RoleList = new SelectList(roles0, "Name", "Name");
+            }
+            else
+            {
+                roles0 = roles0.Where(w => w.Name != "SuperAdmin").ToList();
+                userViewModel.RoleList = new SelectList(roles0, "Name", "Name");
+            }
+
+            userViewModel.FirstName = currentUser.FirstName;
+            userViewModel.LastName = currentUser.LastName;
+            userViewModel.Email = currentUser.Email;
+            userViewModel.Position = currentUser.Position;
+
+            // Get current user company
+            userViewModel.CurrentCompanyId = responseCompanies.Data.Where(a => a.Id == currentUser.UserCompanyId).Select(a => a.Id).SingleOrDefault();
+            userViewModel.CurrentCompanyName = responseCompanies.Data.Where(a => a.Id == currentUser.UserCompanyId).Select(a => a.Name).SingleOrDefault();
+
+            // Get current user department
+            userViewModel.CurrentDepartmentId = responseDepartments.Data.Where(a => a.Id == currentUser.UserDepartmentId).Select(a => a.Id).SingleOrDefault();
+            userViewModel.CurrentDepartmentName = responseDepartments.Data.Where(a => a.Id == currentUser.UserDepartmentId).Select(a => a.Name).SingleOrDefault();
+
+
+            // Get current user role
+            var rolesCurrent = await _userManager.GetRolesAsync(currentUser);
+            userViewModel.CurrentRoleId = rolesCurrent.SingleOrDefault();
+            userViewModel.CurrentRoleName = rolesCurrent.SingleOrDefault();
+
+            return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_CreateUserRole", userViewModel) });
         }
     }
 }

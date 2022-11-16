@@ -1,20 +1,21 @@
 ﻿@model EDocSys.Web.Areas.Documentation.Models.WIViewModel
 
-    <div class="row">
+    <div class="row" style="max-width:1000px">
         <div class="col-12">
             <div class="documentation p-3 mb-3 print-container">
+                 <div class="@(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA ? "" : "no-print")">
                 <div class="row">
-                <div class="col-sm-4 documentation-col">
+                <div class="col-sm-3 documentation-col">
                     <h4>
                         <img src="~/images/logo.png" />
                     </h4>
                 </div>
-                <div class="col-sm-4 documentation-col text-center">
+                <div class="col-sm-6 documentation-col text-center">
                     <h1>
                         STEEL DIVISION <br /><small>@Model.CompanyName</small>
                     </h1>
                 </div>
-                <div class="col-sm-4 documentation-col">
+                <div class="col-sm-3 documentation-col">
                     @if (@Model.WIStatusView != "Approved")
                     {
                         <h3 class="float-right">@Model.WIStatusView</h3><br>
@@ -65,7 +66,7 @@
                                     <td><b>TITLE</b></td>
                                     <td colspan="3"><b>@Model.Title</b></td>
                                 </tr>
-                                <tr>
+                              @*  <tr>
                                     <td>PURPOSE</td>
                                     <td colspan="3">@Model.Purpose</td>
                                 </tr>
@@ -74,9 +75,9 @@
                                     <td colspan="3">@Model.Scope</td>
                                 </tr>
                                 <tr>
-                                    <td>DIFINITIONS</td>
-                                    <td colspan="3">@Model.Definition</td>
-                                </tr>
+                                    <td>DEFINITIONS</td>
+                                    <td colspan="3"><textarea hidden id="editor2" asp-for="Definition" class="form-control"></textarea></td>
+                                </tr>*@
                             </tbody>
                         </table>
                     </div>
@@ -144,12 +145,35 @@
                                 </tr>
                                 <tr>
                                     <td width="50%">CONTROLLED COPY</td>
-                                    <td>ELECTRONIC - 0</td>
+                                    <td>ELECTRONIC - @Model.PrintCount
+                                        @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                        {
+                                            <div class="no-print">
+                                                <form method="get" asp-area="documentation" asp-controller="WI" asp-action="Preview" asp-route-id="@Model.Id">
+                                                    <input id="noElectronic" type="text" asp-for="PrintCount" name="PrintCount" class="form-control">   
+                                                    <button type="submit" class="btn btn-success">Update Electronic</button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+                  @if(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+            {
+            <div class="row print-only">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Printed By</td>
+                            <td>@User.Identity.Name/@Model.CompanyName on @DateTime.Now</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>   
+                }
                 <!-- this row will not appear when printing -->
                 <!--<div class="row no-print">-->
                 <!--    <div class="col-12">-->
@@ -172,16 +196,25 @@
     <!-- this row will not appear when printing -->
                 <div class="row no-print">
                 <div class="col-12">
-                    @if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
+                    <a onclick="copyPageUrl()" class="btn btn-default float-right"><i class="fas fa-copy"></i> Copy WI URL</a>
+                    @if (@Model.WIStatusView == "Approved" && @Model.IsArchive == false)
                     {
-                        <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>
+                            <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&WIrev=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"New Revision WI")" class="btn btn-default float-right">
+                            <i class="fas fa-copy"></i>
+                            New Revision WI
+                        </a>
+                    }
+                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)//User.IsInRole("D") || User.IsInRole("A") || 
+                    {
+                        @*<button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>*@
+                        <a class="btn btn-default" onclick="window.print();" ><i class="fas fa-print"></i> Print</a>
                     }
 
-                    @*@if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
+        @*@if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
                     {
                         if (Model.WIStatusView == "New" || Model.WIStatusView == "Rejected")
                             {
-                                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit WI")" class="btn bg-success">
+                                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
                                     <i class="fas fa-pencil-alt"></i>
                                     Edit WI
                                 </a>
@@ -192,56 +225,55 @@
                         }
                     }*@
 
-                    @if ((Model.WIStatusView == "New" || Model.WIStatusView == "Rejected") && (User.IsInRole("D") || User.IsInRole("SuperAdmin")) )
-                    {
-                        <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit SOP")" class="btn bg-success">
-                                    <i class="fas fa-pencil-alt"></i>
-                                    Edit WI
-                                </a>
-
-                                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wipId=@Model.Id'
+        @if ((Model.WIStatusView == "New" || Model.WIStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+        {
+            
+            @if (Model.Concurred1 != null && Model.ApprovedBy != null)
+            {
+                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+                <i class="fas fa-pencil-alt"></i>
+                Edit WI
+            </a>
+                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'
                                     + '&&status=1', 'Submit for Formatting Check')"
                                    class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
-                    }
+            }
+            else
+            {
+                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+                <i class="fas fa-pencil-alt"></i>
+                Edit WI (Unable to submit without concurred1 and approver)
+            </a>
+            }
+            
+        }
 
-
-                    @if (Model.WIStatusView == "Rejected" && User.IsInRole("E"))
+                    @if (Model.WIStatusView == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
                     {
 
                     }
 
                     @* Check if status is "Submitted" and Role is E => to Approved Formatting Check*@
-                    @if (Model.WIStatusView == "Submitted" && User.IsInRole("E"))
+                    @if (Model.WIStatusView == "Submitted" && (User.IsInRole("E") || ViewBag.RoleE))
                     {
                         <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
                         <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
                     }
 
-                    @if (Model.WIStatusView == "Format Checked" && User.IsInRole("B1"))
+                    @if (Model.WIStatusView == "Format Checked" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
                     {
                         if(Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
                         {
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=2','Concurre 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=2','Concurred 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
                             <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
-                        else if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true)
-                        {
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                        }
-                        else if (Model.Concurred2 != null && ViewBag.IsApp == true)
-                        {
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve</a>
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                        }
-                        
                     }
 
-                    @if (Model.WIStatusView == "Concurred1" && User.IsInRole("B1"))
+                    @if (Model.WIStatusView == "Concurred1" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
                     {
                         if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) // 
                         {
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurre 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
+                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurred 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
                             <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                         else if (Model.Concurred2 == null && Model.Concurred1 != null && ViewBag.IsApp == true) { // if Concurred 1 To Approver
@@ -250,7 +282,7 @@
                         }
                     }
                     
-                    @if (Model.WIStatusView == "Concurred2" && User.IsInRole("B1") && ViewBag.IsApp == true)
+                    @if (Model.WIStatusView == "Concurred2" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsApp == true)
                     {
                         <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
                         <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
@@ -258,9 +290,23 @@
 
                 </div>
             </div>
-
+            </div>
     @section Scripts {
+        <style>
+    .print-only{
+        display: none;
+    }
 
+    @@media print {
+        .no-print {
+            display: none;
+        }
+
+        .print-only{
+            display: block;
+        }
+}
+</style>
         <script>
             document.getElementById("btnPrint").onclick = function () {
                 printElement(document.getElementById("printThis"));
@@ -442,5 +488,43 @@
         .catch(error => {
             console.error(error);
         });
+
+         function MyCustomUploadAdapterPlugin(editor2) {
+        editor2.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            // Configure the URL to the upload script in your back-end here!
+            return new MyUploadAdapter(loader);
+        };
+    }
+
+    ClassicEditor
+        .create(document.querySelector('#editor2'),
+                {
+                    toolbar: {
+                        items: [
+
+                        ]
+                    }
+            }
+        )
+
+        .then(editor2 => {
+            window.editor2 = editor2;
+            editor2.isReadOnly = true;
+        })
+
+        .catch(error => {
+            console.error(error);
+        });
         </script>
+         <script>
+    function copyPageUrl() {
+        var copyText = "https://edocs.lion.com.my/documentation/wi/preview?id=" + @Model.Id.ToString();
+        navigator.clipboard.writeText(copyText);
+        alert("Copied the WI url to the clipboard: " + copyText);
+    }
+
+     window.onafterprint = function() {
+        window.location.href = "/documentation/wi/Preview?id=" + @Model.Id.ToString() + "&print=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be";
+}
+    </script>
     }

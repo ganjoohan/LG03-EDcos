@@ -24,7 +24,7 @@ namespace EDocSys.Application.Features.Procedures.Commands.Create
 
         public DateTime? EffectiveDate { get; set; }
         public DateTime? RevisionDate { get; set; }
-        public int? RevisionNo { get; set; }
+        public int? RevisionNo { get; set; } = 0;
         public DateTime? EstalishedDate { get; set; }
 
         public int CompanyId { get; set; }
@@ -36,6 +36,12 @@ namespace EDocSys.Application.Features.Procedures.Commands.Create
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsArchive { get; set; } = false;
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; } = 0;
+        public DateTime? ArchiveDate { get; set; }
+
     }
 
     public class CreateProcedureCommandHandler : IRequestHandler<CreateProcedureCommand, Result<int>>

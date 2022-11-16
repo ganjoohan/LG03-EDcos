@@ -45,10 +45,15 @@ namespace EDocSys.Infrastructure.Repositories
 
         public async Task<List<Procedure>> GetListAsync()
         {
-            return await _repository.Entities
-                .Include(a => a.Department)
-                .Include(a => a.Company)
-                .ToListAsync();
+            return _repository.Entities
+               .Include(a => a.Department)
+               .Include(a => a.Company)
+               .ToList();
+            //big data, slow loading (Elaine Ho 5Aug2022)
+            //return await _repository.Entities
+            //    .Include(a => a.Department)
+            //    .Include(a => a.Company)
+            //    .ToListAsync();
         }
 
         public async Task<int> InsertAsync(Procedure procedure)

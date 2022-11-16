@@ -31,6 +31,11 @@ namespace EDocSys.Application.Features.Procedures.Commands.Update
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+         public DateTime? ArchiveDate { get; set; }
 
         public class UpdateProcedureCommandHandler : IRequestHandler<UpdateProcedureCommand, Result<int>>
         {
@@ -75,13 +80,19 @@ namespace EDocSys.Application.Features.Procedures.Commands.Update
                     procedure.hasSOP = command.hasSOP == false ? procedure.hasSOP : command.hasSOP;
 
                     procedure.Concurred1 = command.Concurred1 ?? procedure.Concurred1;
-                    procedure.Concurred2 = command.Concurred2 ?? procedure.Concurred2;
+                    procedure.Concurred2 = command.Concurred2;
                     procedure.ApprovedBy = command.ApprovedBy ?? procedure.ApprovedBy;
 
                     procedure.PreparedBy = command.PreparedBy ?? procedure.PreparedBy;
                     procedure.PreparedByDate = command.PreparedByDate ?? procedure.PreparedByDate;
                     procedure.PreparedByPosition = command.PreparedByPosition ?? procedure.PreparedByPosition;
 
+                    procedure.IsActive = command.IsActive;
+                    procedure.IsArchive = command.IsArchive ? true : procedure.IsArchive;
+                    procedure.ArchiveId = (command.ArchiveId == 0) ? procedure.ArchiveId : command.ArchiveId;
+                    procedure.PrintCount = (command.PrintCount == 0) ? procedure.PrintCount : command.PrintCount;
+
+                    procedure.ArchiveDate = command.ArchiveDate ?? procedure.ArchiveDate;
                     await _procedureRepository.UpdateAsync(procedure);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(procedure.Id);

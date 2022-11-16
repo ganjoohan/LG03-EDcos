@@ -52,17 +52,32 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             _roleManager = roleManager;
         }
 
-        public IActionResult Index(string wscpno)
+        public IActionResult Index(string wscpno, int wscpId = 0)
         {
             var model = new SOPViewModel();
 
             ViewBag.WSCPNo = wscpno;
+            ViewBag.WSCPId = wscpId;
 
             return View(model);
         }
 
-        public async Task<IActionResult> Preview(int id)
+        public async Task<IActionResult> Preview(int id, bool print = false)
         {
+            ViewBag.RoleAB1 = false;
+            ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
+            ViewBag.RoleE = false;
+            ViewBag.RoleD = false;
+            ViewBag.RoleSA = false;
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            List<string> rolesListComp = new List<string>();
+            List<string> rolesListDept = new List<string>();
+           
             var response = await _mediator.Send(new GetSOPByIdQuery() { Id = id });
 
             var statusById = _context.SOPStatus.Where(a => a.SOPId == id).ToList();
@@ -70,7 +85,54 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             if (response.Succeeded)
             {
                 var sopViewModel = _mapper.Map<SOPViewModel>(response.Data);
-
+                if (print)
+                {
+                    sopViewModel.PrintCount = sopViewModel.PrintCount + 1;
+                    var updateSOPCommand = _mapper.Map<UpdateSOPCommand>(sopViewModel);
+                    var result = await _mediator.Send(updateSOPCommand);
+                    return RedirectToAction("Preview", new { Id = id });
+                }
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    rolesList.AddRange(roles);
+                    if (user.UserCompanyId == sopViewModel.CompanyId)
+                    {
+                        rolesListComp.AddRange(roles);
+                        if (user.UserDepartmentId == sopViewModel.DepartmentId)
+                            rolesListDept.AddRange(roles);
+                    }
+                }
+                if (rolesList.Contains("A"))
+                {
+                    ViewBag.RoleA = true;
+                    ViewBag.RoleAB1 = true;
+                }
+                if (rolesListComp.Contains("B1"))
+                {
+                    ViewBag.RoleB1 = true;
+                    ViewBag.RoleAB1 = true;
+                }
+                if (rolesListComp.Contains("B2"))
+                {
+                    ViewBag.RoleB2 = true;
+                }
+                if (rolesListDept.Contains("C"))
+                {
+                    ViewBag.RoleC = true;
+                }
+                if (rolesListComp.Contains("E"))
+                {
+                    ViewBag.RoleE = true;
+                }
+                if (rolesListDept.Contains("D"))
+                {
+                    ViewBag.RoleD = true;
+                }
+                if (rolesList.Contains("SuperAdmin"))
+                {
+                    ViewBag.RoleSA = true;
+                }
                 if (statusById.Count() != 0)
                 {
                     var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn)
@@ -93,10 +155,24 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     if (statusById.Count() != 0)
                     {
-                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
-                        if (StatusId == 4)
+                        var c1Status = statusById.Where(a => a.DocumentStatusId == 2).OrderBy(a => a.CreatedOn).ToList();
+                        if (c1Status.Count > 0)
                         {
-                            sopViewModel.DateApprovedC1 = _context.SOPStatus.Where(a => a.SOPId == id && a.DocumentStatusId == 2).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
+                            var c1StatusDt = c1Status.Select(a => a.CreatedOn).Last();
+                            var rejectStatus = statusById.Where(a => a.DocumentStatusId == 5).OrderBy(a => a.CreatedOn).ToList();
+                            if (rejectStatus.Count > 0)
+                            {
+                                var rejectStatusDt = rejectStatus.Select(a => a.CreatedOn).Last();
+
+                                if (c1StatusDt > rejectStatusDt)
+                                {
+                                    sopViewModel.DateApprovedC1 = c1StatusDt;
+                                }
+                            }
+                            else
+                            {
+                                sopViewModel.DateApprovedC1 = c1StatusDt;
+                            }
                         }
                     }
                 }
@@ -110,10 +186,24 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     if (statusById.Count() != 0)
                     {
-                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
-                        if (StatusId == 4)
+                        var c1Status = statusById.Where(a => a.DocumentStatusId == 3).OrderBy(a => a.CreatedOn).ToList();
+                        if (c1Status.Count > 0)
                         {
-                            sopViewModel.DateApprovedC2 = _context.SOPStatus.Where(a => a.SOPId == id && a.DocumentStatusId == 3).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
+                            var c1StatusDt = c1Status.Select(a => a.CreatedOn).Last();
+                            var rejectStatus = statusById.Where(a => a.DocumentStatusId == 5).OrderBy(a => a.CreatedOn).ToList();
+                            if (rejectStatus.Count > 0)
+                            {
+                                var rejectStatusDt = rejectStatus.Select(a => a.CreatedOn).Last();
+
+                                if (c1StatusDt > rejectStatusDt)
+                                {
+                                    sopViewModel.DateApprovedC2 = c1StatusDt;
+                                }
+                            }
+                            else
+                            {
+                                sopViewModel.DateApprovedC2 = c1StatusDt;
+                            }
                         }
                     }
                 }
@@ -126,33 +216,46 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     if (statusById.Count() != 0)
                     {
-                        var StatusId = _context.SOPStatus.Where(a => a.SOPId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
-
-                        if (StatusId == 4)
+                        var c1Status = statusById.Where(a => a.DocumentStatusId == 4).OrderBy(a => a.CreatedOn).ToList();
+                        if (c1Status.Count > 0)
                         {
-                            sopViewModel.DateApprovedAPP = _context.SOPStatus.Where(a => a.SOPId == id && a.DocumentStatusId == 4).OrderBy(a => a.CreatedOn).Select(a => a.CreatedOn).Last();
+                            var c1StatusDt = c1Status.Select(a => a.CreatedOn).Last();
+                            var rejectStatus = statusById.Where(a => a.DocumentStatusId == 5).OrderBy(a => a.CreatedOn).ToList();
+                            if (rejectStatus.Count > 0)
+                            {
+                                var rejectStatusDt = rejectStatus.Select(a => a.CreatedOn).Last();
+
+                                if (c1StatusDt > rejectStatusDt)
+                                {
+                                    sopViewModel.DateApprovedAPP = c1StatusDt;
+                                }
+                            }
+                            else
+                            {
+                                sopViewModel.DateApprovedAPP = c1StatusDt;
+                            }
                         }
                     }
                 }
 
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                //var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-                var currentyUserId = currentUser.Id;
+                //var currentyUserId = currentUser.Id;
                 var concurred1 = response.Data.Concurred1;
                 var concurred2 = response.Data.Concurred2;
                 var app = response.Data.ApprovedBy;
 
-                if (currentyUserId == concurred1)
+                if (users.Select(s => s.Id).Contains(concurred1))
                 {
                     ViewBag.IsConcurred1 = true;
                 }
 
-                if (currentyUserId == concurred2)
+                if (users.Select(s => s.Id).Contains(concurred2))
                 {
                     ViewBag.IsConcurred2 = true;
                 }
 
-                if (currentyUserId == app)
+                if (users.Select(s => s.Id).Contains(app))
                 {
                     ViewBag.IsApp = true;
                 }
@@ -165,14 +268,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         }
 
         [Authorize(Policy = "CanCreateEditSOP")]
-        public async Task<IActionResult> CreateOrEdit(int id = 0, string wscpno = "", int departmentId = 0, int procedureId = 0)
+        public async Task<IActionResult> CreateOrEdit(int id = 0, string wscpno = "", int wscpid = 0, int departmentId = 0, int procedureId = 0, bool SOPrev = false)
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            var user = await _userManager.FindByIdAsync(currentUser.Id);
-            var roles = await _userManager.GetRolesAsync(user);
-            var rolesList = roles.ToList();
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+            }
 
             var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+            int allDeptId = 0;
             var companiesResponse = await _mediator.Send(new GetAllCompaniesCachedQuery());
             
 
@@ -181,16 +289,20 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 var selectedDepartmentId = await _mediator.Send(new GetDepartmentByIdQuery() { Id = departmentId });
 
                 var sopViewModel = new SOPViewModel();
+                sopViewModel.EstalishedDate = DateTime.Now;
+                sopViewModel.PreparedByDate = DateTime.Now;
                 if (departmentsResponse.Succeeded)
                 {
                     sopViewModel.DepartmentId = selectedDepartmentId.Data.Id;
                     sopViewModel.ProcessName = selectedDepartmentId.Data.Name;
 
                     var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
+                    allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
                     sopViewModel.Departments = new SelectList(departmentViewModel, nameof(DepartmentViewModel.Id), nameof(DepartmentViewModel.Name), null, null);
 
                     sopViewModel.ProcedureId = procedureId;
                     sopViewModel.WSCPNo = wscpno;
+                    sopViewModel.WSCPId = wscpid;
                 }
 
                 //if (companiesResponse.Succeeded)
@@ -204,14 +316,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
                     if (rolesList.Contains("D"))
                     {
-                        companyViewModel = companyViewModel.Where(a => a.Id == user.UserCompanyId).ToList();
+                        companyViewModel = companyViewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.Id)).ToList();
                     }
 
                     sopViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                 }
 
                 // Concurred 1
-                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC1 = (from a1 in responseC1
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -222,7 +334,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 sopViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                 // Concurred 2
-                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -233,7 +345,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 sopViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                 // Concurred APP
-                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelAPP = (from a1 in responseAPP
                                         join a2 in _userManager.Users on a1.UserId equals a2.Id
                                         select new UserApproverViewModel
@@ -259,9 +371,22 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 if (response.Succeeded)
                 {
                     var sopViewModel = _mapper.Map<SOPViewModel>(response.Data);
+                    var sopViewModelOld = _mapper.Map<SOPViewModel>(response.Data);
+                    if (SOPrev)
+                    {
+                        sopViewModel.Id = 0;
+                        var revNo = sopViewModel.RevisionNo != null ? sopViewModel.RevisionNo : 0;
+                        sopViewModel.RevisionNo = revNo + 1;
+                        sopViewModel.RevisionDate = DateTime.Now;
+                        sopViewModel.EffectiveDate = null;
+                        sopViewModel.EstalishedDate = DateTime.Now;
+                        sopViewModel.PreparedByDate = DateTime.Now;
+                        sopViewModel.ArchiveId = sopViewModelOld.Id;
+                    }
                     if (departmentsResponse.Succeeded)
                     {
                         var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
+                        allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
                         sopViewModel.Departments = new SelectList(departmentViewModel, nameof(DepartmentViewModel.Id), nameof(DepartmentViewModel.Name), null, null);
                     }
 
@@ -272,7 +397,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     }
 
                     // Concurred 1
-                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC1 = (from a1 in responseC1
                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
                                            select new UserApproverViewModel
@@ -283,7 +408,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     sopViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                     // Concurred 2
-                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC2 = (from a1 in responseC2
                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
                                            select new UserApproverViewModel
@@ -294,7 +419,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     sopViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                     // Concurred APP
-                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == user.UserDepartmentId || a.DepartmentId == 4)).ToList();
+                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelAPP = (from a1 in responseAPP
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel
@@ -314,27 +439,75 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         public async Task<IActionResult> LoadAll()
         {
+            ViewBag.RoleAB1 = false;
+            ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
+            ViewBag.RoleE = false;
+            ViewBag.RoleD = false;
+            ViewBag.RoleSA = false;
+            ViewBag.userIds = "";
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            var user = await _userManager.FindByIdAsync(currentUser.Id);
-            var roles = await _userManager.GetRolesAsync(user);
-            var rolesList = roles.ToList();
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            List<int> listComp = new List<int>();
+            List<int> listDept = new List<int>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+                listComp.Add(user.UserCompanyId);
+                listDept.Add(user.UserDepartmentId);
+                ViewBag.userIds = ViewBag.userIds != "" ? (ViewBag.userIds + "," + user.Id) : user.Id;
+            }
+            if (rolesList.Contains("A"))
+            {
+                ViewBag.RoleA = true;
+                ViewBag.RoleAB1 = true;
+            }
+            if (rolesList.Contains("B1"))
+            {
+                ViewBag.RoleB1 = true;
+                ViewBag.RoleAB1 = true;
+            }
+            if (rolesList.Contains("B2"))
+            {
+                ViewBag.RoleB2 = true;
+            }
+            if (rolesList.Contains("C"))
+            {
+                ViewBag.RoleC = true;
+            }
+            if (rolesList.Contains("E"))
+            {
+                ViewBag.RoleE = true;
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
+            if (rolesList.Contains("SuperAdmin"))
+            {
+                ViewBag.RoleSA = true;
+            }
 
             var response = await _mediator.Send(new GetAllSOPsCachedQuery());
 
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
-
-                // Access Categiry = D  
+                viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) && ((listDept.Contains(0) || rolesList.Contains("E") || rolesList.Contains("D") || rolesList.Contains("B1") || rolesList.Contains("B2")) ? true : listDept.Contains(a.DepartmentId))).ToList();
+                // Access Category = D  
                 // SOP Department Admin (Full Access by Department)
                 if (rolesList.Contains("D"))
                 {
-                    viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.DepartmentId == user.UserDepartmentId).ToList();
+                    var test = viewModel.Where(w => w.DepartmentId == 7).ToList();
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId)).ToList();
                 }
 
-                // Access Categiry = E  
+                // Access Category = E  
                 // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
-
 
                 foreach (SOPViewModel item in viewModel)
                 {
@@ -351,10 +524,15 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         item.SOPStatusView = "New";
                     }
+                   
                 }
-                if (rolesList.Contains("E") || rolesList.Contains("B1"))
+                if (rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
                 {
-                    viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.SOPStatusView == "Approved").ToList();
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
+                }
+                else if(rolesList.Contains("C"))
+                {
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) && a.SOPStatusView == "Approved").ToList();
                 }
 
                 return PartialView("_ViewAll", viewModel);
@@ -362,15 +540,61 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             return null;
         }
 
-        public async Task<IActionResult> LoadByWSCP(string wscpno)
+        public async Task<IActionResult> LoadByWSCP(string wscpno, int wscpid = 0)
         {
+            ViewBag.RoleAB1 = false;
+            ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
+            ViewBag.RoleE = false;
+            ViewBag.RoleD = false;
+            ViewBag.RoleSA = false;
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+            }
+            if (rolesList.Contains("A"))
+            {
+                ViewBag.RoleA = true;
+                ViewBag.RoleAB1 = true;
+            }
+            if (rolesList.Contains("B1"))
+            {
+                ViewBag.RoleB1 = true;
+                ViewBag.RoleAB1 = true;
+            }
+            if (rolesList.Contains("B2"))
+            {
+                ViewBag.RoleB2 = true;
+            }
+            if (rolesList.Contains("C"))
+            {
+                ViewBag.RoleC = true;
+            }
+            if (rolesList.Contains("E"))
+            {
+                ViewBag.RoleE = true;
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
+            if (rolesList.Contains("SuperAdmin"))
+            {
+                ViewBag.RoleSA = true;
+            }
             var response = await _mediator.Send(new GetAllSOPsCachedQuery());
 
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
 
-                var viewModelbyWSCPNo = viewModel.Where(a => a.WSCPNo == wscpno).ToList();
+                var viewModelbyWSCPNo = viewModel.Where(a => a.WSCPNo == wscpno && a.WSCPId == wscpid && a.IsActive == true).ToList();
 
                 return PartialView("_ViewAll", viewModelbyWSCPNo);
             }
@@ -430,7 +654,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var result = await _mediator.Send(updateSOPCommand);
                     if (result.Succeeded) _notify.Information($"SOP with ID {result.Data} Updated.");
                 }
-
+                if (sop.ArchiveId != 0)
+                {
+                    var response2 = await _mediator.Send(new GetSOPByIdQuery() { Id = sop.ArchiveId });
+                    if (response2.Succeeded)
+                    {
+                        var SOPViewModelOld = _mapper.Map<SOPViewModel>(response2.Data);
+                        SOPViewModelOld.IsArchive = true;
+                        var archiveDt = DateTime.Now.AddDays(30);
+                        SOPViewModelOld.ArchiveDate = archiveDt;
+                        var updateSOPCommandOld = _mapper.Map<UpdateSOPCommand>(SOPViewModelOld);
+                        var result2 = await _mediator.Send(updateSOPCommandOld);
+                    }
+                }
                 if (Request.Form.Files.Count > 0)
                 {
                     IFormFile file = Request.Form.Files.FirstOrDefault();
@@ -456,33 +692,102 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return View(nameof(Index));
             }
         }
-
         [HttpPost]
-        public async Task<JsonResult> OnPostDelete(int id)
+        public async Task<JsonResult> OnPostDeactivate(int id)
         {
-            var deleteCommand = await _mediator.Send(new DeleteSOPCommand { Id = id });
-            if (deleteCommand.Succeeded)
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            foreach (var user in users)
             {
-                _notify.Information($"SOP with Id {id} Deleted.");
-                var response = await _mediator.Send(new GetAllSOPsCachedQuery());
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+            }
+            if (ModelState.IsValid)
+            {
+                var response = await _mediator.Send(new GetSOPByIdQuery() { Id = id });
                 if (response.Succeeded)
-                {
-                    var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
-                    var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
-                    return new JsonResult(new { isValid = true, html = html });
-                }
-                else
-                {
-                    _notify.Error(response.Message);
-                    return null;
+                {    
+                    var sopViewModel = _mapper.Map<SOPViewModel>(response.Data);
+                    sopViewModel.IsActive = false;
+                    var updateSOPCommand = _mapper.Map<UpdateSOPCommand>(sopViewModel);
+                    var result = await _mediator.Send(updateSOPCommand);
+                    if (result.Succeeded)
+                        _notify.Information($"SOP with ID {result.Data} Deleted.");
+                    var response2 = await _mediator.Send(new GetAllSOPsCachedQuery());
+                    if (response2.Succeeded)
+                    {
+                        var response3 = await _mediator.Send(new Application.Features.WIs.Queries.GetAllCached.GetAllWIsCachedQuery());
+                        if (response3.Succeeded)
+                        {
+                            var viewModelWI = _mapper.Map<List<WIViewModel>>(response3.Data);
+                            viewModelWI = viewModelWI.Where(a => a.SOPNo == sopViewModel.SOPNo && a.SOPId == sopViewModel.Id && a.IsActive == true).ToList();
+                            if (rolesList.Contains("D"))
+                            {
+                                viewModelWI = viewModelWI.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId)).ToList();
+                            }
+                            foreach (WIViewModel item2 in viewModelWI)
+                            {
+                                item2.IsActive = false;
+                                var updateWICommand = _mapper.Map<Application.Features.WIs.Commands.Update.UpdateWICommand>(item2);
+                                var result3 = await _mediator.Send(updateWICommand);
+                            }
+                        }
+                        var viewModel = _mapper.Map<List<SOPViewModel>>(response2.Data);
+                        viewModel = viewModel.Where(a => a.IsActive == true).ToList();
+                        if (rolesList.Contains("D"))
+                        {
+                            viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId)).ToList();
+                        }
+                        foreach (SOPViewModel item in viewModel)
+                        {
+                            var psStatat = _context.SOPStatus.Where(a => a.SOPId == item.Id).ToList();
+
+                            if (psStatat.Count != 0)
+                            {
+                                var StatusId = _context.SOPStatus.Where(a => a.SOPId == item.Id).OrderBy(a => a.CreatedOn)
+                                    .Include(a => a.DocumentStatus)
+                                    .Last();
+                                item.SOPStatusView = StatusId.DocumentStatus.Name;
+                            }
+                            else
+                            {
+                                item.SOPStatusView = "New";
+                            }
+                        }
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
                 }
             }
-            else
-            {
-                _notify.Error(deleteCommand.Message);
-                return null;
-            }
+            return null;
         }
+        //[HttpPost]
+        //public async Task<JsonResult> OnPostDelete(int id)
+        //{
+        //    var deleteCommand = await _mediator.Send(new DeleteSOPCommand { Id = id });
+        //    if (deleteCommand.Succeeded)
+        //    {
+        //        _notify.Information($"SOP with Id {id} Deleted.");
+        //        var response = await _mediator.Send(new GetAllSOPsCachedQuery());
+        //        if (response.Succeeded)
+        //        {
+        //            var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
+        //            var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+        //            return new JsonResult(new { isValid = true, html = html });
+        //        }
+        //        else
+        //        {
+        //            _notify.Error(response.Message);
+        //            return null;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        _notify.Error(deleteCommand.Message);
+        //        return null;
+        //    }
+        //}
 
         public ActionResult UploadImage(List<IFormFile> files)
         {

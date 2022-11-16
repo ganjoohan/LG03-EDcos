@@ -29,6 +29,7 @@ using System.Text.Encodings.Web;
 using EDocSys.Application.Features.Procedures.Queries.GetById;
 using Microsoft.AspNetCore.Identity;
 using EDocSys.Infrastructure.Identity.Models;
+using EDocSys.Application.Features.Procedures.Commands.Update;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -76,13 +77,31 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public async Task<IActionResult> LoadAll(int procedureId)
         {
             var response = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
-
+            ViewBag.RoleD = false;
+          
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
                 var viewModelbyWSCPNo = viewModel.Where(a => a.ProcedureId == procedureId).ToList();
-
-                return PartialView("_ViewAll", viewModelbyWSCPNo);
+                var response0 = await _mediator.Send(new GetProcedureByIdQuery() { Id = procedureId });
+                if (response0.Succeeded)
+                {
+                    var procedureViewModel = _mapper.Map<ProcedureViewModel>(response.Data);
+                    var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                    var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+                    List<string> rolesList = new List<string>();
+                    foreach (var user in users)
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        if(user.UserCompanyId == procedureViewModel.CompanyId && user.UserDepartmentId == procedureViewModel.DepartmentId)
+                            rolesList.AddRange(roles);
+                    }
+                    if (rolesList.Contains("D"))
+                    {
+                        ViewBag.RoleD = true;
+                    }
+                }
+                    return PartialView("_ViewAll", viewModelbyWSCPNo);
             }
             return null;
         }
@@ -147,47 +166,47 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 var createProcedureStatusCommand = _mapper.Map<CreateProcedureStatusCommand>(procedureStatus);
                     var result = await _mediator.Send(createProcedureStatusCommand);
 
-                    if (procedureStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
-                    {
+                if (procedureStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
+                {
                     // locate company admin email and send to [TO] sender
 
-                    
-                        var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetProcedureById.Data.CompanyId).ToList();
 
-                        var companyAdmin = (from a1 in allUsersByCompany
-                                            join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
-                                            join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
-                                            select new UserViewModel
-                                            {
-                                                Email = a1.Email,
-                                                RoleName = a3.Name
-                                            }).ToList();
-                        string companyAdminEmail = companyAdmin.Where(a => a.RoleName == "E").Select(a => a.Email).FirstOrDefault();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetProcedureById.Data.CompanyId).ToList();
+
+                    var companyAdmin = (from a1 in allUsersByCompany
+                                        join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+                                        join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+                                        select new UserViewModel
+                                        {
+                                            Email = a1.Email,
+                                            RoleName = a3.Name
+                                        }).ToList();
+                    string companyAdminEmail = companyAdmin.Where(a => a.RoleName == "E").Select(a => a.Email).FirstOrDefault();
 
 
 
 
                     MailRequest mail = new MailRequest()
-                        {
-                            //To = userModel.Email,
-                            // To = "lgcompadmin@lion.com.my",
-                            To = companyAdminEmail,
-                            Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
-                            // 
-                            //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                            //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
-                            Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                    {
+                        //To = userModel.Email,
+                        // To = "lgcompadmin@lion.com.my",
+                        To = companyAdminEmail,
+                        Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
+                        // 
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
                     };
 
-                        try
-                        {
-                            await _mailService.SendAsync(mail);
-                        }
-                        catch (Exception)
+                    try
+                    {
+                        await _mailService.SendAsync(mail);
+                    }
+                    catch (Exception)
                     {
 
-                        }
                     }
+                }
 
                 else if (procedureStatus.DocumentStatusId == 5) // REJECTED: send email to department admin
                 {
@@ -199,13 +218,13 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                                                                        ).ToList();
 
                     var deptAdmin = (from a1 in allUsersByCompany
-                                        join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
-                                        join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
-                                        select new UserViewModel
-                                        {
-                                            Email = a1.Email,
-                                            RoleName = a3.Name
-                                        }).ToList();
+                                     join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+                                     join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+                                     select new UserViewModel
+                                     {
+                                         Email = a1.Email,
+                                         RoleName = a3.Name
+                                     }).ToList();
                     string deptAdminEmail = deptAdmin.Where(a => a.RoleName == "D").Select(a => a.Email).FirstOrDefault();
 
 
@@ -237,43 +256,43 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
 
                 else if (procedureStatus.DocumentStatusId == 6) // FORMAT CHECKED: check C1, C2 and APP is available
+                {
+                    if (c1 != null)
                     {
-                        if(c1!=null)
-                        {
-                            emailTo = _userManager.Users.Where(a => a.Id == c1).Select(a => a.Email).SingleOrDefault();
-                        }
-                        else if (c2 != null)
-                        {
-                            emailTo = _userManager.Users.Where(a => a.Id == c2).Select(a => a.Email).SingleOrDefault();
-                        }
-                        else
-                        {
-                            emailTo = _userManager.Users.Where(a => a.Id == app).Select(a => a.Email).SingleOrDefault();
-                        }
-
-                        MailRequest mail = new MailRequest()
-                        {
-                            //To = userModel.Email,
-                            //To = "lgcompadmin@lion.com.my",
-                            To = emailTo,
-                            Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
-                            // 
-                            //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
-                            //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
-                            Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
-
-                            
-                        };
-
-                        try
-                        {
-                            await _mailService.SendAsync(mail);
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
+                        emailTo = _userManager.Users.Where(a => a.Id == c1).Select(a => a.Email).SingleOrDefault();
                     }
+                    else if (c2 != null)
+                    {
+                        emailTo = _userManager.Users.Where(a => a.Id == c2).Select(a => a.Email).SingleOrDefault();
+                    }
+                    else
+                    {
+                        emailTo = _userManager.Users.Where(a => a.Id == app).Select(a => a.Email).SingleOrDefault();
+                    }
+
+                    MailRequest mail = new MailRequest()
+                    {
+                        //To = userModel.Email,
+                        //To = "lgcompadmin@lion.com.my",
+                        To = emailTo,
+                        Subject = "Procedure " + responseGetProcedureById.Data.WSCPNo + " need approval.",
+                        // 
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/procedure/preview?id=" + procedureStatus.ProcedureId)}'>clicking here</a> to open the document."
+
+
+                    };
+
+                    try
+                    {
+                        await _mailService.SendAsync(mail);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
 
                 else if (procedureStatus.DocumentStatusId == 2) // CONCURRED 1: check C2 and APP is available
                 {
@@ -302,7 +321,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -329,10 +348,17 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
+                }
+                else if(procedureStatus.DocumentStatusId == 4) //APPROVED
+                {
+                    var procedureViewModel = _mapper.Map<ProcedureViewModel>(responseGetProcedureById.Data);
+                    procedureViewModel.EffectiveDate = DateTime.Now;
+                    var updateProcedureCommand = _mapper.Map<UpdateProcedureCommand>(procedureViewModel);
+                    var result1 = await _mediator.Send(updateProcedureCommand);
                 }
 
                 if (result.Succeeded)
@@ -347,18 +373,28 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 //{
 
                 //}
-
-                var response = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
-                if (response.Succeeded)
+                try
                 {
-                    var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
+                    var response = await _mediator.Send(new GetAllProcedureStatusCachedQuery());
+                    if (response.Succeeded)
+                    {
+                        var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
+                    else
+                    {
+                        _notify.Error(response.Message);
+                        var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
+                }
+                catch
+                {
+                    var viewModel = new List<ProcedureStatusViewModel>();
                     var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
                     return new JsonResult(new { isValid = true, html = html });
-                }
-                else
-                {
-                    _notify.Error(response.Message);
-                    return null;
                 }
             }
             else

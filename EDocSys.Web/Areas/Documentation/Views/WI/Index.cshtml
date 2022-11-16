@@ -42,7 +42,7 @@
                 $('#viewAll').load('/documentation/wi/LoadAll');
             }
             else {
-                $('#viewAll').load('/documentation/wi/LoadBySOP/?sopno='+ '@ViewBag.SOPNo');
+                $('#viewAll').load('/documentation/wi/LoadBySOP/?sopno='+ '@ViewBag.SOPNo' + '&wscpid='+ '@ViewBag.WSCPId' + '&sopid='+ '@ViewBag.SOPId');
             }
         }
 

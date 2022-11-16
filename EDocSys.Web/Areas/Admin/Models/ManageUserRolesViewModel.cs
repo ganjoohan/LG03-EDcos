@@ -11,6 +11,7 @@ namespace EDocSys.Web.Areas.Admin.Models
     public class UserRolesViewModel
     {
         public string RoleName { get; set; }
+        public string UserName { get; set; }
         public bool Selected { get; set; }
     }
 }

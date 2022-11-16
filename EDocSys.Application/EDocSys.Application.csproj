@@ -3,6 +3,54 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Features\Test1ManualStatuses\**" />
+    <Compile Remove="Features\Test1Manuals\**" />
+    <Compile Remove="Features\Test2ManualStatuses\**" />
+    <Compile Remove="Features\Test2Manuals\**" />
+    <Compile Remove="Features\Test3ManualStatuses\**" />
+    <Compile Remove="Features\Test3Manuals\**" />
+    <EmbeddedResource Remove="Features\Test1ManualStatuses\**" />
+    <EmbeddedResource Remove="Features\Test1Manuals\**" />
+    <EmbeddedResource Remove="Features\Test2ManualStatuses\**" />
+    <EmbeddedResource Remove="Features\Test2Manuals\**" />
+    <EmbeddedResource Remove="Features\Test3ManualStatuses\**" />
+    <EmbeddedResource Remove="Features\Test3Manuals\**" />
+    <None Remove="Features\Test1ManualStatuses\**" />
+    <None Remove="Features\Test1Manuals\**" />
+    <None Remove="Features\Test2ManualStatuses\**" />
+    <None Remove="Features\Test2Manuals\**" />
+    <None Remove="Features\Test3ManualStatuses\**" />
+    <None Remove="Features\Test3Manuals\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CacheKeys\Test1ManualCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test1ManualStatusCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test2ManualCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test2ManualStatusCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test3ManualCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test3ManualStatusCacheKeys.cs" />
+    <Compile Remove="Interfaces\CacheRepositories\ITest1ManualCacheRepository.cs" />
+    <Compile Remove="Interfaces\CacheRepositories\ITest1ManualStatusCacheRepository.cs" />
+    <Compile Remove="Interfaces\CacheRepositories\ITest2ManualCacheRepository.cs" />
+    <Compile Remove="Interfaces\CacheRepositories\ITest2ManualStatusCacheRepository.cs" />
+    <Compile Remove="Interfaces\CacheRepositories\ITest3ManualCacheRepository.cs" />
+    <Compile Remove="Interfaces\CacheRepositories\ITest3ManualStatusCacheRepository.cs" />
+    <Compile Remove="Interfaces\Repositories\ITest1ManualRepository.cs" />
+    <Compile Remove="Interfaces\Repositories\ITest1ManualStatusRepository.cs" />
+    <Compile Remove="Interfaces\Repositories\ITest2ManualRepository.cs" />
+    <Compile Remove="Interfaces\Repositories\ITest2ManualStatusRepository.cs" />
+    <Compile Remove="Interfaces\Repositories\ITest3ManualRepository.cs" />
+    <Compile Remove="Interfaces\Repositories\ITest3ManualStatusRepository.cs" />
+    <Compile Remove="Mappings\Test1ManualProfile.cs" />
+    <Compile Remove="Mappings\Test1ManualStatusProfile.cs" />
+    <Compile Remove="Mappings\Test2ManualProfile.cs" />
+    <Compile Remove="Mappings\Test2ManualStatusProfile.cs" />
+    <Compile Remove="Mappings\Test3ManualProfile.cs" />
+    <Compile Remove="Mappings\Test3ManualStatusProfile.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCoreHero.Results" Version="1.1.1" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />

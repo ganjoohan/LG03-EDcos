@@ -4,6 +4,7 @@ using EDocSys.Infrastructure.DbContexts;
 using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Infrastructure.Shared.Services;
 using EDocSys.Web.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -73,17 +74,25 @@ namespace EDocSys.Web.Extensions
                     options.UseInMemoryDatabase("IdentityDb"));
                 services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseInMemoryDatabase("ApplicationDb"));
+                services.AddDbContext<ApplicationQualityDbContext>(options =>
+                   options.UseInMemoryDatabase("ApplicationQualityDb"));
+                services.AddDbContext<ApplicationExternalDbContext>(options =>
+                   options.UseInMemoryDatabase("ApplicationExternalDb"));
             }
             else
             {
                 services.AddDbContext<IdentityContext>(options => options.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ApplicationConnection")));
+                services.AddDbContext<ApplicationQualityDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ApplicationQualityConnection")));
+                services.AddDbContext<ApplicationExternalDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ApplicationExternalConnection")));
             }
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
                 options.Password.RequireNonAlphanumeric = false;
             }).AddEntityFrameworkStores<IdentityContext>().AddDefaultUI().AddDefaultTokenProviders();
+            GlobalConfiguration.Configuration
+            .UseSqlServerStorage(configuration.GetConnectionString("ApplicationExternalConnection"));
         }
 
         public static void AddSharedInfrastructure(this IServiceCollection services, IConfiguration configuration)

@@ -14,8 +14,7 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public string SOPNo { get; set; }
         public string WINo { get; set; }
         public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        public string PIC { get; set; }
         public string Body { get; set; }
         public int DepartmentId { get; set; }
         public SelectList Departments { get; set; }
@@ -89,6 +88,15 @@ namespace EDocSys.Web.Areas.Documentation.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateApprovedAPP { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
 
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime? ArchiveDate { get; set; }
+
+        public int WSCPId { get; set; }
     }
 }

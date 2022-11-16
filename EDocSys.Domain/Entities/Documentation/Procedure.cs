@@ -40,5 +40,11 @@ namespace EDocSys.Domain.Entities.Documentation
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
     }
 }

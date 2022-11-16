@@ -8,6 +8,14 @@ using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using EDocSys.Application.Interfaces.Repositories.ExternalRepositories;
+using EDocSys.Infrastructure.Repositories.ExternalRepositories;
+using EDocSys.Infrastructure.CacheRepositories.ExternalCacheRepositories;
+using EDocSys.Application.Interfaces.CacheRepositories.ExternalCacheRepositories;
+using EDocSys.Application.Interfaces.Repositories.QualityRepositories;
+using EDocSys.Infrastructure.Repositories.QualityRepositories;
+using EDocSys.Infrastructure.CacheRepositories.QualityCacheRepositories;
+using EDocSys.Application.Interfaces.CacheRepositories.QualityCacheRepositories;
 
 namespace EDocSys.Infrastructure.Extensions
 {
@@ -17,6 +25,8 @@ namespace EDocSys.Infrastructure.Extensions
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+            services.AddScoped<IApplicationExternalDbContext, ApplicationExternalDbContext>();
+            services.AddScoped<IApplicationQualityDbContext, ApplicationQualityDbContext>();
         }
 
         public static void AddRepositories(this IServiceCollection services)
@@ -49,15 +59,56 @@ namespace EDocSys.Infrastructure.Extensions
             services.AddTransient<IWIRepository, WIRepository>();
             services.AddTransient<IWICacheRepository, WICacheRepository>();
 
+            services.AddTransient<IDocumentManualRepository, DocumentManualRepository>();
+            services.AddTransient<IDocumentManualCacheRepository, DocumentManualCacheRepository>();
+
+            services.AddTransient<IQualityManualRepository, QualityManualRepository>();
+            services.AddTransient<IQualityManualCacheRepository, QualityManualCacheRepository>();
+
+            services.AddTransient<IEnvironmentalManualRepository, EnvironmentalManualRepository>();
+            services.AddTransient<IEnvironmentalManualCacheRepository, EnvironmentalManualCacheRepository>();
+
+            services.AddTransient<ILabAccreditationManualRepository, LabAccreditationManualRepository>();
+            services.AddTransient<ILabAccreditationManualCacheRepository, LabAccreditationManualCacheRepository>();
+
+            services.AddTransient<ISafetyHealthManualRepository, SafetyHealthManualRepository>();
+            services.AddTransient<ISafetyHealthManualCacheRepository, SafetyHealthManualCacheRepository>();
+
             services.AddTransient<IProcedureStatusRepository, ProcedureStatusRepository>();
             services.AddTransient<IProcedureStatusCacheRepository, ProcedureStatusCacheRepository>();
 
             services.AddTransient<IWIStatusRepository, WIStatusRepository>();
             services.AddTransient<IWIStatusCacheRepository, WIStatusCacheRepository>();
 
+            services.AddTransient<IDocumentManualStatusRepository, DocumentManualStatusRepository>();
+            services.AddTransient<IDocumentManualStatusCacheRepository, DocumentManualStatusCacheRepository>();
+
+            services.AddTransient<IQualityManualStatusRepository, QualityManualStatusRepository>();
+            services.AddTransient<IQualityManualStatusCacheRepository, QualityManualStatusCacheRepository>();
+
+            services.AddTransient<IEnvironmentalManualStatusRepository, EnvironmentalManualStatusRepository>();
+            services.AddTransient<IEnvironmentalManualStatusCacheRepository, EnvironmentalManualStatusCacheRepository>();
+
+            services.AddTransient<ILabAccreditationManualStatusRepository, LabAccreditationManualStatusRepository>();
+            services.AddTransient<ILabAccreditationManualStatusCacheRepository, LabAccreditationManualStatusCacheRepository>();
+
+            services.AddTransient<ISafetyHealthManualStatusRepository, SafetyHealthManualStatusRepository>();
+            services.AddTransient<ISafetyHealthManualStatusCacheRepository, SafetyHealthManualStatusCacheRepository>();
+
             services.AddTransient<IUserApproverRepository, UserApproverRepository>();
             services.AddTransient<IUserApproverCacheRepository, UserApproverCacheRepository>();
 
+            services.AddTransient<Application.Interfaces.Repositories.ExternalRepositories.ILionSteelRepository, Repositories.ExternalRepositories.LionSteelRepository>();
+            services.AddTransient<Application.Interfaces.CacheRepositories.ExternalCacheRepositories.ILionSteelCacheRepository, CacheRepositories.ExternalCacheRepositories.LionSteelCacheRepository>();
+
+            services.AddTransient<Application.Interfaces.Repositories.QualityRepositories.ILionSteelRepository, Repositories.QualityRepositories.LionSteelRepository>();
+            services.AddTransient<Application.Interfaces.CacheRepositories.QualityCacheRepositories.ILionSteelCacheRepository, CacheRepositories.QualityCacheRepositories.LionSteelCacheRepository>();
+
+            services.AddTransient<Application.Interfaces.Repositories.ExternalRepositories.IAttachmentRepository, Repositories.ExternalRepositories.AttachmentRepository> ();
+            services.AddTransient<Application.Interfaces.CacheRepositories.ExternalCacheRepositories.IAttachmentCacheRepository, CacheRepositories.ExternalCacheRepositories.AttachmentCacheRepository>();
+
+            services.AddTransient<Application.Interfaces.Repositories.QualityRepositories.IAttachmentRepository, Repositories.QualityRepositories.AttachmentRepository>();
+            services.AddTransient<Application.Interfaces.CacheRepositories.QualityCacheRepositories.IAttachmentCacheRepository, CacheRepositories.QualityCacheRepositories.AttachmentCacheRepository>();
             #endregion Repositories
         }
     }

@@ -7,16 +7,15 @@
             <th>
                 @localizer["Company"]
             </th>
+             <th>
+                @localizer["Department"]
+            </th>
             <th>
                 @localizer["User"]
             </th>
             <th>
                 @localizer["Email"]
             </th>
-            <th>
-                @localizer["Department"]
-            </th>
-            
             <th>
                 @localizer["Access"]
             </th>
@@ -86,6 +85,10 @@
                 
                 
                 <td>
+                    @{
+                        List<string> lstEmail = user.Email.Split('@').ToList();
+                        List<string> lstEmail2 = lstEmail[1].Split('.').ToList();
+                    }
                     @if (user.IsActive)
                     {
                         <span class="badge badge-success">@localizer["Active"]</span>
@@ -93,6 +96,15 @@
                     else
                     {
                         <span class="badge badge-danger">@localizer["Deactivated"]</span>
+                    }
+                    @if (lstEmail[0] != user.UserName)
+                    {
+                        @if ((lstEmail[0] + ((lstEmail2.Count > 3 ? (lstEmail2[0] + lstEmail2[1]) : lstEmail2[0]))) == user.UserName)
+                        { }
+                        else
+                        {
+                            <span class="badge badge-warning">@localizer["Sub"]</span>
+                        }
                     }
                 </td>
                 <td>
@@ -106,6 +118,11 @@
                             </a>
 
                             <a onclick="jQueryModalGet('/Admin/User/OnGetEdit?id=@user.Id','Edit User')" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit</a>
+                          @*  <a href="/Admin/UserRole/ViewUserRolesById?id=@user.Id" ,"User Role")" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        User Role
+                                    </a>*@
+                            <a onclick="jQueryModalGet('/Admin/User/OnGetCreateUserRole?id=@user.Id','Create User Role')" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Add Another User Role</a>
                         </div>
                     </div>
                 </td>
@@ -115,7 +132,6 @@
 </table>
 <script>
     $(document).ready(function () {
-        //$("#userTable").DataTable();
         $('#userTable').DataTable( {
         order: [[2, 'asc'], [1, 'asc']],
         rowGroup: {

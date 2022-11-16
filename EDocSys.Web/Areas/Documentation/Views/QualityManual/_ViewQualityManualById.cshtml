@@ -1,0 +1,257 @@
+﻿@model EDocSys.Web.Areas.Documentation.Models.QualityManualViewModel
+@using EDocSys.Infrastructure.Identity.Models;
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<p>Blah<p>
+<div class="row">
+    <div class="col-12">
+        <div class="documentation p-3 mb-3 print-container">
+            <div class="row">
+                <div class="col-sm-3 documentation-col">
+                    <h4>
+                        <img src="~/images/logo.png" />
+                    </h4>
+                </div>
+                <div class="col-sm-6 documentation-col text-center">
+                    <h1>
+                        STEEL DIVISION <br /><small>@Model.CompanyName</small>
+                    </h1>
+                </div>
+                <div class="col-sm-3 documentation-col">
+                    @if (@Model.QualityManualStatusView != "Approved")
+                    {
+                        <h3 class="float-right">@Model.QualityManualStatusView</h3><br>
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-12 text-center">
+                    <div class="color-palette-set">
+                        <h3 class="bg-secondary color-palette">QUALITY MANUAL</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td>Process</td>
+                                <td>@Model.ProcessName</td>
+                                <td>Effective Date</td>
+                                <td>@Html.DisplayFor(model => model.EffectiveDate)</td>
+                            </tr>
+                            <tr>
+                                <td>WSCP No</td>
+                                <td>@Model.DOCNo</td>
+                                <td>Revision Date</td>
+                                <td>@Html.DisplayFor(model => model.RevisionDate)</td>
+                            </tr>
+                            <tr>
+                                <td><b>TITLE</b></td>
+                                <td colspan="3"><b>@Model.Title</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <div class="col">
+                            <textarea hidden id="editor" asp-for="Body" class="form-control"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td><b>Prepared By</b></td>
+                                <td><b>1st Concurred By</b></td>
+                                <td><b>2nd Concurred By</b></td>
+                                <td><b>Approved By</b></td>
+                            </tr>
+                            <tr>
+                                <td><b>Name</b></td>
+                                <td>Jackie Chan</td>
+                                <td>
+                                    @if (@Model.Concurred1 == null || Model.Concurred1 == "")
+                                    {
+                                        @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                        {
+                                            <a onclick="jQueryModalGet('/documentation/qualitymanual/OnGetAssignConcurred1?id=@Model.Id','Assign Concurred1')" class="btn btn-warning"><i class="fas fa-user"></i>  Assign Concurred 1</a>
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @Model.Concurred1Name
+                                    }
+
+                                </td>
+                                <td>
+                                    @if (@Model.Concurred2 == null || Model.Concurred2 == "")
+                                    {
+                                        @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                        {
+                                            <a onclick="jQueryModalGet('/documentation/qualitymanual/OnGetAssignConcurred2?id=@Model.Id','Assign Concurred 2')" class="btn btn-warning"><i class="fas fa-user"></i>  Assign Concurred 2</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @Model.Concurred2
+                                    }
+                                </td>
+                                <td>
+                                    @if (@Model.ApprovedBy == null || Model.ApprovedBy == "")
+                                    {
+                                        @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                        {
+                                            <a onclick="jQueryModalGet('/documentation/qualitymanual/OnGetAssignApprovedBy?id=@Model.Id','Assignment Approved By')" class="btn btn-warning"><i class="fas fa-user"></i>  Assign Approved By</a>
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @Model.ApprovedBy
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Position</b></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><b>Date</b></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    <h6><b>CONTROLLED DOCUMENT</b></h6>
+                                    <p>
+                                        Note: This document is the property of the Company. It shall not be reproduced, copied, altered or disclosed
+                                        to any person without written consent of the HOC/HOD and shall be returned to the Company.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%">CONTROLLED COPY</td>
+                                <td>ELECTRONIC - @Model.PrintCount
+                                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                        {
+                                            <div class="no-print">
+                                                <form method="get" asp-area="documentation" asp-controller="QualityManual" asp-action="Preview" asp-route-id="@Model.Id">
+                                                    <input id="noElectronic" type="text" asp-for="PrintCount" name="PrintCount" class="form-control">   
+                                                    <button type="submit" class="btn btn-success">Update Electronic</button>
+                                                </form>
+                                            </div>
+                                        }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- this row will not appear when printing -->
+            <div class="row no-print">
+                <div class="col-12">
+                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA) //User.IsInRole("D") || User.IsInRole("A") || 
+                    {
+                        <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>
+                    }
+
+                    @if (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                    {
+                       
+                        if (Model.QualityManualStatusView == "New" || Model.QualityManualStatusView == "Rejected")
+                            {
+                                  @if (Model.Concurred1 != null && Model.ApprovedBy != null)
+                                {
+                                <a asp-area="Documentation" asp-controller="QualityManual" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">
+                                    <i class="fas fa-pencil-alt"></i> Edit
+                                </a>
+                               
+                                <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'
+                                    + '&&status=1', 'Submit for Formatting Check')"
+                                   class="btn btn-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
+                                    }
+                                    else
+                                    {
+                                       <a asp-area="Documentation" asp-controller="QualityManual" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">
+                                    <i class="fas fa-pencil-alt"></i> Edit (Unable to submit without concurred1 and approver)
+                                </a> 
+                                    }
+                                }
+                    }
+
+                    @if (Model.QualityManualStatusView == "Submitted" && @UserManager.GetUserAsync(User).Result.Id == @Model.Concurred1 && (User.IsInRole("E") || ViewBag.RoleE))
+                    {
+                        <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
+                        <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
+                    }
+
+                    @if (User.IsInRole("Concurred1")
+                      && Model.QualityManualStatusView == "Format Checked")
+                    {
+                        <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'+'&&status=2','Concurre')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurre</a>
+                        <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+
+                    }
+
+                    @if (User.IsInRole("Verification") && Model.QualityManualStatusView == "Concurred1")
+                    {
+                        @* temporary disabled *@
+                        @*@if (AuthorizationService.AuthorizeAsync(User, Permissions.QualityManualStatuses.Create).Result.Succeeded)
+            {
+                <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'+'&&status=5','Concurred')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurred</a>
+                <a onclick="jQueryModalGet('/documentation/qualitymanualstatus/OnGetSubmit?qualityManualId=@Model.Id'+'&&status=7','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+            }*@
+                    }
+
+                    @if (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                    {
+                        @if (@Model.QualityManualStatusView == "New")
+                        {
+                            <button type="button" class="btn bg-success dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Person In Charged
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                <a onclick="jQueryModalGet('/documentation/qualitymanual/OnGetAssignConcurred1?id=@Model.Id','Assign Concurred 1')" class="dropdown-item"><i class="fas fa-user"></i>  Assign Concurred 1</a>
+                                <a onclick="jQueryModalGet('/documentation/qualitymanual/OnGetAssignConcurred2?id=@Model.Id','Assign Concurred 2')" class="dropdown-item"><i class="fas fa-user"></i>  Assign Concurred 2</a>
+                                <a onclick="jQueryModalGet('/documentation/qualitymanual/OnGetAssignApprovedBy?id=@Model.Id','Assign Approved By')" class="dropdown-item"><i class="fas fa-user"></i>  Assign Approved By</a>
+                            </div>
+                        }
+
+
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

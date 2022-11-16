@@ -1,0 +1,187 @@
+﻿@using EDocSys.Web.Areas.QualityRecord.Models
+@model IEnumerable<LionSteelViewModel>
+@{
+    var pendApp = new List<LionSteelViewModel>();
+    //if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
+    //{
+    //    string userIds = ViewBag.userIds;
+    //    List<string> userId = userIds.Split(',').ToList();
+    //    pendApp = Model.Where(w => (userId.Contains(w.Concurred1) && w.LionSteelStatusView == "Submitted") || (userId.Contains(w.Concurred2) && w.LionSteelStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.LionSteelStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.LionSteelStatusView == "Concurred2")).ToList();
+    //}
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<style>
+  .tabs {
+    height: auto;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .tab-nav-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    position: relative !important;
+    z-index: 999 !important;
+    top: 3px;
+  }
+  
+  .tabs ul {
+    display: block;
+    /*width: max-content;*/
+    overflow-y: hidden;
+    margin: 0px;
+    padding-inline-start: 5px;
+  }
+  
+  .tabs ul li {
+    display: inline-block;
+    border: 1px solid grey;
+    border-bottom: 1px solid black;
+    background-color: white;
+  }
+  
+  .tabs ul li.active {
+    border: 1px solid black;
+    border-bottom: 1px solid white;
+  }
+  
+  .tabs ul li a {
+    text-decoration: none;
+    color: black;
+    padding: 10px;
+    line-height: 25px;
+    position: relative;
+    font-weight: bold;
+  }
+  
+  .tab-content-wrapper {
+    position: relative !important;
+    z-index: 1 !important;
+    border: 1px solid black;
+    padding: 20px;
+    min-height: 40px;
+  }
+</style>
+<div class="tabs">
+ 
+    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
+    {
+        <div class="tab-nav-wrapper">
+            <ul>
+                <li class="active"><a href="#tab1">To Be Approved</a></li>
+                <li><a href="#tab2">Main</a></li>
+            </ul>
+        </div>
+    }
+    else
+    {
+         <div class="tab-nav-wrapper" hidden>
+            <ul>
+                <li class="active"><a href="#tab2">Main</a></li>
+            </ul>
+        </div>
+    }
+
+  <div class="tab-content-wrapper">
+    <div id="tab2" class="tab-content" style="display:none;"> 
+        <table id="lionSteelTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Company</th>
+           @* <th>Process</th>*@
+         @*   <th>Status</th>*@
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var lionSteel in Model)
+        {
+            <tr>
+                @*<td style="text-indent: 35px; ">» @lionSteel.FormNo</td>*@
+                 <td>@lionSteel.Type</td>
+                <td>@lionSteel.Title</td>
+                <td>@lionSteel.CompanyName</td>
+                @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
+              @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
+                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department) 
+                {
+                    <td text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                    <a href="/Qualityrecord/lionsteel/Preview?id=@lionSteel.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Lion Steel
+                                    </a>
+                                     <a href="/Qualityrecord/lionsteel/CreateOrEdit?id=@lionSteel.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        Edit Lion Steel
+                                    </a>
+                                      <form id="form_deactivate_@lionSteel.Id" asp-area="QualityRecord" asp-controller="LionSteel" method="post" asp-action="OnPostDeactivate" asp-route-id="@lionSteel.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_deactivate_@lionSteel.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Lion Steel</a>
+                                    </form>
+
+                            </div>
+                            </div>
+                        </td>
+                }
+                else 
+                {
+                    <td align="center"><a href="/Qualityrecord/lionsteel/Preview?id=@lionSteel.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Lion Steel</a></td>
+                }
+               
+            </tr>
+        }
+    </tbody>
+</table>
+ </div>
+  </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#lionSteelTable').DataTable( {
+        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+        rowGroup: {
+            dataSrc: [ 2 ]
+        },
+        columnDefs: [ {
+            targets: [ 2 ],
+            visible: false
+        } ]
+    } );
+    });
+     $(document).ready(function () {
+        $('#documentManualPendAppTable').DataTable( {
+        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+        rowGroup: {
+            dataSrc: [ 2 ]
+        },
+        columnDefs: [ {
+            targets: [ 2 ],
+            visible: false
+        } ]
+    } );
+    });
+     $(document).ready(function() {
+  $(".tab-nav-wrapper li.active").click();
+  $($(".tab-nav-wrapper li.active a").attr("href")).show();
+
+  $(".tab-nav-wrapper li").click(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    $(".tab-nav-wrapper li").removeClass("active");
+    $(this).addClass("active");
+
+    var target = $(this).find("a").attr("href");
+    $(".tab-content-wrapper").find(".tab-content").hide();
+    $(".tab-content-wrapper").find(target).show();
+  })
+});
+</script>

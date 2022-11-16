@@ -32,6 +32,7 @@ using EDocSys.Application.Features.SOPStatuses.Queries.GetAllCached;
 using EDocSys.Application.Features.SOPs.Queries.GetById;
 using EDocSys.Application.Features.ProcedureStatuses.Commands.Create;
 using EDocSys.Application.Features.SOPStatuses.Commands.Create;
+using EDocSys.Application.Features.SOPs.Commands.Update;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -82,7 +83,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public async Task<IActionResult> LoadAll(int sopId)
         {
             var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
-
+            ViewBag.RoleD = false;
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<SOPStatusViewModel>>(response.Data);
@@ -177,7 +190,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -256,7 +269,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -289,7 +302,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
@@ -316,10 +329,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         await _mailService.SendAsync(mail);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }
+                }
+                else if (sopStatus.DocumentStatusId == 4) //APPROVED
+                {
+                    responseGetSOPById.Data.EffectiveDate = DateTime.Now;
+                    var updateSopCommand = _mapper.Map<UpdateSOPCommand>(responseGetSOPById.Data);
+                    var result1 = await _mediator.Send(updateSopCommand);
                 }
 
                 if (result.Succeeded)
@@ -334,18 +353,28 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 //{
 
                 //}
-
-                var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
-                if (response.Succeeded)
+                try
                 {
-                    var viewModel = _mapper.Map<List<SOPStatusViewModel>>(response.Data);
+                    var response = await _mediator.Send(new GetAllSOPStatusCachedQuery());
+                    if (response.Succeeded)
+                    {
+                        var viewModel = _mapper.Map<List<SOPStatusViewModel>>(response.Data);
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
+                    else
+                    {
+                        _notify.Error(response.Message);
+                        var viewModel = new List<SOPStatusViewModel>();
+                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        return new JsonResult(new { isValid = true, html = html });
+                    }
+                }
+                catch
+                {
+                    var viewModel = new List<SOPStatusViewModel>();
                     var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
                     return new JsonResult(new { isValid = true, html = html });
-                }
-                else
-                {
-                    _notify.Error(response.Message);
-                    return null;
                 }
             }
             else

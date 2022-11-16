@@ -23,6 +23,12 @@ namespace EDocSys.Application.Interfaces.Contexts
         DbSet<Procedure> Procedures { get; set; }
         DbSet<SOP> StandardOperatingPractices { get; set; }
         DbSet<WI> WorkInstructions { get; set; }
+        DbSet<DocumentManual> DocumentManuals { get; set; }
+        DbSet<QualityManual> QualityManuals { get; set; }
+        DbSet<EnvironmentalManual> EnvironmentalManuals { get; set; }
+        DbSet<LabAccreditationManual> LabAccreditationManuals { get; set; }
+        DbSet<SafetyHealthManual> SafetyHealthManuals { get; set; }
         DbSet<UserApprover> UserApprovers { get; set; }
+
     }
 }

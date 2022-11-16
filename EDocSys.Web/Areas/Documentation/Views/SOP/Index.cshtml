@@ -43,7 +43,7 @@
                 $('#viewAll').load('/documentation/sop/LoadAll');
             }
             else {
-                $('#viewAll').load('/documentation/sop/LoadByWSCP/?wscpno='+ '@ViewBag.WSCPNo');
+                $('#viewAll').load('/documentation/sop/LoadByWSCP/?wscpno='+ '@ViewBag.WSCPNo' + '&wscpid='+ '@ViewBag.WSCPId');
             }
         }
 

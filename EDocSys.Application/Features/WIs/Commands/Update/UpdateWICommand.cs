@@ -14,9 +14,9 @@ namespace EDocSys.Application.Features.WIs.Commands.Update
         public string Title { get; set; }
         public string SOPNo { get; set; }
         public string WINo { get; set; }
-        public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        //public string Purpose { get; set; }
+        //public string Scope { get; set; }
+        //public string Definition { get; set; }
         public string Body { get; set; }
         public int DepartmentId { get; set; }
         public DateTime? EffectiveDate { get; set; }
@@ -31,6 +31,14 @@ namespace EDocSys.Application.Features.WIs.Commands.Update
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
+        public int WSCPId { get; set; }
+
+        public int SOPId { get; set; }
 
         public class UpdateWICommandHandler : IRequestHandler<UpdateWICommand, Result<int>>
         {
@@ -59,9 +67,9 @@ namespace EDocSys.Application.Features.WIs.Commands.Update
                     wi.SOPNo = command.SOPNo ?? wi.SOPNo;
                     wi.WINo = command.WINo ?? wi.WINo;
 
-                    wi.Purpose = command.Purpose ?? wi.Purpose;
-                    wi.Scope = command.Scope ?? wi.Scope;
-                    wi.Definition = command.Definition ?? wi.Definition;
+                    //wi.Purpose = command.Purpose ?? wi.Purpose;
+                    //wi.Scope = command.Scope ?? wi.Scope;
+                    //wi.Definition = command.Definition ?? wi.Definition;
                     wi.Body = command.Body ?? wi.Body;
 
                     wi.EffectiveDate = command.EffectiveDate ?? wi.EffectiveDate;
@@ -75,13 +83,19 @@ namespace EDocSys.Application.Features.WIs.Commands.Update
                     
 
                     wi.Concurred1 = command.Concurred1 ?? wi.Concurred1;
-                    wi.Concurred2 = command.Concurred2 ?? wi.Concurred2;
+                    wi.Concurred2 = command.Concurred2;
                     wi.ApprovedBy = command.ApprovedBy ?? wi.ApprovedBy;
 
                     wi.PreparedBy = command.PreparedBy ?? wi.PreparedBy;
                     wi.PreparedByDate = command.PreparedByDate ?? wi.PreparedByDate;
                     wi.PreparedByPosition = command.PreparedByPosition ?? wi.PreparedByPosition;
-
+                    wi.IsActive = command.IsActive;
+                    wi.IsArchive = command.IsArchive ? true : wi.IsArchive;
+                    wi.ArchiveId = (command.ArchiveId == 0) ? wi.ArchiveId : command.ArchiveId;
+                    wi.PrintCount = (command.PrintCount == 0) ? wi.PrintCount : command.PrintCount;
+                    wi.WSCPId = (command.WSCPId == 0) ? wi.WSCPId : command.WSCPId;
+                    wi.SOPId = (command.SOPId == 0) ? wi.SOPId : command.SOPId;
+                    wi.ArchiveDate = command.ArchiveDate ?? wi.ArchiveDate;
                     await _wiRepository.UpdateAsync(wi);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(wi.Id);

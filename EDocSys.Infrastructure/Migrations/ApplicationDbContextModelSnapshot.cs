@@ -199,6 +199,9 @@ namespace EDocSys.Infrastructure.Migrations
                     b.Property<DateTime?>("EstalishedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -330,6 +333,9 @@ namespace EDocSys.Infrastructure.Migrations
                     b.Property<DateTime?>("EstalishedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -457,6 +463,9 @@ namespace EDocSys.Infrastructure.Migrations
 
                     b.Property<DateTime?>("EstalishedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");

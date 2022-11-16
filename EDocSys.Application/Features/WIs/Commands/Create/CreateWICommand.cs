@@ -16,9 +16,9 @@ namespace EDocSys.Application.Features.WIs.Commands.Create
         public string Title { get; set; }
         public string SOPNo { get; set; }
         public string WINo { get; set; }
-        public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        //public string Purpose { get; set; }
+        //public string Scope { get; set; }
+        //public string Definition { get; set; }
         public string Body { get; set; }
         public int DepartmentId { get; set; }
 
@@ -35,6 +35,13 @@ namespace EDocSys.Application.Features.WIs.Commands.Create
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsArchive { get; set; } = false;
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; } = 0;
+        public DateTime? ArchiveDate { get; set; }
+        public int WSCPId { get; set; } = 0;
+        public int SOPId { get; set; } = 0;
     }
 
     public class CreateWICommandHandler : IRequestHandler<CreateWICommand, Result<int>>

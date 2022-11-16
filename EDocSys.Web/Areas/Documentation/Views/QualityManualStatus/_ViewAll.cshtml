@@ -1,0 +1,48 @@
+﻿@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<QualityManualStatusViewModel>
+<table id="procedureTable" class="table table-striped" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            @*<th>Id</th>*@
+            <th>Remarks</th>
+            <th>Status</th>
+            @*<th>Created By</th>*@
+            <th>Created On (UTC)</th>
+            @*<th>Action</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+            var count = Model.Count();
+        }
+
+        @foreach (var qualityManual in Model)
+        {
+            <tr>
+                @*<td>@docManual.Id</td>*@
+                <td text-wrap>@qualityManual.Remarks</td>
+                <td>@qualityManual.DocumentStatus.Name</td>
+                @*<td>@docManual.CreatedBy</td>*@
+                <td>@qualityManual.CreatedOn</td>
+                <td>
+                    @if (++i == count)
+                    {
+                        @*<h5>this is the last item</h5>*@
+                        if (@qualityManual.DocumentStatus.Name == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
+                        {
+                                <a href="/documentation/qualitymanual/CreateOrEdit?id=@qualityManual.QualityManualId&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Quality Manual</a>
+                        }
+
+
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#qualityManualTable").DataTable();
+    });
+</script>

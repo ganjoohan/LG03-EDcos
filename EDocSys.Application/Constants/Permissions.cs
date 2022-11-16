@@ -106,5 +106,50 @@ namespace EDocSys.Application.Constants
             public const string Preview = "Permissions.WIs.Preview";
             public const string Print = "Permissions.WIs.Print";
         }
+        public static class DocumentManuals
+        {
+            public const string View = "Permissions.DocumentManuals.View";
+            public const string Create = "Permissions.DocumentManuals.Create";
+            public const string Edit = "Permissions.DocumentManuals.Edit";
+            public const string Delete = "Permissions.DocumentManuals.Delete";
+            public const string Preview = "Permissions.DocumentManuals.Preview";
+            public const string Print = "Permissions.DocumentManuals.Print";
+        }
+        public static class QualityManuals
+        {
+            public const string View = "Permissions.QualityManuals.View";
+            public const string Create = "Permissions.QualityManuals.Create";
+            public const string Edit = "Permissions.QualityManuals.Edit";
+            public const string Delete = "Permissions.QualityManuals.Delete";
+            public const string Preview = "Permissions.QualityManuals.Preview";
+            public const string Print = "Permissions.QualityManuals.Print";
+        }
+        public static class EnvironmentalManuals
+        {
+            public const string View = "Permissions.EnvironmentalManuals.View";
+            public const string Create = "Permissions.EnvironmentalManuals.Create";
+            public const string Edit = "Permissions.EnvironmentalManuals.Edit";
+            public const string Delete = "Permissions.EnvironmentalManuals.Delete";
+            public const string Preview = "Permissions.EnvironmentalManuals.Preview";
+            public const string Print = "Permissions.EnvironmentalManuals.Print";
+        }
+        public static class LabAccreditationManuals
+        {
+            public const string View = "Permissions.LabAccreditationManuals.View";
+            public const string Create = "Permissions.LabAccreditationManuals.Create";
+            public const string Edit = "Permissions.LabAccreditationManuals.Edit";
+            public const string Delete = "Permissions.LabAccreditationManuals.Delete";
+            public const string Preview = "Permissions.LabAccreditationManuals.Preview";
+            public const string Print = "Permissions.LabAccreditationManuals.Print";
+        }
+        public static class SafetyHealthManuals
+        {
+            public const string View = "Permissions.SafetyHealthManuals.View";
+            public const string Create = "Permissions.SafetyHealthManuals.Create";
+            public const string Edit = "Permissions.SafetyHealthManuals.Edit";
+            public const string Delete = "Permissions.SafetyHealthManuals.Delete";
+            public const string Preview = "Permissions.SafetyHealthManuals.Preview";
+            public const string Print = "Permissions.SafetyHealthManuals.Print";
+        }
     }
 }

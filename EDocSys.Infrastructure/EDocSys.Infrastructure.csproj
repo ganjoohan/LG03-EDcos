@@ -3,6 +3,27 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CacheKeys\Test1ManualCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test1ManualStatusCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test2ManualCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test2ManualStatusCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test3ManualCacheKeys.cs" />
+    <Compile Remove="CacheKeys\Test3ManualStatusCacheKeys.cs" />
+    <Compile Remove="CacheRepositories\Test1ManualCacheRepository.cs" />
+    <Compile Remove="CacheRepositories\Test1ManualStatusCacheRepository.cs" />
+    <Compile Remove="CacheRepositories\Test2ManualCacheRepository.cs" />
+    <Compile Remove="CacheRepositories\Test2ManualStatusCacheRepository.cs" />
+    <Compile Remove="CacheRepositories\Test3ManualCacheRepository.cs" />
+    <Compile Remove="CacheRepositories\Test3ManualStatusCacheRepository.cs" />
+    <Compile Remove="Repositories\Test1ManualRepository .cs" />
+    <Compile Remove="Repositories\Test1ManualStatusRepository.cs" />
+    <Compile Remove="Repositories\Test2ManualRepository.cs" />
+    <Compile Remove="Repositories\Test2ManualStatusRepository.cs" />
+    <Compile Remove="Repositories\Test3ManualRepository.cs" />
+    <Compile Remove="Repositories\Test3ManualStatusRepository.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCoreHero.EntityFrameworkCore.AuditTrail" Version="1.0.0" />
     <PackageReference Include="AspNetCoreHero.Extensions.Caching" Version="1.1.0" />
@@ -32,5 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\ApplicationDb\" />
+    <Folder Include="Repositories\ExternalRepositories\" />
+    <Folder Include="Repositories\QualityRepositories\" />
   </ItemGroup>
 </Project>

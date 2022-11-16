@@ -11,9 +11,9 @@ namespace EDocSys.Domain.Entities.Documentation
         public string Title { get; set; }
         public string SOPNo { get; set; }
         public string WINo { get; set; }
-        public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        //public string Purpose { get; set; }
+        //public string Scope { get; set; }
+        //public string Definition { get; set; }
         public string Body { get; set; }
 
         public DateTime? EffectiveDate { get; set; }
@@ -26,10 +26,10 @@ namespace EDocSys.Domain.Entities.Documentation
 
         public int CompanyId { get; set; }
         public virtual Company Company { get; set; }
-        public bool hasSOP { get; set; }
+
         public ICollection<WIStatus> WIStatus { get; set; }
 
-        public string ProcedureStatusView { get; set; }
+
 
 
         public string Concurred1 { get; set; }
@@ -39,5 +39,12 @@ namespace EDocSys.Domain.Entities.Documentation
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }
         public DateTime? PreparedByDate { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
+        public int WSCPId { get; set; }
+        public int SOPId { get; set; }
     }
 }

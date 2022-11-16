@@ -11,8 +11,8 @@ namespace EDocSys.Domain.Entities.Documentation
         public string SOPNo { get; set; }
         public string WINo { get; set; }
         public string Purpose { get; set; }
-        public string Scope { get; set; }
-        public string Definition { get; set; }
+        public string PIC { get; set; }
+        //public string Definition { get; set; }
         public string Body { get; set; }
 
         public DateTime? EffectiveDate { get; set; }
@@ -35,5 +35,11 @@ namespace EDocSys.Domain.Entities.Documentation
         public string Concurred1 { get; set; }
         public string Concurred2 { get; set; }
         public string ApprovedBy { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsArchive { get; set; }
+        public int ArchiveId { get; set; }
+        public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
+        public int WSCPId { get; set; }
     }
 }

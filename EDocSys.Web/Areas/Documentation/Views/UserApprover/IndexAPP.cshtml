@@ -9,8 +9,11 @@
         @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.Departments.Create)).Result.Succeeded)
         {*@
             <a onclick="jQueryModalGet('/documentation/userapprover/OnGetCreateOrEditAPP','Create Approver')" class="btn bg-success">
-                <i class="fa fa-plus-square"></i> Create
+                <i class="fa fa-plus-square"></i> Add Approver
             </a>
+             <a onclick="jQueryModalGet('/documentation/userapprover/OnGetCreateOrEditAAPP','Add For Role A')" class="btn bg-success">
+            <i class="fa fa-plus-square"></i> Add For Role A
+        </a>
         @*}*@
 
         <a id="reload" class="btn btn-primary text-white">

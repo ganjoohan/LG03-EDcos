@@ -1,6 +1,105 @@
 ﻿@using EDocSys.Web.Areas.Documentation.Models
 @model IEnumerable<ProcedureViewModel>
-<table id="procedureTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+@{
+    var archiveList = new List<ProcedureViewModel>();
+    archiveList = Model.Where(w => w.ArchiveDate <= DateTime.Now && w.ArchiveDate != default(DateTime)).ToList();
+    var nonAL = Model.Where(w=> !archiveList.Contains(w)).ToList();
+    var pendApp = new List<ProcedureViewModel>();
+    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
+    {
+        string userIds = ViewBag.userIds;
+        List<string> userId = userIds.Split(',').ToList();
+        pendApp = (User.IsInRole("E") || ViewBag.RoleE) ? (nonAL.Where(w => w.ProcedureStatusView == "Submitted").ToList()) :(nonAL.Where(w => (userId.Contains(w.Concurred1) && w.ProcedureStatusView == "Format Checked") || (userId.Contains(w.Concurred2) && w.ProcedureStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.ProcedureStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.ProcedureStatusView == "Concurred2")).ToList());
+    }
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<style>
+  .tabs {
+    height: auto;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .tab-nav-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    position: relative !important;
+    z-index: 999 !important;
+    top: 3px;
+  }
+  
+  .tabs ul {
+    display: block;
+    /*width: max-content;*/
+    overflow-y: hidden;
+    margin: 0px;
+    padding-inline-start: 5px;
+  }
+  
+  .tabs ul li {
+    display: inline-block;
+    border: 1px solid grey;
+    border-bottom: 1px solid black;
+    background-color: white;
+  }
+  
+  .tabs ul li.active {
+    border: 1px solid black;
+    border-bottom: 1px solid white;
+  }
+  
+  .tabs ul li a {
+    text-decoration: none;
+    color: black;
+    padding: 10px;
+    line-height: 25px;
+    position: relative;
+    font-weight: bold;
+  }
+  
+  .tab-content-wrapper {
+    position: relative !important;
+    z-index: 1 !important;
+    border: 1px solid black;
+    padding: 20px;
+    min-height: 40px;
+  }
+</style>
+<div class="tabs">
+ 
+    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE  || User.IsInRole("D") || ViewBag.RoleD)
+    {
+        <div class="tab-nav-wrapper">
+            <ul>
+                 @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
+                {
+                    <li class="active"><a href="#tab1">To Be Approved</a></li>
+                    <li><a href="#tab2">Main</a></li>
+                }
+                else
+                {
+                    <li class="active"><a href="#tab2">Main</a></li>
+                }                
+                @if(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+                {
+                <li><a href="#tab3">Archived</a></li>
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+         <div class="tab-nav-wrapper" hidden>
+            <ul>
+                <li class="active"><a href="#tab2">Main</a></li>
+            </ul>
+        </div>
+    }
+
+  <div class="tab-content-wrapper">
+    <div id="tab1" class="tab-content" style="display:none;">
+       <table id="procedurePendAppTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
     <thead>
         <tr>
             <th>Procedure No</th>
@@ -13,17 +112,18 @@
     </thead>
     <tbody>
 
-        @foreach (var procedure in Model)
+        @foreach (var procedure in pendApp)
         {
             <tr>
                 <td style="text-indent: 35px; ">» @procedure.WSCPNo</td>
                 <td>@procedure.Title</td>
                 <td>@procedure.CompanyName</td>
-                <td><b>@Html.Encode(@procedure.ProcessName).ToUpper()</b> </td>
+                <td><b>@procedure.ProcessName.ToUpper()</b> </td>
+                @*<td><b>@Html.Encode(@procedure.ProcessName).ToUpper()</b> </td>*@
                 <td align="center">
                     @if (!User.IsInRole("None"))
                     {
-                        if (@procedure.ProcedureStatusView != "New" && (User.IsInRole("D") || User.IsInRole("E") || User.IsInRole("SuperAdmin")))
+                        @if (@procedure.ProcedureStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
                         {
                             <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
                             <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
@@ -38,9 +138,9 @@
                         }
                     }
                 </td>
-                @if(User.IsInRole("SuperAdmin") || User.IsInRole("D")) // SOP Department Admin (Full Access by Department) 
+                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department) 
                 {
-                    <td text-right">
+                    <td class="text-right">
                         <div class="btn-group ">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Action
@@ -49,36 +149,46 @@
                                 @*Can only Edit if New or Rejected status *@
                                 @if (@procedure.ProcedureStatusView == "New" || @procedure.ProcedureStatusView == "Rejected")
                                 {
-                                    <a href="/documentation/procedure/CreateOrEdit?id=@procedure.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Edit Procedure")" class="dropdown-item">
+                                    <a href="/documentation/procedure/CreateOrEdit?id=@procedure.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
                                         <i class="fas fa-pencil-alt"></i>
                                         Edit Procedure
                                     </a>
                                 }
 
                                 @* Only Deparment Admin Preview if "New" or "Rejected" status *@
-                                @if ((@procedure.ProcedureStatusView == "New") && (User.IsInRole("D") || User.IsInRole("SuperAdmin")))
+                                @if ((@procedure.ProcedureStatusView == "New") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
                                 {
-                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" ,"Edit Procedure")" class="dropdown-item">
+                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item">
                                         <i class="fas fa-eye"></i>
                                         Preview Procedure
                                     </a>
-
-                                    <form id="form_delete_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDelete" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_delete_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
                                     </form>
+
+                                  @*  <form id="form_delete_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDelete" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    </form>*@
                                 }
                                 else if (@procedure.ProcedureStatusView != "New")
                                 {
-                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" ,"Edit Procedure")" class="dropdown-item">
+                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item">
                                         <i class="fas fa-eye"></i>
                                         Preview Procedure
                                     </a>
+                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                    {
+                                        <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                            <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                        </form>
+                                    }
                                 }
 
                                 <div class="dropdown-divider"></div>
                                 
                                     <a class="dropdown-item" asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit"
                                        asp-route-wscpno="@procedure.WSCPNo"
+                                       asp-route-wscpId="@procedure.Id"
                                        asp-route-departmentId="@procedure.DepartmentId"
                                        asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
                                        asp-route-procedureId="@procedure.Id">
@@ -93,11 +203,36 @@
                             </div>
                         </td>
                 }
-
-                @* Read Only Users  *@
-                else if (User.IsInRole("B1") || User.IsInRole("B2") || User.IsInRole("C") || User.IsInRole("E") && procedure.ProcedureStatusView == "Approved")
+                @* See All Docs Users  *@
+                else if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("B2") || ViewBag.RoleB2)
                 {
-                    <td align="center"><a href="/documentation/procedure/Preview?id=@procedure.Id" ,"Edit Procedure")" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a></td>
+                    <td align="center"><a href="/documentation/procedure/Preview?id=@procedure.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a></td>
+                }
+                @*Company Admin*@
+                else if (User.IsInRole("E") || ViewBag.RoleE)
+                {
+                     <td class="text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview Procedure</a>
+
+                                <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                </form>
+
+                            </div>
+                        </div>
+                    </td>
+                }
+                @* Read Only Users  *@
+                else if ((User.IsInRole("C") || ViewBag.RoleC) && procedure.ProcedureStatusView == "Approved")
+                {
+                    <td align="center">
+                      <a href="/documentation/procedure/Preview?id=@procedure.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a>     
+                    </td>
                 }
                 else
                 {
@@ -107,11 +242,217 @@
         }
     </tbody>
 </table>
+    </div>
+    <div id="tab2" class="tab-content" style="display:none;">   
+      <table id="procedureTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Procedure No</th>
+            <th>Procedure Title</th>
+            <th>Company</th>
+            <th>Process</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var procedure in nonAL)
+        {
+            <tr>
+                <td style="text-indent: 35px; ">» @procedure.WSCPNo</td>
+                <td>@procedure.Title</td>
+                <td>@procedure.CompanyName</td>
+                <td><b>@procedure.ProcessName.ToUpper()</b> </td>
+                @*<td><b>@Html.Encode(@procedure.ProcessName).ToUpper()</b> </td>*@
+                <td align="center">
+                    @if (!User.IsInRole("None"))
+                    {
+                        @if (@procedure.ProcedureStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                            <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                        }
+                        else if (procedure.ProcedureStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
+                        else if (@procedure.ProcedureStatusView == "New")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
+                    }
+                </td>
+                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department) 
+                {
+                    <td class="text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @*Can only Edit if New or Rejected status *@
+                                @if (@procedure.ProcedureStatusView == "New" || @procedure.ProcedureStatusView == "Rejected")
+                                {
+                                    <a href="/documentation/procedure/CreateOrEdit?id=@procedure.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        Edit Procedure
+                                    </a>
+                                }
+
+                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                @if ((@procedure.ProcedureStatusView == "New") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                {
+                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Procedure
+                                    </a>
+                                    <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    </form>
+
+                                  @*  <form id="form_delete_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDelete" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    </form>*@
+                                }
+                                else if (@procedure.ProcedureStatusView != "New")
+                                {
+                                    <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Procedure
+                                    </a>
+                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                    {
+                                        <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                            <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                        </form>
+                                    }
+                                }
+
+                                <div class="dropdown-divider"></div>
+                                
+                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit"
+                                       asp-route-wscpno="@procedure.WSCPNo"
+                                      asp-route-wscpId="@procedure.Id"
+                                       asp-route-departmentId="@procedure.DepartmentId"
+                                       asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                       asp-route-procedureId="@procedure.Id">
+                                        <i class="fa fa-plus-square"></i> Create SOP
+                                    </a>
+                                <a href="/documentation/sop/Index?wscpno=@procedure.WSCPNo&wscpid=@procedure.Id" class="dropdown-item"><i class="fa fa-list"></i>  SOP List</a>
+                                
+                                @*<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Create WI</a>
+                                <a class="dropdown-item" href="#">WI List</a>*@
+                            </div>
+                            </div>
+                        </td>
+                }
+                @* See All Docs Users  *@
+                else if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("B2") || ViewBag.RoleB2)
+                {
+                    <td align="center"><a href="/documentation/procedure/Preview?id=@procedure.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a></td>
+                }
+                @*Company Admin*@
+                else if (User.IsInRole("E") || ViewBag.RoleE)
+                {
+                   <td class="text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                  <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Procedure
+                                    </a>
+                                    <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
+                                    </form>
+
+                            </div>
+                        </div>
+                    </td>
+                }
+                @* Read Only Users  *@
+                else if ((User.IsInRole("C") || ViewBag.RoleC) && procedure.ProcedureStatusView == "Approved")
+                {
+                    <td align="center">
+                      <a href="/documentation/procedure/Preview?id=@procedure.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a>     
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+    </div>
+    <div id="tab3" class="tab-content" style="display:none;">
+       <table id="procedureArchiveListTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Procedure No</th>
+            <th>Procedure Title</th>
+            <th>Company</th>
+            <th>Process</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var procedure in archiveList)
+        {
+            <tr>
+                <td style="text-indent: 35px; ">» @procedure.WSCPNo</td>
+                <td>@procedure.Title</td>
+                <td>@procedure.CompanyName</td>
+                <td><b>@procedure.ProcessName.ToUpper()</b> </td>
+                @*<td><b>@Html.Encode(@procedure.ProcessName).ToUpper()</b> </td>*@
+                <td align="center">
+                    @if (!User.IsInRole("None"))
+                    {
+                        @if (@procedure.ProcedureStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                            <a href="/documentation/ProcedureStatus/Index?id=@procedure.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                        }
+                        else if (procedure.ProcedureStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
+                        else if (@procedure.ProcedureStatusView == "New")
+                        {
+                            <span class="badge badge-warning">@procedure.ProcedureStatusView</span>
+                        }
+                    }
+                </td>
+                   <td class="text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                <a href="/documentation/procedure/Preview?id=@procedure.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Procedure</a>     
+                                <a href="/documentation/sop/Index?wscpno=@procedure.WSCPNo&wscpid=@procedure.Id" class="dropdown-item"><i class="fa fa-list"></i>  SOP List</a>
+                            </div>
+                      </div>
+                    </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    </div>
+  </div>
+</div>
 
 <script>
     $(document).ready(function () {
         $('#procedureTable').DataTable( {
-        order: [[1, 'asc'], [0, 'asc']],
+        order: [[2, 'asc'], [3, 'asc'],[0, 'asc'], [1, 'asc']],
         rowGroup: {
             dataSrc: [ 2,3 ]
         },
@@ -121,4 +462,44 @@
         } ]
     } );
     });
+      $(document).ready(function () {
+        $('#procedurePendAppTable').DataTable( {
+        order: [[2, 'asc'], [3, 'asc'],[0, 'asc'], [1, 'asc']],
+        rowGroup: {
+            dataSrc: [ 2,3 ]
+        },
+        columnDefs: [ {
+            targets: [ 2,3 ],
+            visible: false
+        } ]
+    } );
+    }); 
+      $(document).ready(function () {
+        $('#procedureArchiveListTable').DataTable( {
+        order: [[2, 'asc'], [3, 'asc'],[0, 'asc'], [1, 'asc']],
+        rowGroup: {
+            dataSrc: [ 2,3 ]
+        },
+        columnDefs: [ {
+            targets: [ 2,3 ],
+            visible: false
+        } ]
+    } );
+    }); 
+        $(document).ready(function() {
+  $(".tab-nav-wrapper li.active").click();
+  $($(".tab-nav-wrapper li.active a").attr("href")).show();
+
+  $(".tab-nav-wrapper li").click(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    $(".tab-nav-wrapper li").removeClass("active");
+    $(this).addClass("active");
+
+    var target = $(this).find("a").attr("href");
+    $(".tab-content-wrapper").find(".tab-content").hide();
+    $(".tab-content-wrapper").find(target).show();
+  })
+});
 </script>

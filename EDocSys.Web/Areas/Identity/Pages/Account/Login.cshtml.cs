@@ -83,7 +83,8 @@ namespace EDocSys.Web.Areas.Identity.Pages.Account
                 var userName = Input.Email;
                 if (IsValidEmail(Input.Email))
                 {
-                    var userCheck = await _userManager.FindByEmailAsync(Input.Email);
+                    MailAddress address = new MailAddress(Input.Email);
+                    var userCheck = await _userManager.FindByNameAsync(address.User);
                     if (userCheck != null)
                     {
                         userName = userCheck.UserName;

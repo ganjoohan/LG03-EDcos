@@ -124,6 +124,14 @@ namespace EDocSys.Web.Authorization
                     return Task.CompletedTask;
                 }
             }
+            if (context.User.IsInRole("A"))
+            {
+                if (sop.Concurred1 == user.Id)
+                {
+                    context.Succeed(requirement);
+                    return Task.CompletedTask;
+                }
+            }
             //else
             //{
             //    if (procedure.DepartmentId != user.UserDepartmentId || procedure.CompanyId != user.UserCompanyId)
