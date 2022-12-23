@@ -37,6 +37,7 @@ namespace EDocSys.Application.Features.SafetyHealthManuals.Commands.Create
         public bool IsArchive { get; set; } = false;
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; } = 0;
+        public DateTime? ArchiveDate { get; set; }
     }
 
     public class CreateSafetyHealthManualCommandHandler : IRequestHandler<CreateSafetyHealthManualCommand, Result<int>>

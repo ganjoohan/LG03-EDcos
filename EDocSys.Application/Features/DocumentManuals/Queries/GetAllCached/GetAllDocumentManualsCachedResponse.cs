@@ -34,5 +34,6 @@ namespace EDocSys.Application.Features.DocumentManuals.Queries.GetAllCached
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
     }
 }

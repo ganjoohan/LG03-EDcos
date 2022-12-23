@@ -37,6 +37,7 @@ using Hangfire.Common;
 using EDocSys.Application.DTOs.Mail;
 using EDocSys.Application.Interfaces.Shared;
 using System.Text.Encodings.Web;
+using Hangfire.Storage;
 
 namespace EDocSys.Web.Areas.ExternalRecord.Controllers
 {
@@ -274,7 +275,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
 
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
-            //var statusById = _context.DocumentManualStatus.Where(a => a.DocumentManualId == id).ToList();
+            //var statusById = _context.LionSteelStatus.Where(a => a.LionSteelId == id).ToList();
 
             if (response.Succeeded)
             {
@@ -355,7 +356,47 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             {
                 var viewModel = _mapper.Map<List<LionSteelViewModel>>(response.Data);
                 viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId))).ToList();
-
+                if (viewModel.Count == 1)
+                {
+                    RecurringJob.RemoveIfExists("expiredExternalLS");
+                    var manager = new RecurringJobManager();
+                    manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
+                    var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
+                    if (viewModel0.Count > 0)
+                    {
+                        RecurringJob.TriggerJob("expiredExternalLS");
+                        //BackgroundJob.Enqueue(() => sendMailAsync());
+                    }
+                }
+                else
+                {
+                    List<Hangfire.Storage.RecurringJobDto> recurringJobs = new List<Hangfire.Storage.RecurringJobDto>();
+                    recurringJobs = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList();
+                    var newRJ = recurringJobs.Where(w => w.NextExecution.Value.ToString("dd/MM/yyyy") == DateTime.Now.AddDays(1).ToString("dd/MM/yyyy")).FirstOrDefault();
+                    if (newRJ == null)
+                    {
+                        var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
+                        if (viewModel0.Count > 0)
+                        {
+                            RecurringJob.RemoveIfExists("expiredExternalLS");
+                            var manager = new RecurringJobManager();
+                            manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
+                            RecurringJob.TriggerJob("expiredExternalLS");
+                            //BackgroundJob.Enqueue(() => sendMailAsync());
+                        }
+                    }
+                    else
+                    {
+                        var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
+                        if (viewModel0.Count > 0)
+                        {
+                            //RecurringJob.RemoveIfExists("expiredExternalLS");
+                            //var manager = new RecurringJobManager();
+                            //manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
+                            //BackgroundJob.Enqueue(() => sendMailAsync());
+                        }
+                    }
+                }
                 if (!rolesList.Contains("A") && !rolesList.Contains("SuperAdmin"))
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
@@ -370,12 +411,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                 }
-                if(viewModel.Count == 1)
-                {
-                    RecurringJob.RemoveIfExists("expiredExternalLS");
-                    var manager = new RecurringJobManager();
-                    manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
-                }
+               
                 return PartialView("_ViewAll", viewModel);
             }
             return null;
@@ -414,7 +450,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
         [HttpPost]
         public async Task<IActionResult> OnPostCreateOrEdit(int id, LionSteelViewModel lionSteel)
         {
-            // documentManual.EffectiveDate.Value.ToString("g");
+            // lionSteel.EffectiveDate.Value.ToString("g");
 
 
 
@@ -589,20 +625,20 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                         {
                             viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                         }
-                        //foreach (DocumentManualViewModel item in viewModel)
+                        //foreach (LionSteelViewModel item in viewModel)
                         //{
-                        //    var psStatat = _context.DocumentManualStatus.Where(a => a.DocumentManualId == item.Id).ToList();
+                        //    var psStatat = _context.LionSteelStatus.Where(a => a.LionSteelId == item.Id).ToList();
 
                         //    if (psStatat.Count != 0)
                         //    {
-                        //        var StatusId = _context.DocumentManualStatus.Where(a => a.DocumentManualId == item.Id).OrderBy(a => a.CreatedOn)
+                        //        var StatusId = _context.LionSteelStatus.Where(a => a.LionSteelId == item.Id).OrderBy(a => a.CreatedOn)
                         //            .Include(a => a.DocumentStatus)
                         //            .Last();
-                        //        item.DocumentManualStatusView = StatusId.DocumentStatus.Name;
+                        //        item.LionSteelStatusView = StatusId.DocumentStatus.Name;
                         //    }
                         //    else
                         //    {
-                        //        item.DocumentManualStatusView = "New";
+                        //        item.LionSteelStatusView = "New";
                         //    }
                         //}
                         var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
@@ -621,34 +657,34 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
         //    var roles = await _userManager.GetRolesAsync(user);
         //    var rolesList = roles.ToList();
 
-        //    var deleteCommand = await _mediator.Send(new DeleteDocumentManualCommand { Id = id });
+        //    var deleteCommand = await _mediator.Send(new DeleteLionSteelCommand { Id = id });
         //    if (deleteCommand.Succeeded)
         //    {
         //        _notify.Information($"Document Manual with Id {id} Deleted.");
-        //        var response = await _mediator.Send(new GetAllDocumentManualsCachedQuery());
+        //        var response = await _mediator.Send(new GetAllLionSteelsCachedQuery());
         //        if (response.Succeeded)
         //        {
-        //            var viewModel = _mapper.Map<List<DocumentManualViewModel>>(response.Data);
+        //            var viewModel = _mapper.Map<List<LionSteelViewModel>>(response.Data);
 
         //            if (rolesList.Contains("D"))
         //            {
         //                viewModel = viewModel.Where(a => a.CompanyId == user.UserCompanyId && a.DepartmentId == user.UserDepartmentId).ToList();
         //            }
 
-        //            foreach (DocumentManualViewModel item in viewModel)
+        //            foreach (LionSteelViewModel item in viewModel)
         //            {
-        //                var psStatat = _context.DocumentManualStatus.Where(a => a.DocumentManualId == item.Id).ToList();
+        //                var psStatat = _context.LionSteelStatus.Where(a => a.LionSteelId == item.Id).ToList();
 
         //                if (psStatat.Count != 0)
         //                {
-        //                    var StatusId = _context.DocumentManualStatus.Where(a => a.DocumentManualId == item.Id).OrderBy(a => a.CreatedOn)
+        //                    var StatusId = _context.LionSteelStatus.Where(a => a.LionSteelId == item.Id).OrderBy(a => a.CreatedOn)
         //                        .Include(a => a.DocumentStatus)
         //                        .Last();
-        //                    item.DocumentManualStatusView = StatusId.DocumentStatus.Name;
+        //                    item.LionSteelStatusView = StatusId.DocumentStatus.Name;
         //                }
         //                else
         //                {
-        //                    item.DocumentManualStatusView = "New";
+        //                    item.LionSteelStatusView = "New";
         //                }
         //            }
 
@@ -877,7 +913,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                         {
                             //To = userModel.Email,
                             // To = "lgcompadmin@lion.com.my",
-                            To = "",
+                            To = informedList,
                             Subject = "Lion Steel External Record Expired.",
                             // 
 
@@ -886,7 +922,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
 
                         try
                         {
-                            ////await _mailService.SendAsync(mail);
+                            await _mailService.SendAsync(mail);
                         }
                         catch (Exception)
                         {

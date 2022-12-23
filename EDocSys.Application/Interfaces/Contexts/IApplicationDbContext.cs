@@ -29,6 +29,6 @@ namespace EDocSys.Application.Interfaces.Contexts
         DbSet<LabAccreditationManual> LabAccreditationManuals { get; set; }
         DbSet<SafetyHealthManual> SafetyHealthManuals { get; set; }
         DbSet<UserApprover> UserApprovers { get; set; }
-
+        DbSet<Issuance> Issuances { get; set; }
     }
 }

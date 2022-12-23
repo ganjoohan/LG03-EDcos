@@ -5,6 +5,7 @@ using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Infrastructure.Shared.Services;
 using EDocSys.Web.Services;
 using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -86,6 +87,7 @@ namespace EDocSys.Web.Extensions
                 services.AddDbContext<ApplicationQualityDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ApplicationQualityConnection")));
                 services.AddDbContext<ApplicationExternalDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ApplicationExternalConnection")));
             }
+            //services.AddHangfire(c => c.UseSqlServerStorage(configuration.GetConnectionString("ApplicationExternalConnection")));
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;

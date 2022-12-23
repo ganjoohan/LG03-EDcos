@@ -29,6 +29,7 @@ namespace EDocSys.Application.Features.QualityManuals.Commands.Update
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
 
         public class UpdateQualityManualCommandHandler : IRequestHandler<UpdateQualityManualCommand, Result<int>>
         {
@@ -73,6 +74,7 @@ namespace EDocSys.Application.Features.QualityManuals.Commands.Update
                     qualitymanual.IsArchive = command.IsArchive ? true : qualitymanual.IsArchive;
                     qualitymanual.ArchiveId = (command.ArchiveId == 0) ? qualitymanual.ArchiveId : command.ArchiveId;
                     qualitymanual.PrintCount = (command.PrintCount == 0) ? qualitymanual.PrintCount : command.PrintCount;
+                    qualitymanual.ArchiveDate = command.ArchiveDate ?? qualitymanual.ArchiveDate;
                     await _qualityManualRepository.UpdateAsync(qualitymanual);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(qualitymanual.Id);

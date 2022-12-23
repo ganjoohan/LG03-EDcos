@@ -1,12 +1,15 @@
 ﻿@using EDocSys.Web.Areas.Documentation.Models
 @model IEnumerable<DocumentManualViewModel>
 @{
+    var archiveList = new List<DocumentManualViewModel>();
+    archiveList = Model.Where(w => w.ArchiveDate <= DateTime.Now && w.ArchiveDate != default(DateTime)).ToList();
+    var nonAL = Model.Where(w=> !archiveList.Contains(w)).ToList();
     var pendApp = new List<DocumentManualViewModel>();
     if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
     {
         string userIds = ViewBag.userIds;
         List<string> userId = userIds.Split(',').ToList();
-        pendApp = Model.Where(w => (userId.Contains(w.Concurred1) && w.DocumentManualStatusView == "Submitted") || (userId.Contains(w.Concurred2) && w.DocumentManualStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.DocumentManualStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.DocumentManualStatusView == "Concurred2")).ToList();
+        pendApp = nonAL.Where(w => (userId.Contains(w.Concurred1) && w.DocumentManualStatusView == "Submitted") || (userId.Contains(w.Concurred2) && w.DocumentManualStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.DocumentManualStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.DocumentManualStatusView == "Concurred2")).ToList();
     }
 }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -65,12 +68,23 @@
 </style>
 <div class="tabs">
  
-    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
+    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE  || User.IsInRole("D") || ViewBag.RoleD)
     {
         <div class="tab-nav-wrapper">
             <ul>
-                <li class="active"><a href="#tab1">To Be Approved</a></li>
-                <li><a href="#tab2">Main</a></li>
+                 @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
+                {
+                    <li class="active"><a href="#tab1">To Be Approved</a></li>
+                    <li><a href="#tab2">Main</a></li>
+                }
+                else
+                {
+                    <li class="active"><a href="#tab2">Main</a></li>
+                }                
+                @if(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+                {
+                <li><a href="#tab3">Archived</a></li>
+                }
             </ul>
         </div>
     }
@@ -194,7 +208,103 @@
     </thead>
     <tbody>
 
-        @foreach (var docManual in Model)
+        @foreach (var docManual in nonAL)
+        {
+            <tr>
+                <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
+                <td>@docManual.Title</td>
+                <td>@docManual.CompanyName</td>
+                @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
+              @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
+                <td align="center">
+                    @if (!User.IsInRole("None"))
+                    {
+                        if (@docManual.DocumentManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                        {
+                            <span class="badge badge-warning">@docManual.DocumentManualStatusView</span>
+                            <a href="/documentation/DocumentManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                        }
+                        else if (docManual.DocumentManualStatusView == "Approved")
+                        {
+                            <span class="badge badge-warning">@docManual.DocumentManualStatusView</span>
+                        }
+                        else if (@docManual.DocumentManualStatusView == "New")
+                        {
+                            <span class="badge badge-warning">@docManual.DocumentManualStatusView</span>
+                        }
+                    }
+                </td>
+                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department) 
+                {
+                    <td text-right">
+                        <div class="btn-group ">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                @*Can only Edit if New or Rejected status *@
+                                @if (@docManual.DocumentManualStatusView == "New" || @docManual.DocumentManualStatusView == "Rejected")
+                                {
+                                    <a href="/documentation/documentmanual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                        <i class="fas fa-pencil-alt"></i>
+                                        Edit Document Manual
+                                    </a>
+                                }
+
+                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                @if ((@docManual.DocumentManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                {
+                                    <a href="/documentation/documentmanual/Preview?id=@docManual.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Document Manual
+                                    </a>
+                                    <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="DocumentManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Document Manual</a>
+                                    </form>
+
+                                  @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="DocumentManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Document Manual</a>
+                                    </form>*@
+                                }
+                                else if (@docManual.DocumentManualStatusView != "New")
+                                {
+                                    <a href="/documentation/documentmanual/Preview?id=@docManual.Id" class="dropdown-item">
+                                        <i class="fas fa-eye"></i>
+                                        Preview Document Manual
+                                    </a>
+                                      <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="DocumentManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Document Manual</a>
+                                    </form>
+                                }
+                            </div>
+                            </div>
+                        </td>
+                }
+                else 
+                {
+                    <td align="center"><a href="/documentation/documentmanual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Document Manual</a></td>
+                }
+               
+            </tr>
+        }
+    </tbody>
+</table>
+ </div>
+ <div id="tab3" class="tab-content" style="display:none;">
+       <table id="documentManualArchiveListTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+           <thead>
+        <tr>
+            <th>DOC No</th>
+            <th>DOC Title</th>
+            <th>Company</th>
+           @* <th>Process</th>*@
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var docManual in archiveList)
         {
             <tr>
                 <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
@@ -293,6 +403,18 @@
     });
      $(document).ready(function () {
         $('#documentManualPendAppTable').DataTable( {
+        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+        rowGroup: {
+            dataSrc: [ 2 ]
+        },
+        columnDefs: [ {
+            targets: [ 2 ],
+            visible: false
+        } ]
+    } );
+    });
+     $(document).ready(function () {
+        $('#documentManualArchiveListTable').DataTable( {
         order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
         rowGroup: {
             dataSrc: [ 2 ]

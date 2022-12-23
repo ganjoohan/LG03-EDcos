@@ -21,6 +21,7 @@ namespace EDocSys.Application.Features.QualityManuals.Queries.GetAllPaged
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
 
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }

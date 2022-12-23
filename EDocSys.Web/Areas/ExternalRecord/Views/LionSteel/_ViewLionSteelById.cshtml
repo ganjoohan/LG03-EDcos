@@ -19,9 +19,9 @@
                     </h1>
                 </div>
                @* <div class="col-sm-3 documentation-col">
-                    @if (@Model.DocumentManualStatusView != "Approved")
+                    @if (@Model.LionSteelStatusView != "Approved")
                     {
-                        <h3 class="float-right">@Model.DocumentManualStatusView</h3><br>
+                        <h3 class="float-right">@Model.LionSteelStatusView</h3><br>
                     }
                 </div>*@
             </div>
@@ -148,7 +148,7 @@
 
                     @if (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
                     {
-                      @*  @if (@Model.DocumentManualStatusView == "New")
+                      @*  @if (@Model.LionSteelStatusView == "New")
                         {
                             <button type="button" class="btn bg-success dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Person In Charged

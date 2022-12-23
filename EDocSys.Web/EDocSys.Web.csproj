@@ -13,6 +13,7 @@
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.31" />
     <PackageReference Include="Hangfire.Core" Version="1.7.31" />
     <PackageReference Include="Hangfire.InMemory" Version="0.3.4" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.7.31" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
     <PackageReference Include="AspNetCoreHero.Extensions.Logging" Version="1.0.0" />

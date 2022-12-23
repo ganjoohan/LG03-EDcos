@@ -37,6 +37,7 @@ namespace EDocSys.Application.Features.LabAccreditationManuals.Commands.Create
         public bool IsArchive { get; set; } = false;
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
     }
 
     public class CreateLabAccreditationManualCommandHandler : IRequestHandler<CreateLabAccreditationManualCommand, Result<int>>

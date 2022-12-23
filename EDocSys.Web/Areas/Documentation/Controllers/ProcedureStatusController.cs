@@ -82,11 +82,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<ProcedureStatusViewModel>>(response.Data);
-                var viewModelbyWSCPNo = viewModel.Where(a => a.ProcedureId == procedureId).ToList();
+                var viewModelbyWSCPNo = viewModel.Where(a => a.ProcedureId == procedureId).OrderBy(o=> o.CreatedOn).ToList();
                 var response0 = await _mediator.Send(new GetProcedureByIdQuery() { Id = procedureId });
                 if (response0.Succeeded)
                 {
-                    var procedureViewModel = _mapper.Map<ProcedureViewModel>(response.Data);
+                    var procedureViewModel = _mapper.Map<ProcedureViewModel>(response0.Data);
                     var currentUser = await _userManager.GetUserAsync(HttpContext.User);
                     var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
                     List<string> rolesList = new List<string>();

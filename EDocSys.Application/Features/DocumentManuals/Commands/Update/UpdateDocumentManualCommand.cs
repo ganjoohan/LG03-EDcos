@@ -29,7 +29,7 @@ namespace EDocSys.Application.Features.DocumentManuals.Commands.Update
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
-
+        public DateTime? ArchiveDate { get; set; }
 
         public class UpdateDocumentManualCommandHandler : IRequestHandler<UpdateDocumentManualCommand, Result<int>>
         {
@@ -74,6 +74,7 @@ namespace EDocSys.Application.Features.DocumentManuals.Commands.Update
                     documentmanual.IsArchive = command.IsArchive ? true : documentmanual.IsArchive;
                     documentmanual.ArchiveId = (command.ArchiveId == 0) ? documentmanual.ArchiveId : command.ArchiveId;
                     documentmanual.PrintCount = (command.PrintCount == 0) ? documentmanual.PrintCount : command.PrintCount;
+                    documentmanual.ArchiveDate = command.ArchiveDate ?? documentmanual.ArchiveDate;
                     await _documentManualRepository.UpdateAsync(documentmanual);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(documentmanual.Id);

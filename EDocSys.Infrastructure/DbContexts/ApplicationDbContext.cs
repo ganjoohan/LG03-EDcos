@@ -45,6 +45,8 @@ namespace EDocSys.Infrastructure.DbContexts
         public DbSet<LabAccreditationManualStatus> LabAccreditationManualStatus { get; set; }
         public DbSet<SafetyHealthManual> SafetyHealthManuals { get; set; }
         public DbSet<SafetyHealthManualStatus> SafetyHealthManualStatus { get; set; }
+        public DbSet<Issuance> Issuances { get; set; }
+        public DbSet<IssuanceStatus> IssuanceStatus { get; set; }
         public IDbConnection Connection => Database.GetDbConnection();
 
         public bool HasChanges => ChangeTracker.HasChanges();

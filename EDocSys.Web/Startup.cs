@@ -139,6 +139,19 @@ namespace EDocSys.Web
             });
             services.AddAuthorization(options =>
             {
+                options.AddPolicy("CanViewIssuance", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanViewIssuanceRequirement());
+                });
+                options.AddPolicy("CanCreateEditIssuance", policyBuilder =>
+                {
+                    policyBuilder.AddRequirements(
+                        new CanCreateEditIssuanceRequirement());
+                });
+            });
+            services.AddAuthorization(options =>
+            {
                 options.AddPolicy("CanViewExternalLionSteel", policyBuilder =>
                 {
                     policyBuilder.AddRequirements(
@@ -192,6 +205,8 @@ namespace EDocSys.Web
 
             services.AddScoped<IAuthorizationHandler, CanViewQualityLionSteelHandler>();
             services.AddScoped<IAuthorizationHandler, CanCreateEditQualityLionSteelHandler>();
+            services.AddScoped<IAuthorizationHandler, CanViewIssuanceHandler>();
+            services.AddScoped<IAuthorizationHandler, CanCreateEditIssuanceHandler>();
 
 
             services.AddNotyf(o =>

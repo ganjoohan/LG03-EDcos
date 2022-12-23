@@ -38,6 +38,7 @@ namespace EDocSys.Application.Features.QualityManuals.Commands.Create
         public bool IsArchive { get; set; } = false;
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; } = 0;
+        public DateTime? ArchiveDate { get; set; }
     }
 
     public class CreateQualityManualCommandHandler : IRequestHandler<CreateQualityManualCommand, Result<int>>

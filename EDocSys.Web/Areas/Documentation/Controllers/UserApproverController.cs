@@ -70,6 +70,20 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             return View(model);
         }
 
+        public IActionResult IndexVER()
+        {
+            ViewBag.APT = "VER";
+            var model = new UserApproverViewModel();
+            return View(model);
+        }
+
+        public IActionResult IndexACK()
+        {
+            ViewBag.APT = "ACK";
+            var model = new UserApproverViewModel();
+            return View(model);
+        }
+
         public async Task<IActionResult> LoadAll(string apt)
         {
             var response = await _mediator.Send(new GetAllUserApproversCachedQuery());

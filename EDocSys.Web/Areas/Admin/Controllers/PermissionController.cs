@@ -50,6 +50,8 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             allPermissions.GetPermissions(typeof(Permissions.EnvironmentalManuals), roleId);
             allPermissions.GetPermissions(typeof(Permissions.LabAccreditationManuals), roleId);
             allPermissions.GetPermissions(typeof(Permissions.SafetyHealthManuals), roleId);
+            allPermissions.GetPermissions(typeof(Permissions.LionSteels), roleId);
+            allPermissions.GetPermissions(typeof(Permissions.Issuances), roleId);
             var role = await _roleManager.FindByIdAsync(roleId);
             model.RoleId = roleId;
             var claims = await _roleManager.GetClaimsAsync(role);

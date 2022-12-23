@@ -56,6 +56,13 @@ namespace EDocSys.Web.Areas.Documentation.Models
 
         public string UserApproveBy { get; set; }
         public SelectList UserApproveByList { get; set; }
+        public string UserApprovedId { get; set; }
+
+        public string UserVerifiedId { get; set; }
+        public SelectList UserVerifiedByList { get; set; }
+
+        public string UserAcknowledgedBy { get; set; }
+        public SelectList UserAcknowledgedByList { get; set; }
 
     }
 }

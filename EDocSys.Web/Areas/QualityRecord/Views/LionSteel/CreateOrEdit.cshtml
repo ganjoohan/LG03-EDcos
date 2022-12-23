@@ -132,7 +132,63 @@
                 </div>
             </div>
 
-            
+            <div class="form-group row">
+                <div class="col-12">
+                    <b><label>Note : UPLOADING OF A COPY OR SAMPLE OF THE EXTERNAL DOCUMENTS/RECORDS ARE OPTIONAL</label></b>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12">
+                    <div class="upload-container">
+                        <input type="file" id="file_upload" asp-for="MyFiles" multiple onchange="uploadFiles()" />
+                        <br/>
+                    </div>
+                </div>
+            </div>
+             @if (@Model.MyAttachments.Count > 0)
+            {
+                <div class="row no-print">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <div class="col">
+                                <p><b>List of Attachments</b></p>
+                                <table class="table table-bordered table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>File</th>
+                                            <th>Download</th>
+                                            <th>To Be Deleted</th>
+                                        </tr>
+                                        @{
+                                            int rowCount = 0;
+
+
+                                            for (int i = 0; i < @Model.MyAttachments.Count; i++)
+                                            {
+                                                rowCount = @i + 1;
+                                                <tr>
+                                                    <td>@rowCount</td>
+                                                    <td>@Model.MyAttachments[@i].FileName</td>
+                                                    <td> 
+                                                        <a href="/externalrecord/lionsteel/OnGetDownloadFile?fileId=@Model.MyAttachments[@i].Id" ,@attachment.FileName" class="badge badge-success" >Download</a>   
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" id="chkdeleteid" asp-for="@Model.MyAttachments[@i].Id" hidden >
+                                                        <input type="checkbox" id="chkdelete" asp-for="@Model.MyAttachments[@i].Deleted" >
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                           </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            }
 
 
             <div class="form-group justify-content-between" style="margin-bottom: 0px !important">

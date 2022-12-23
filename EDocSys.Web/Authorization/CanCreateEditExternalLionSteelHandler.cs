@@ -38,10 +38,10 @@ namespace EDocSys.Web.Authorization
             var user = _identityContext.Users.FirstOrDefault(x => x.Id == userId);
             var userRoles = context.User.Claims.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Select(c => c.Value).ToList();
 
-            //Document Manual MUST EXISTS
+            //EXTERNAL RECORD MUST EXISTS
             //=====================
             // https://domain.com/area/controller/id
-            //var documentManualId = _httpContextAccessor.HttpContext.GetRouteValue("id")?.ToString();
+            //var lionSteelId = _httpContextAccessor.HttpContext.GetRouteValue("id")?.ToString();
             // https://domain.com/area/controller?id=x
             var lionSteelId = HttpUtility.ParseQueryString(_httpContextAccessor.HttpContext.Request.QueryString.Value).Get("id");
 
@@ -66,7 +66,7 @@ namespace EDocSys.Web.Authorization
                 }
                 if (context.User.IsInRole("D") || context.User.IsInRole("E") )
                 {
-                    //if (documentManual.CompanyId == user.UserCompanyId && documentManual.DepartmentId == user.UserDepartmentId)
+                    //if (lionSteel.CompanyId == user.UserCompanyId && lionSteel.DepartmentId == user.UserDepartmentId)
                     if (lionSteel.CompanyId == user.UserCompanyId)
                     {
                         context.Succeed(requirement);

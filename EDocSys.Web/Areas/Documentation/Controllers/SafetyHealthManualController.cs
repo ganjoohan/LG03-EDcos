@@ -114,7 +114,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         [Authorize(Policy = "CanViewSafetyHealthManual")]
         public async Task<IActionResult> Preview(int id, bool print = false, SafetyHealthManualViewModel shManual = null)
         {
+            ViewBag.RoleAB1 = false;
             ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
@@ -122,7 +126,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
-           
+            List<string> rolesListDept = new List<string>();
             var response = await _mediator.Send(new GetSafetyHealthManualByIdQuery() { Id = id });
             var adg = _context.SafetyHealthManualStatus;
             var statusById = _context.SafetyHealthManualStatus.Where(a => a.SafetyHealthManualId == id).ToList();
@@ -147,17 +151,36 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     if (user.UserCompanyId == safetyHealthManualViewModel.CompanyId)
                     {
                         rolesListComp.AddRange(roles);
+                        var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+                        var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
+                        var QADeptId = departmentViewModel.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
+                        if (user.UserDepartmentId == QADeptId)
+                            rolesListDept.AddRange(roles);
                     }
                 }
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;
+                    ViewBag.RoleAB1 = true;
+                }
+                if (rolesListComp.Contains("B1"))
+                {
+                    ViewBag.RoleB1 = true;
+                    ViewBag.RoleAB1 = true;
+                }
+                if (rolesListComp.Contains("B2"))
+                {
+                    ViewBag.RoleB2 = true;
+                }
+                if (rolesListDept.Contains("C"))
+                {
+                    ViewBag.RoleC = true;
                 }
                 if (rolesListComp.Contains("E"))
                 {
                     ViewBag.RoleE = true;
                 }
-                if (rolesListComp.Contains("D"))
+                if (rolesListDept.Contains("D"))
                 {
                     ViewBag.RoleD = true;
                 }
@@ -322,6 +345,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var companiesResponse = await _mediator.Send(new GetAllCompaniesCachedQuery());
             var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
+            var qaId = departmentViewModel.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
             var allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             if (id == 0)
             {
@@ -342,18 +366,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
 
                 // Concurred 1
-                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptId)).ToList();
+                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC1 = (from a1 in responseC1
-                                     join a2 in _userManager.Users on a1.UserId equals a2.Id
-                                     select new UserApproverViewModel
-                                     {
-                                         UserConcurred1Id = a1.UserId,
-                                         FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
-                                     }).OrderBy(a => a.Email).ToList();
+                                       join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                       select new UserApproverViewModel
+                                       {
+                                           UserConcurred1Id = a1.UserId,
+                                           FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                       }).OrderBy(a => a.Email).ToList();
                 safetyHealthManualViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                 // Concurred 2
-                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptId)).ToList();
+                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -364,14 +388,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 safetyHealthManualViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                 // Concurred APP
-                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == allDeptId)).ToList();
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelAPP = (from a1 in responseAPP
-                                       join a2 in _userManager.Users on a1.UserId equals a2.Id
-                                       select new UserApproverViewModel
-                                       {
-                                           UserApproveBy = a1.UserId,
-                                           FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
-                                       }).OrderBy(a => a.Email).ToList();
+                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                        select new UserApproverViewModel
+                                        {
+                                            UserApproveBy = a1.UserId,
+                                            FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                        }).OrderBy(a => a.Email).ToList();
                 safetyHealthManualViewModel.UserListAPP = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
 
                 ViewBag.CreateEditFlag = "Create";
@@ -410,18 +434,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     }
 
                     // Concurred 1
-                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptId)).ToList();
+                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC1 = (from a1 in responseC1
-                                         join a2 in _userManager.Users on a1.UserId equals a2.Id
-                                         select new UserApproverViewModel
-                                         {
-                                             UserConcurred1Id = a1.UserId,
-                                             FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
-                                         }).OrderBy(a => a.Email).ToList();
+                                           join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                           select new UserApproverViewModel
+                                           {
+                                               UserConcurred1Id = a1.UserId,
+                                               FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                                           }).OrderBy(a => a.Email).ToList();
                     safetyHealthManualViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                     // Concurred 2
-                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptId)).ToList();
+                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC2 = (from a1 in responseC2
                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
                                            select new UserApproverViewModel
@@ -432,7 +456,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     safetyHealthManualViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                     // Concurred APP
-                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == allDeptId)).ToList();
+                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelAPP = (from a1 in responseAPP
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel
@@ -451,7 +475,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         public async Task<IActionResult> LoadAll1(int id)
         {
+            ViewBag.RoleAB1 = false;
             ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
@@ -459,7 +487,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
-        
+            List<string> rolesListDept = new List<string>();
             var response = await _mediator.Send(new GetSafetyHealthManualByIdQuery() { Id = id });
 
             var statusById = _context.SafetyHealthManualStatus.Where(a => a.SafetyHealthManualId == id).ToList();
@@ -474,17 +502,36 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     if (user.UserCompanyId == safetyHealthManualViewModel.CompanyId)
                     {
                         rolesListComp.AddRange(roles);
+                        var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+                        var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
+                        var QADeptId = departmentViewModel.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
+                        if (user.UserDepartmentId == QADeptId)
+                            rolesListDept.AddRange(roles);
                     }
                 }
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;
+                    ViewBag.RoleAB1 = true;
+                }
+                if (rolesListComp.Contains("B1"))
+                {
+                    ViewBag.RoleB1 = true;
+                    ViewBag.RoleAB1 = true;
+                }
+                if (rolesListComp.Contains("B2"))
+                {
+                    ViewBag.RoleB2 = true;
+                }
+                if (rolesListDept.Contains("C"))
+                {
+                    ViewBag.RoleC = true;
                 }
                 if (rolesListComp.Contains("E"))
                 {
                     ViewBag.RoleE = true;
                 }
-                if (rolesListComp.Contains("D"))
+                if (rolesListDept.Contains("D"))
                 {
                     ViewBag.RoleD = true;
                 }
@@ -672,12 +719,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var response2 = await _mediator.Send(new GetSafetyHealthManualByIdQuery() { Id = SafetyHealthManual.ArchiveId });
                     if (response2.Succeeded)
                     {
-                        var safetyHealthManualViewModelOld = _mapper.Map<DocumentManualViewModel>(response2.Data);
+                        var safetyHealthManualViewModelOld = _mapper.Map<SafetyHealthManualViewModel>(response2.Data);
                         safetyHealthManualViewModelOld.IsArchive = true;
                         var archiveDt = DateTime.Now.AddDays(30);
                         safetyHealthManualViewModelOld.ArchiveDate = archiveDt;
-                        var updateDocumentManualCommand = _mapper.Map<UpdateSafetyHealthManualCommand>(safetyHealthManualViewModelOld);
-                        var result2 = await _mediator.Send(updateDocumentManualCommand);
+                        var updateSafetyHealthManualCommand = _mapper.Map<UpdateSafetyHealthManualCommand>(safetyHealthManualViewModelOld);
+                        var result2 = await _mediator.Send(updateSafetyHealthManualCommand);
                     }
                 }
                 if (Request.Form.Files.Count > 0)
@@ -879,10 +926,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
             var departmentsResponseSH1 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelSH1 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseSH1.Data);
+            var qaId = departmentViewModelSH1.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
             var allDeptIdSH1 = departmentViewModelSH1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             var response = await _mediator.Send(new GetSafetyHealthManualByIdQuery() { Id = id });
 
-            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptIdSH1)).ToList();
+            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == qaId || a.DepartmentId == allDeptIdSH1)).ToList();
 
             if (response.Succeeded)
             {
@@ -916,10 +964,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
             var departmentsResponseSH2 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelSH2 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseSH2.Data);
+            var qaId = departmentViewModelSH2.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
             var allDeptIdSH2 = departmentViewModelSH2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             var response = await _mediator.Send(new GetSafetyHealthManualByIdQuery() { Id = id });
 
-            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptIdSH2)).ToList();
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == qaId || a.DepartmentId == allDeptIdSH2)).ToList();
 
             if (response.Succeeded)
             {

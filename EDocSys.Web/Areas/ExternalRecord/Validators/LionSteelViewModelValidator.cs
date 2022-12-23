@@ -23,10 +23,10 @@ namespace EDocSys.Web.Areas.ExternalRecord.Validators
             RuleFor(p => p.FormNo)
                 //.MustAsync(async (name, ct) =>
                 //(await repository.GetDataAsync()).All(x => x.Name != name))
-                //(await _documentManualCache.GetByDOCNoAsync(query.docno)
-                // var response = await _mediator.Send(new GetDocumentManualByIdQuery() { Id = id });
+                //(await _lionSteelCache.GetByDOCNoAsync(query.docno)
+                // var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
-                // var documentManual = await _documentManualCache.GetByDOCNoAsync(query.docno);
+                // var lionSteel = await _lionSteelCache.GetByDOCNoAsync(query.docno);
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull()
                 

@@ -29,6 +29,7 @@ namespace EDocSys.Application.Features.LabAccreditationManuals.Commands.Update
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
 
         public class UpdateLabAccreditationManualCommandHandler : IRequestHandler<UpdateLabAccreditationManualCommand, Result<int>>
         {
@@ -73,6 +74,7 @@ namespace EDocSys.Application.Features.LabAccreditationManuals.Commands.Update
                     labAccreditationmanual.IsArchive = command.IsArchive ? true : labAccreditationmanual.IsArchive;
                     labAccreditationmanual.ArchiveId = (command.ArchiveId == 0) ? labAccreditationmanual.ArchiveId : command.ArchiveId;
                     labAccreditationmanual.PrintCount = (command.PrintCount == 0) ? labAccreditationmanual.PrintCount : command.PrintCount;
+                    labAccreditationmanual.ArchiveDate = command.ArchiveDate ?? labAccreditationmanual.ArchiveDate;
                     await _labAccreditationManualRepository.UpdateAsync(labAccreditationmanual);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(labAccreditationmanual.Id);

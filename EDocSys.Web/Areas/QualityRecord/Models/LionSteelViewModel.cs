@@ -1,4 +1,5 @@
 ﻿using EDocSys.Domain.Entities.Documentation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,9 @@ namespace EDocSys.Web.Areas.QualityRecord.Models
         public string PIC { get; set; }
         public string FilingSystem { get; set; }
         public int RevisionNo { get; set; }
+
+        public List<IFormFile> MyFiles { get; set; }
+        public List<AttachmentViewModel> MyAttachments { get; set; }
 
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]

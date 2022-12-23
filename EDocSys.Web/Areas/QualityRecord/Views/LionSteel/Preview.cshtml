@@ -84,7 +84,43 @@
                 </div>
             </div>
 
-           
+            @if(Model.MyAttachments.Count > 0)
+            {
+                <div class="row no-print">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <div class="col">
+                            <p><b>List of Attachments</b></p>
+                           <table class="table table-bordered table-sm">
+                               <tbody>
+                                   <tr>
+                                       <th>No</th>
+                                       <th>File</th>
+                                       <th></th>
+                                   </tr>
+                                    @{
+                                        int rowCount = 0;
+                                    
+                                       foreach(var attachment in Model.MyAttachments)
+                                        {
+                                                rowCount = rowCount + 1;
+                                                <tr>
+                                                    <td>@rowCount</td>
+                                                    <td>@attachment.FileName</td>
+                                                    <td> 
+                                                        <a href="/qualityrecord/lionsteel/OnGetDownloadFile?fileId=@attachment.Id" ,@attachment.FileName" class="badge badge-success" >Download</a>                     
+                                                    </td>
+                                                </tr>
+                                        }
+                                   }
+                               </tbody>
+                           </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            }
 
             <div class="row">
                 <div class="col-12">

@@ -28,6 +28,9 @@ using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
 using EDocSys.Web.Areas.Documentation.Models;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Queries.GetById;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Commands.Update;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Commands.Create;
 
 namespace EDocSys.Web.Areas.QualityRecord.Controllers
 {
@@ -107,7 +110,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
 
         //public IActionResult Preview1()
         //{
-        //    var model = new DocumentManualViewModel();
+        //    var model = new LionSteelViewModel();
         //    return View(model);
         //}
 
@@ -124,8 +127,8 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
             List<string> rolesListComp = new List<string>();
          
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
-            //var adg = _context.DocumentManualStatus;
-            //var statusById = _context.DocumentManualStatus.Where(a => a.DocumentManualId == id).ToList();
+            //var adg = _context.LionSteelStatus;
+            //var statusById = _context.LionSteelStatus.Where(a => a.LionSteelId == id).ToList();
 
             if (response.Succeeded)
             {
@@ -616,7 +619,49 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                         var result2 = await _mediator.Send(updateLionSteelCommand);
                     }
                 }
-                if (Request.Form.Files.Count > 0)
+                if (lionSteel.MyFiles != null ? lionSteel.MyFiles.Count > 0 : false)
+                {
+                    string prefixFn = "EDOCS" + "_LionSteel" + DateTime.Now.ToString("ddMMyyyyhhmmss") + "_";
+                    string filePath = "C:\\EDOCS\\QualityRecord\\Uploads\\LionSteel";
+                    foreach (var myFile in lionSteel.MyFiles)
+                    {
+                        //Save file details into table "Attachment"
+                        string fileName = Path.GetFileName(myFile.FileName);
+                        string fileNameBatch = prefixFn + fileName;
+                        AttachmentViewModel attachment = new AttachmentViewModel();
+                        attachment.FileName = fileName;
+                        attachment.FileNameBatch = fileNameBatch;
+                        attachment.FileSize = Convert.ToInt32(myFile.Length);
+                        attachment.FileType = myFile.ContentType;
+                        attachment.FileLoc = filePath + "\\" + fileNameBatch;
+                        attachment.DocId = id;
+                        attachment.DocName = "LionSteel";
+                        attachment.IsActive = true;
+                        var createAttachmentCommand = _mapper.Map<CreateAttachmentCommand>(attachment);
+                        var result = await _mediator.Send(createAttachmentCommand);
+                        if (result.Succeeded)
+                        {
+                            //Save file into server C://EDOCS/LGPG/Uploads
+                            OnPostUpload(fileNameBatch, myFile);
+                        }
+                    }
+                }
+                if (lionSteel.MyAttachments != null ? lionSteel.MyAttachments.Count > 0 : false)
+                {
+                    var tobedel = lionSteel.MyAttachments.Where(w => w.Deleted == true).ToList();
+                    if (tobedel != null ? tobedel.Count > 0 : false)
+                    {
+                        foreach (var tbdel in tobedel)
+                        {
+                            var response3 = _mediator.Send(new GetAttachmentByIdQuery() { Id = tbdel.Id });
+                            AttachmentViewModel file = _mapper.Map<AttachmentViewModel>(response3.Result.Data);
+                            file.IsActive = false;
+                            var updateAttachmentCommand = _mapper.Map<UpdateAttachmentCommand>(file);
+                            var result = await _mediator.Send(updateAttachmentCommand);
+                        }
+                    }
+                }
+               if (Request.Form.Files.Count > 0)
                 {
                     IFormFile file = Request.Form.Files.FirstOrDefault();
                     var image = file.OptimizeImageSize(700, 700);
@@ -641,6 +686,47 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 return View(nameof(IndexAsync));
             }
         }
+
+        public void OnPostUpload(string fileNameBatch, IFormFile myFile)
+        {
+            //string wwwPath = this.webHostEnvironment.WebRootPath;
+            //string contentPath = this.webHostEnvironment.ContentRootPath;
+
+            string path = Path.Combine("C:\\EDOCS\\QualityRecord\\Uploads", "LionSteel");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            List<string> uploadedFiles = new List<string>();
+            //string fileName = Path.GetFileName(myFile.FileName);
+            using (FileStream stream = new FileStream(Path.Combine(path, fileNameBatch), FileMode.Create))
+            {
+                myFile.CopyTo(stream);
+                //uploadedFiles.Add(fileName);
+                //this.Message += string.Format("<b>{0}</b> uploaded.<br />", fileName);
+            }
+        }
+        public FileResult OnGetDownloadFile(int fileId)
+        {
+            var response = _mediator.Send(new GetAttachmentByIdQuery() { Id = fileId });
+            AttachmentViewModel file = _mapper.Map<AttachmentViewModel>(response.Result.Data);
+            //Build the File Path.
+            string path = file.FileLoc.Contains("//") ? file.FileLoc : file.FileLoc.Replace("/", "//");
+            //Read the File data into Byte Array.
+            byte[] bytes = System.IO.File.ReadAllBytes(path);
+            //Send the File to Download.
+            return File(bytes, "application/octet-stream", file.FileName);
+        }
+        public async void OnDeleteFile(int fileId)
+        {
+            var response = _mediator.Send(new GetAttachmentByIdQuery() { Id = fileId });
+            AttachmentViewModel file = _mapper.Map<AttachmentViewModel>(response.Result.Data);
+            file.IsActive = false;
+            var updateAttachmentCommand = _mapper.Map<UpdateAttachmentCommand>(file);
+            var result = await _mediator.Send(updateAttachmentCommand);
+        }
+
         [HttpPost]
         public async Task<JsonResult> OnPostDeactivate(int id)
         {

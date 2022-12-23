@@ -208,7 +208,20 @@
                         <p>@localizer["LionSteel"]</p>
                     </a>
                 </li>
-                }
+                 <li class="nav-header">@localizer["Issuance"]</li>
+                <li class="nav-item">
+                    <a is-active-route asp-area="Documentation" asp-controller="Issuance" asp-action="Index" asp-route-docType="new" class="nav-link">
+                        <i class="left fas fa-sticky-note"></i>
+                        <p>@localizer["New Issue"]</p>
+                    </a>
+                </li>
+                 <li class="nav-item">
+                    <a is-active-route asp-area="Documentation" asp-controller="Issuance" asp-action="Index" asp-route-docType="edit" class="nav-link">
+                        <i class="left fas fa-sticky-note"></i>
+                        <p>@localizer["Amendment"]</p>
+                    </a>
+                </li>
+                }                
             </ul>
         </nav>
     </div>

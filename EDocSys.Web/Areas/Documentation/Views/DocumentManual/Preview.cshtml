@@ -229,7 +229,7 @@
 
                     }
 
-                    @if (Model.DocumentManualStatusView == "Submitted" && (User.IsInRole("A") || ViewBag.RoleA))
+                    @if (Model.DocumentManualStatusView == "Submitted" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
                     {
                         if(Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
                         {
@@ -249,7 +249,7 @@
                         
                     }
 
-                    @if (Model.DocumentManualStatusView == "Concurred1" && (User.IsInRole("A") || ViewBag.RoleA))
+                    @if (Model.DocumentManualStatusView == "Concurred1" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
                     {
                         if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) // 
                         {
@@ -262,7 +262,7 @@
                         }
                     }
                     
-                    @if (Model.DocumentManualStatusView == "Concurred2" && (User.IsInRole("A") || ViewBag.RoleA) && ViewBag.IsApp == true)
+                    @if (Model.DocumentManualStatusView == "Concurred2" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsApp == true)
                     {
                         <a onclick="jQueryModalGet('/documentation/documentmanualstatus/OnGetSubmit?documentManualId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
                         <a onclick="jQueryModalGet('/documentation/documentmanualstatus/OnGetSubmit?documentManualId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>

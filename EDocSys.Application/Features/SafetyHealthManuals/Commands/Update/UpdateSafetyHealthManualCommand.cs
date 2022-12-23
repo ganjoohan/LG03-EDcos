@@ -28,6 +28,7 @@ namespace EDocSys.Application.Features.SafetyHealthManuals.Commands.Update
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
 
         public class UpdateSafetyHealthManualCommandHandler : IRequestHandler<UpdateSafetyHealthManualCommand, Result<int>>
         {
@@ -72,6 +73,7 @@ namespace EDocSys.Application.Features.SafetyHealthManuals.Commands.Update
                     safetyHealthmanual.IsArchive = command.IsArchive ? true : safetyHealthmanual.IsArchive;
                     safetyHealthmanual.ArchiveId = (command.ArchiveId == 0) ? safetyHealthmanual.ArchiveId : command.ArchiveId;
                     safetyHealthmanual.PrintCount = (command.PrintCount == 0) ? safetyHealthmanual.PrintCount : command.PrintCount;
+                    safetyHealthmanual.ArchiveDate = command.ArchiveDate ?? safetyHealthmanual.ArchiveDate;
                     await _safetyHealthManualRepository.UpdateAsync(safetyHealthmanual);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(safetyHealthmanual.Id);

@@ -109,6 +109,16 @@ namespace EDocSys.Infrastructure.Extensions
 
             services.AddTransient<Application.Interfaces.Repositories.QualityRepositories.IAttachmentRepository, Repositories.QualityRepositories.AttachmentRepository>();
             services.AddTransient<Application.Interfaces.CacheRepositories.QualityCacheRepositories.IAttachmentCacheRepository, CacheRepositories.QualityCacheRepositories.AttachmentCacheRepository>();
+
+            services.AddTransient<IIssuanceRepository, IssuanceRepository>();
+            services.AddTransient<IIssuanceCacheRepository, IssuanceCacheRepository>();
+
+            services.AddTransient<IIssuanceInfoRepository, IssuanceInfoRepository>();
+            services.AddTransient<IIssuanceInfoCacheRepository, IssuanceInfoCacheRepository>();
+
+            services.AddTransient<IIssuanceStatusRepository, IssuanceStatusRepository>();
+            services.AddTransient<IIssuanceStatusCacheRepository, IssuanceStatusCacheRepository>();
+
             #endregion Repositories
         }
     }

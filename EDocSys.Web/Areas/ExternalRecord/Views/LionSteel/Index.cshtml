@@ -8,7 +8,7 @@
 <p>@ViewBag.WebRootPath</p>
 <div class="card">
     <div class="col-sm-12" style="padding:20px">
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.DocumentManuals.Create)).Result.Succeeded)
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.LionSteels.Create)).Result.Succeeded)
         {*@
              @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
              {
@@ -18,9 +18,9 @@
              }  
         @*}*@
 
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.DocumentManuals.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.DocumentManuals.View).Result.Succeeded)
+        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.LionSteels.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.LionSteels.View).Result.Succeeded)
         {
-            <form id="create-form" method="post" asp-area="Documentation" asp-controller="DocumentManual" asp-action="View1" asp-route-id="1d">
+            <form id="create-form" method="post" asp-area="Documentation" asp-controller="LionSteel" asp-action="View1" asp-route-id="1d">
 
 
                 <div class="form-group justify-content-between" style="margin-bottom: 0px !important">

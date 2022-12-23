@@ -29,6 +29,7 @@ namespace EDocSys.Application.Features.EnvironmentalManuals.Commands.Update
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
 
         public class UpdateEnvironmentalManualCommandHandler : IRequestHandler<UpdateEnvironmentalManualCommand, Result<int>>
         {
@@ -73,6 +74,7 @@ namespace EDocSys.Application.Features.EnvironmentalManuals.Commands.Update
                     environmentalmanual.IsArchive = command.IsArchive ? true : environmentalmanual.IsArchive;
                     environmentalmanual.ArchiveId = (command.ArchiveId == 0) ? environmentalmanual.ArchiveId : command.ArchiveId;
                     environmentalmanual.PrintCount = (command.PrintCount == 0) ? environmentalmanual.PrintCount : command.PrintCount;
+                    environmentalmanual.ArchiveDate = command.ArchiveDate ?? environmentalmanual.ArchiveDate;
                     await _environmentalManualRepository.UpdateAsync(environmentalmanual);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(environmentalmanual.Id);

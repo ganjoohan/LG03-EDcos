@@ -32,6 +32,7 @@ namespace EDocSys.Application.Features.DocumentManuals.Queries.GetById
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
+        public DateTime? ArchiveDate { get; set; }
     }
 }
 

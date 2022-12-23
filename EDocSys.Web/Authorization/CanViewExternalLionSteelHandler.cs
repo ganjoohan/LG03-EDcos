@@ -37,7 +37,7 @@ namespace EDocSys.Web.Authorization
             var user = _identityContext.Users.FirstOrDefault(x => x.Id == userId);
             var userRoles = context.User.Claims.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Select(c => c.Value).ToList();
 
-            //Document Manual MUST EXISTS
+            //EXTERNAL RECORD MUST EXISTS
             //=====================
             // https://domain.com/area/controller/id
             var lionSteelId_GetRoute = _httpContextAccessor.HttpContext.GetRouteValue("id")?.ToString();
@@ -87,7 +87,7 @@ namespace EDocSys.Web.Authorization
 
             //if (context.User.IsInRole("CompanyAdmin"))
             //{
-            //    if (documentManual.CompanyId != user.UserCompanyId)
+            //    if (lionSteel.CompanyId != user.UserCompanyId)
             //    {
             //        context.Fail();
             //        return Task.CompletedTask;
@@ -134,7 +134,7 @@ namespace EDocSys.Web.Authorization
             //}
             //else
             //{
-            //    if (documentManual.DepartmentId != user.UserDepartmentId || documentManual.CompanyId != user.UserCompanyId)
+            //    if (lionSteel.DepartmentId != user.UserDepartmentId || lionSteel.CompanyId != user.UserCompanyId)
             //    {
             //        context.Fail();
             //        return Task.CompletedTask;
@@ -144,9 +144,9 @@ namespace EDocSys.Web.Authorization
 
             //if document not yet effective, only those involved in the concur/approve process can see
             /*
-            if (documentManual.RevisionDate == null)
+            if (lionSteel.RevisionDate == null)
             {
-                if (userId != documentManual.Concurred1 && userId != documentManual.Concurred2 && userId != documentManual.ApprovedBy)
+                if (userId != lionSteel.Concurred1 && userId != lionSteel.Concurred2 && userId != lionSteel.ApprovedBy)
                 {
                     context.Fail();
                     return Task.CompletedTask;

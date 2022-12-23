@@ -28,10 +28,10 @@ namespace EDocSys.Web.Areas.ExternalRecord.ViewComponents
 
         //public async Task<IViewComponentResult> InvokeAsync(string wscpno)
         //{
-        //    var getDocumentManualId = db.DocumentManuals.Where(a => a.WSCPNo == wscpno).SingleOrDefault();
-        //    if (getDocumentManualId != null)
+        //    var getLionSteelId = db.LionSteels.Where(a => a.WSCPNo == wscpno).SingleOrDefault();
+        //    if (getLionSteelId != null)
         //    {
-        //        var m = await db.DocumentManuals.FindAsync(getDocumentManualId.Id);
+        //        var m = await db.LionSteels.FindAsync(getLionSteelId.Id);
         //        return View(m);
         //    }
         //    return null;

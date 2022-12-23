@@ -726,12 +726,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var response2 = await _mediator.Send(new GetQualityManualByIdQuery() { Id = QualityManual.ArchiveId });
                     if (response2.Succeeded)
                     {
-                        var qualityManualViewModelOld = _mapper.Map<DocumentManualViewModel>(response2.Data);
+                        var qualityManualViewModelOld = _mapper.Map<QualityManualViewModel>(response2.Data);
                         qualityManualViewModelOld.IsArchive = true;
                         var archiveDt = DateTime.Now.AddDays(30);
                         qualityManualViewModelOld.ArchiveDate = archiveDt;
-                        var updateDocumentManualCommand = _mapper.Map<UpdateQualityManualCommand>(qualityManualViewModelOld);
-                        var result2 = await _mediator.Send(updateDocumentManualCommand);
+                        var updateQualityManualCommand = _mapper.Map<UpdateQualityManualCommand>(qualityManualViewModelOld);
+                        var result2 = await _mediator.Send(updateQualityManualCommand);
                     }
                 }
                 if (Request.Form.Files.Count > 0)

@@ -151,5 +151,23 @@ namespace EDocSys.Application.Constants
             public const string Preview = "Permissions.SafetyHealthManuals.Preview";
             public const string Print = "Permissions.SafetyHealthManuals.Print";
         }
+        public static class LionSteels
+        {
+            public const string View = "Permissions.LionSteels.View";
+            public const string Create = "Permissions.LionSteels.Create";
+            public const string Edit = "Permissions.LionSteels.Edit";
+            public const string Delete = "Permissions.LionSteels.Delete";
+            public const string Preview = "Permissions.LionSteels.Preview";
+            public const string Print = "Permissions.LionSteels.Print";
+        }
+        public static class Issuances
+        {
+            public const string View = "Permissions.Issuances.View";
+            public const string Create = "Permissions.Issuances.Create";
+            public const string Edit = "Permissions.Issuances.Edit";
+            public const string Delete = "Permissions.Issuances.Delete";
+            public const string Preview = "Permissions.Issuances.Preview";
+            public const string Print = "Permissions.Issuances.Print";
+        }
     }
 }

@@ -77,6 +77,10 @@ namespace EDocSys.Web.Areas.Documentation.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateApprovedAPP { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime? ArchiveDate { get; set; }
     }
 
 }

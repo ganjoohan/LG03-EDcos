@@ -672,12 +672,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var response2 = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = LabAccreditationManual.ArchiveId });
                     if (response2.Succeeded)
                     {
-                        var documentManualViewModelOld = _mapper.Map<DocumentManualViewModel>(response2.Data);
-                        documentManualViewModelOld.IsArchive = true;
+                        var labAccreditationManualViewModelOld = _mapper.Map<LabAccreditationManualViewModel>(response2.Data);
+                        labAccreditationManualViewModelOld.IsArchive = true;
                         var archiveDt = DateTime.Now.AddDays(30);
-                        documentManualViewModelOld.ArchiveDate = archiveDt;
-                        var updateDocumentManualCommand = _mapper.Map<UpdateLabAccreditationManualCommand>(documentManualViewModelOld);
-                        var result2 = await _mediator.Send(updateDocumentManualCommand);
+                        labAccreditationManualViewModelOld.ArchiveDate = archiveDt;
+                        var updateLabAccreditationManualCommand = _mapper.Map<UpdateLabAccreditationManualCommand>(labAccreditationManualViewModelOld);
+                        var result2 = await _mediator.Send(updateLabAccreditationManualCommand);
                     }
                 }
                 if (Request.Form.Files.Count > 0)
