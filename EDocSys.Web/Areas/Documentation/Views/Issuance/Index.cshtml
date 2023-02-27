@@ -1,6 +1,14 @@
 ﻿@{
-    ViewData["Title"] = localizer["Issuances"];
-    ViewData["Caption"] = localizer["Manage Issuances here"];
+    @if(ViewBag.docStatus == "New")
+    {
+        ViewData["Title"] = localizer["New Issuances"];
+        ViewData["Caption"] = localizer["Manage New Issuances here"];
+    }
+    else
+    {
+        ViewData["Title"] = localizer["Amendment Issuances"];
+        ViewData["Caption"] = localizer["Manage Amendment Issuances here"];
+    }
 }
 @using EDocSys.Web.Areas.Documentation.Models
 @model IssuanceViewModel
@@ -12,9 +20,18 @@
         {*@
              @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
              {
-            <a asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
-                <i class="fa fa-plus-square"></i> Create
-            </a>
+                   @if(ViewBag.docStatus == "New")
+                 {
+                    <a asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-docStatus="New" class="btn bg-success">
+                        <i class="fa fa-plus-square"></i> Create
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"  asp-route-docStatus="Amend" class="btn bg-success">
+                        <i class="fa fa-plus-square"></i> Create
+                    </a>
+                }
              }  
         @*}*@
 
@@ -50,8 +67,32 @@
                 loadData();
             });
         });
-        function loadData() {
-            $('#viewAll').load('/documentation/issuance/LoadAll');
-        }
+        //function loadData() {
+        //    if (ViewBag.docStatus == "New") {
+        //        $('#viewAll').load('/documentation/issuance/LoadAllNew');
+        //    }
+        //    else {
+        //        $('#viewAll').load('/documentation/issuance/LoadAllAmend');
+        //    }
+        //}
     </script>
+    @{if(ViewBag.docStatus == "New")
+        {
+            <script>
+                 function loadData() {
+                    $('#viewAll').load('/documentation/issuance/LoadAllNew');
+                 }
+            </script>
+        }
+        else
+        {
+            <script>
+                 function loadData() {
+                    $('#viewAll').load('/documentation/issuance/LoadAllAmend');
+                }
+            </script>
+        }
+    }
 }
+
+         

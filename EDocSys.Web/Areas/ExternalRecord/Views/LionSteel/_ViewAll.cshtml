@@ -88,11 +88,11 @@
         <table id="lionSteelTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
     <thead>
         <tr>
+            <th>Company</th>
+            <th>Dept</th>
             <th>Section</th>
             <th>Type</th>
             <th>Title</th>
-            <th>Company</th>
-           @* <th>Process</th>*@
          @*   <th>Status</th>*@
             <th>Actions</th>
         </tr>
@@ -103,10 +103,18 @@
         {
             <tr>
                 @*<td style="text-indent: 35px; ">» @lionSteel.FormNo</td>*@
+                <td>@lionSteel.CompanyName</td>
+                @if(@lionSteel.ProcessName != null)
+                {
+                    <td><b>@lionSteel.ProcessName.ToUpper()</b> </td>
+                }
+                else
+                {
+                    <td><b>@lionSteel.ProcessName</b> </td>
+                }
                 <td>@lionSteel.Section</td>
                 <td>@lionSteel.Type</td>
                 <td>@lionSteel.Title</td>
-                <td>@lionSteel.CompanyName</td>
                 @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
               @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
                 @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department) 
@@ -148,24 +156,24 @@
 <script>
     $(document).ready(function () {
         $('#lionSteelTable').DataTable( {
-        order: [[3, 'asc'], [0, 'asc'], [1, 'asc']],
+        order: [[0, 'asc'], [1, 'asc'], [2, 'asc'], [3, 'asc'], [4, 'asc']],
         rowGroup: {
-            dataSrc: [ 3 ]
+            dataSrc: [ 0,1 ]
         },
         columnDefs: [ {
-            targets: [ 3 ],
+            targets: [ 0,1 ],
             visible: false
         } ]
     } );
     });
      $(document).ready(function () {
         $('#lionSteelPendAppTable').DataTable( {
-        order: [[3, 'asc'], [0, 'asc'], [1, 'asc']],
+       order: [[0, 'asc'], [1, 'asc'], [2, 'asc'], [3, 'asc'], [4, 'asc']],
         rowGroup: {
-            dataSrc: [ 3 ]
+            dataSrc: [ 0,1 ]
         },
         columnDefs: [ {
-            targets: [ 3 ],
+            targets: [ 0,1 ],
             visible: false
         } ]
     } );

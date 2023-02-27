@@ -3,7 +3,7 @@
     <div class="row" style="max-width:1000px">
         <div class="col-12">
             <div class="documentation p-3 mb-3 print-container">
-                 <div class="@(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA ? "" : "no-print")">
+                 <div class="@(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint ? "" : "no-print")">
                 <div class="row">
                 <div class="col-sm-3 documentation-col">
                     <h4>
@@ -197,14 +197,14 @@
                 <div class="row no-print">
                 <div class="col-12">
                     <a onclick="copyPageUrl()" class="btn btn-default float-right"><i class="fas fa-copy"></i> Copy WI URL</a>
-                    @if (@Model.WIStatusView == "Approved" && @Model.IsArchive == false)
+                    @if (@Model.WIStatusView == "Approved" && @Model.IsArchive == false && !ViewBag.IAmend)
                     {
                             <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&WIrev=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"New Revision WI")" class="btn btn-default float-right">
                             <i class="fas fa-copy"></i>
                             New Revision WI
                         </a>
                     }
-                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)//User.IsInRole("D") || User.IsInRole("A") || 
+                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint)//User.IsInRole("D") || User.IsInRole("A") || 
                     {
                         @*<button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>*@
                         <a class="btn btn-default" onclick="window.print();" ><i class="fas fa-print"></i> Print</a>
@@ -247,6 +247,23 @@
             }
             
         }
+        if(ViewBag.IAmend && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                    {
+                        if(@Model.PrintCount == 0)
+                        {
+                            <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&rev=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"Amend WI")" class="btn btn-default float-right">
+                                <i class="fas fa-copy"></i>
+                                Amend WI
+                            </a>
+                         }
+                        else
+                        {
+                             <label class="btn btn-default float-right" style="color:grey" >
+                                <i class="fas fa-copy"></i>
+                                Amend Document Manual (Unable to continue, due to print count)
+                            </label>
+                        }
+                    }
 
                     @if (Model.WIStatusView == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
                     {
@@ -305,6 +322,14 @@
         .print-only{
             display: block;
         }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        div { page-break-inside:auto; width:auto }
+        table { page-break-inside:auto; width:auto; margin-bottom:5px }
+        tr    { page-break-inside:auto}
 }
 </style>
         <script>

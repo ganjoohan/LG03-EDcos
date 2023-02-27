@@ -8,12 +8,12 @@ using System.Collections.Generic;
 
 namespace EDocSys.Application.Features.Issuances.Queries.GetById
 {
-    public class GetIssuanceInfoByIdQuery : IRequest<Result<List<GetIssuanceInfoByIHdResponse>>>
+    public class GetIssuanceInfoByHIdQuery : IRequest<Result<List<GetIssuanceInfoByIHdResponse>>>
     {
-        public int Id { get; set; }
+        public int HId { get; set; }
 
 
-        public class GetIssuanceInfoByIdQueryHandler : IRequestHandler<GetIssuanceInfoByIdQuery, Result<List<GetIssuanceInfoByIHdResponse>>>
+        public class GetIssuanceInfoByIdQueryHandler : IRequestHandler<GetIssuanceInfoByHIdQuery, Result<List<GetIssuanceInfoByIHdResponse>>>
         {
             private readonly IIssuanceInfoCacheRepository _issuanceInfoCache;
             private readonly IMapper _mapper;
@@ -24,9 +24,9 @@ namespace EDocSys.Application.Features.Issuances.Queries.GetById
                 _mapper = mapper;
             }
 
-            public async Task<Result<List<GetIssuanceInfoByIHdResponse>>> Handle(GetIssuanceInfoByIdQuery query, CancellationToken cancellationToken)
+            public async Task<Result<List<GetIssuanceInfoByIHdResponse>>> Handle(GetIssuanceInfoByHIdQuery query, CancellationToken cancellationToken)
             {
-                var issuanceInfo = await _issuanceInfoCache.GetByIdAsync(query.Id);
+                var issuanceInfo = await _issuanceInfoCache.GetByHIdAsync(query.HId);
                 var mappedIssuanceInfo = _mapper.Map<List<GetIssuanceInfoByIHdResponse>>(issuanceInfo);
                 return Result<List<GetIssuanceInfoByIHdResponse>>.Success(mappedIssuanceInfo);
             }

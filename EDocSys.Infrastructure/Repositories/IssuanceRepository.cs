@@ -32,6 +32,7 @@ namespace EDocSys.Infrastructure.Repositories
         {
             return await _repository.Entities.Where(p => p.Id == docId)
                 .Include(a => a.Company)
+                .Include(a => a.Department)
                 .FirstOrDefaultAsync();
         }
 
@@ -46,6 +47,7 @@ namespace EDocSys.Infrastructure.Repositories
         {
             return _repository.Entities
                  .Include(a => a.Company)
+                 .Include(a => a.Department)
                  .ToList();
             //big data, slow loading (Elaine Ho 5Aug2022)
             //return await _repository.Entities

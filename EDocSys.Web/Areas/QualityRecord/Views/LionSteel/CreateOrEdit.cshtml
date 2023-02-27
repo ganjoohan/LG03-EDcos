@@ -134,7 +134,7 @@
 
             <div class="form-group row">
                 <div class="col-12">
-                    <b><label>Note : UPLOADING OF A COPY OR SAMPLE OF THE EXTERNAL DOCUMENTS/RECORDS ARE OPTIONAL</label></b>
+                    <b><label>Note : UPLOADING OF A COPY OR SAMPLE OF THE QUALITY DOCUMENTS/RECORDS ARE OPTIONAL</label></b>
                 </div>
             </div>
             <div class="form-group row">
@@ -202,7 +202,38 @@
 </div>
 @section Scripts {
 
-
+    <style>
+    .upload-container {
+        position: relative;
+    }
+    .upload-container input {
+        border: 1px solid #92b0b3;
+        background: #f1f1f1;
+        outline: 2px dashed #92b0b3;
+        outline-offset: -10px;
+        padding: 100px 0px 100px 250px;
+        text-align: center !important;
+        width: 700px;
+    }
+ 
+    .upload-container input:hover {
+        background: #ddd;
+    }
+ 
+    .upload-container:before {
+        position: absolute;
+        bottom: 50px;
+        left: 245px;
+        content: " (or) Drag and Drop files here. ";
+        color: #3f8188;
+        font-weight: 900;
+    }
+ 
+    .upload-btn {
+        margin-left: 300px;
+        padding: 7px 20px;
+    }
+</style>
     <script>
         document.getElementById("btnPrint").onclick = function () {
             printElement(document.getElementById("printThis"));
@@ -227,6 +258,19 @@
             $printSection.innerHTML = "";
 
             $printSection.appendChild(domClone);
+        }
+
+         function uploadFiles() {
+            var files = document.getElementById('file_upload').files;
+            if(files.length==0){
+                alert("Please first choose or drop any file(s)...");
+                return;
+            }
+            var filenames="";
+            for(var i=0;i<files.length;i++){
+                filenames+=files[i].name+"\n";
+            }
+            alert("Selected file(s) :\n____________________\n"+filenames);
         }
     </script>
 

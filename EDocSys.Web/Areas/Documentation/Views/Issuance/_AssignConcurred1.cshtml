@@ -10,10 +10,10 @@
                 <label class="col-md-3 col-form-label">Verification</label>
                 <div class="col-md-9">
                     <div class="input-group">
-                        <select name="Verified" class="form-control select2bs4" id="Verified" asp-for="Verified" asp-items="@Model.UserList">
+                        <select name="Verified" class="form-control select2bs4" id="VerifiedBy" asp-for="VerifiedBy" asp-items="@Model.UserList">
                         </select>
                     </div>
-                    <span asp-validation-for="Verified" class="text-danger"></span>
+                    <span asp-validation-for="VerifiedBy" class="text-danger"></span>
                 </div>
             </div>
 

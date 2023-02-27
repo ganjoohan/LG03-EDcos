@@ -82,7 +82,7 @@
                                 <td><b>Name</b></td>
                                 <td>Jackie Chan</td>
                                 <td>
-                                    @if (@Model.Verified == null || Model.Verified == "")
+                                    @if (@Model.VerifiedBy == null || Model.VerifiedBy == "")
                                     {
                                         @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
                                         {
@@ -92,7 +92,7 @@
                                     }
                                     else
                                     {
-                                        @Model.Verified
+                                        @Model.VerifiedBy
                                     }
 
                                 </td>
@@ -188,7 +188,7 @@
                        
                         if (Model.IssuanceStatusView == "New" || Model.IssuanceStatusView == "Rejected")
                             {
-                                  @if (Model.Verified != null && Model.ApprovedBy != null)
+                                  @if (Model.VerifiedBy != null && Model.ApprovedBy != null)
                                 {
                                 <a asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">
                                     <i class="fas fa-pencil-alt"></i> Edit
@@ -207,7 +207,7 @@
                                 }
                     }
 
-                    @if (Model.IssuanceStatusView == "Submitted" && @UserManager.GetUserAsync(User).Result.Id == @Model.Verified && (User.IsInRole("E") || ViewBag.RoleE))
+                    @if (Model.IssuanceStatusView == "Submitted" && @UserManager.GetUserAsync(User).Result.Id == @Model.VerifiedBy && (User.IsInRole("E") || ViewBag.RoleE))
                     {
                         <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceManualId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
                         <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceManualId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>

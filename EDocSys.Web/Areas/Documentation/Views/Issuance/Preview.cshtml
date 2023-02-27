@@ -15,7 +15,7 @@
                 </div>
                 <div class="col-sm-6 documentation-col text-center">
                     <h1>
-                        STEEL DIVISION <br /><small>@Model.CompanyName</small>
+                        Documentation Issuance <br /><small>@Model.TitleName</small>
                     </h1>
                 </div>
                 <div class="col-sm-3 documentation-col">
@@ -32,36 +32,26 @@
             <div class="row">
                 <div class="col-sm-12 col-md-12 text-center">
                     <div class="color-palette-set">
-                        <h3 class="bg-secondary color-palette">ISSUANCE</h3>
+                        <h3 class="bg-secondary color-palette"><br /></h3>
                     </div>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-12">
-                    <table class="table table-bordered table-sm">
-                        <tbody>
-                            <tr>
-                                <td>Process</td>
-                                <td>@Model.ProcessName</td>
-                               
-                            </tr>
-                            <tr>
-                                <td>WSCP No</td>
-                                <td>@Model.DOCNo</td>
-                                
-                            </tr>
-                            <tr>
-                                <
-                            </tr>
-                            <tr>
-                                
-                            </tr>
-                            <tr>
-                                <td><b>TITLE</b></td>
-                             @*   <td colspan="3"><b>@Model.Title</b></td>*@
-                            </tr>
-                        </tbody>
+                <div class="col-md-12">
+                    <table  class="table table-sm" style="border:hidden">
+                        <tr style="border:hidden">
+                            <td><b>Company</b></td>
+                            <td>:</td>
+                            <td>@Model.CompanyName</td>
+                            <td class="float-right"><b>@Model.DOCNo</b></td>
+                        </tr>
+                        <tr style="border:hidden">
+                            <td><b>Process</b></td>
+                            <td>:</td>
+                            <td>@Model.ProcessName</td>
+                            <td></td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -70,8 +60,91 @@
                 <div class="col-md-12">
                     <div class="form-group row">
                         <div class="col">
-                           @* <textarea hidden id="editor" asp-for="Body" class="form-control"></textarea>*@
-                        </div>
+                             <table class="table table-bordered table-sm">
+                        <tbody>
+                            <tr>
+                                <td><b>No</b></td>
+                                <td><b>Type of Document</b></td>
+                                <td><b>Document No. / Issue to (max 6 recipients)</b></td>
+                            </tr>
+                               @if(Model.IssuanceInfo.Count > 0)
+                                {
+                                   @for(int x=0; x<(Model.IssuanceInfo.Count); x++)
+                                    {
+                                     <tr>  
+                                        @if(@Model.DOCStatus != "New")
+                                                {
+                                                     <td rowspan="3">@Model.IssuanceInfo[x].No</td>
+                                                }
+                                                else
+                                                {
+                                                    <td rowspan="2">@Model.IssuanceInfo[x].No</td>
+                                                }
+                                        <td>@Model.IssuanceInfo[x].DocType</td>
+                                        <td>
+                                            <table style="width:100%; border:hidden;">
+                                                <tr>
+                                                    <td>
+                                                        <table style="width:100%; border:hidden;">
+                                                            <tr>
+                                                                <td colspan="2">@Model.IssuanceInfo[x].DOCNo 
+                                                                    @{var iprint = @Model.IssuanceInfo[x].DocUrl + "?IPrint=" + Model.IssuanceInfo[x].Id;}
+                                                                    @if (@Model.IssuanceStatusView == "Approved")
+                                                                                {                                                                                    
+                                                                                    <a class="float-right" href=@iprint>View</a>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <a class="float-right" href="@Model.IssuanceInfo[x].DocUrl">View</a>
+                                                                                }
+                                                                                
+                                                                </td>
+                                                            </tr>
+                                                            <tr><td colspan="2"><b>Enter Recipient's Name</b> (max 6 recipeints)</td></tr>                                        
+                                                            <tr>
+                                                                 <td>1. @Model.IssuanceInfo[x].RecipientName1</td>
+                                                                 <td>2. @Model.IssuanceInfo[x].RecipientName2</td>                                                                
+                                                                </tr>
+                                                             <tr>
+                                                                 <td>3. @Model.IssuanceInfo[x].RecipientName3</td>
+                                                                 <td>4. @Model.IssuanceInfo[x].RecipientName4</td>                                                                
+                                                             </tr>
+                                                             <tr>                                                                
+                                                                <td>5. @Model.IssuanceInfo[x].RecipientName5</td>
+                                                                <td>6. @Model.IssuanceInfo[x].RecipientName6</td>
+                                                            </tr>                     
+                                                        </table>
+                                                    </td>
+                                                </tr>                                                
+                                            </table>
+                                       
+                                        </td>
+                                    </tr>
+                                         @if (@Model.DOCStatus != "New")
+                                         {
+                                            <tr>                                                           
+                                                            <td>Details of Changes:</td>
+                                                            <td>@Model.IssuanceInfo[x].Amendment</td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr hidden="hidden">                                                            
+                                                            <td>Details of Changes:</td>
+                                                            <td>@Model.IssuanceInfo[x].Amendment</td>
+                                                            </tr>
+                                                             
+                                                        }
+                                                        <tr>
+                                                          
+                                                    <td>Purpose for Print Request:</td>
+                                                    <td>@Model.IssuanceInfo[x].Purpose</td>
+                                                </tr>
+                                    }                               
+                                } 
+                            </tbody>     
+                             </table>
+                         </div>
 
                     </div>
                 </div>
@@ -85,8 +158,8 @@
                                 <td></td>
                                 <td><b>Requsted By</b></td>
                                 <td><b>Verified By</b></td>
-                                <td><b>Approved By</b></td>
-                                <td><b>Acknowledge By</b></td>
+                                <td><b>To Be Approved By</b></td>
+                                <td><b>To Be Acknowledge By</b></td>
                             </tr>
                             <tr>
                                 <td><b>Name</b></td>
@@ -97,14 +170,14 @@
                             </tr>
                             <tr>
                                 <td><b>Position</b></td>
-                                <td>@Model.PositionReq</td>
+                                <td>@Model.RequestedByPosition</td>
                                 <td>@Model.PositionVer</td>
                                 <td>@Model.PositionApp</td>
                                 <td>@Model.PositionAck</td>
                             </tr>
                             <tr>
                                 <td><b>Date</b></td>
-                                <td>@Html.DisplayFor(modelItem => @Model.DateRequested)</td>
+                                <td>@Html.DisplayFor(modelItem => @Model.RequestedByDate)</td>
                                 <td>@Html.DisplayFor(modelItem => @Model.DateVerified)</td>
                                 <td>@Html.DisplayFor(modelItem => @Model.DateApproved)</td>
                                 <td>@Html.DisplayFor(modelItem => @Model.DateAcknowledged)</td>
@@ -166,9 +239,9 @@
             <div class="row no-print">
                 <div class="col-12">
                     <a onclick="copyPageUrl()" class="btn btn-default float-right"><i class="fas fa-copy"></i> Copy Doc URL</a>
-                     @if (@Model.IssuanceStatusView == "Approved")
+                     @if (@Model.IssuanceStatusView == "Approved" && @Model.IsArchive == false  && !ViewBag.IAmend)
                     {
-                            <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&rev=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"New Revision Issuance")" class="btn btn-default float-right">
+                            <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&rev=true&docStatus=@Model.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"New Revision Issuance")" class="btn btn-default float-right">
                             <i class="fas fa-copy"></i>
                             New Revision Issuance
                         </a>
@@ -195,9 +268,9 @@
 
                     @if ((Model.IssuanceStatusView == "New" || Model.IssuanceStatusView == "Rejected") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA) )
                     {
-                                             @if (Model.Verified != null && Model.ApprovedBy != null)
+                                             @if (Model.VerifiedBy != null && Model.ApprovedBy != null)
             {
-                        <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+                        <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&docStatus=@Model.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
                                     <i class="fas fa-pencil-alt"></i>
                                     Edit Issuance
                                 </a>
@@ -208,7 +281,7 @@
             }
             else
             {
-                  <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+                  <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&docStatus=@Model.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
                                     <i class="fas fa-pencil-alt"></i>
                                     Edit Issuance (Unable to submit without concurred1 and approver)
                                 </a>
@@ -223,7 +296,7 @@
 
                     @if (Model.IssuanceStatusView == "Submitted" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
                     {
-                        if(Model.Verified != null && ViewBag.IsVerified == true)
+                        if(Model.VerifiedBy != null && ViewBag.IsVerified == true)
                         {
                             <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=2','Concurred 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
                             <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
@@ -264,6 +337,14 @@
         .print-only{
             display: block;
         }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        div { page-break-inside:auto; width:auto }
+        table { page-break-inside:auto; width:auto; margin-bottom:5px }
+        tr    { page-break-inside:auto}
 }
 </style>
     <script>

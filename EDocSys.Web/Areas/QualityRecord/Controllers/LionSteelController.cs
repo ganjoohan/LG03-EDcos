@@ -31,6 +31,7 @@ using EDocSys.Web.Areas.Documentation.Models;
 using EDocSys.Application.Features.QualityFeatures.Attachments.Queries.GetById;
 using EDocSys.Application.Features.QualityFeatures.Attachments.Commands.Update;
 using EDocSys.Application.Features.QualityFeatures.Attachments.Commands.Create;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Queries.GetByDocId;
 
 namespace EDocSys.Web.Areas.QualityRecord.Controllers
 {
@@ -304,7 +305,9 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
 
 
 
-
+                var response2 = _mediator.Send(new GetAttachmentByDocIdQuery() { DocId = id });
+                List<AttachmentViewModel> attachmentViewModel = _mapper.Map<List<GetAttachmentByDocIdResponse>, List<AttachmentViewModel>>(response2.Result.Data);
+                lionSteelViewModel.MyAttachments = attachmentViewModel.Where(w => w.IsActive == true && w.DocName == "LionSteel").ToList();
                 return View(lionSteelViewModel);
             }
             return null;
@@ -347,8 +350,8 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                     }
 
                     lionSteelViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
-                }    
-
+                }
+                lionSteelViewModel.MyAttachments = new List<AttachmentViewModel>();
                 ViewBag.CreateEditFlag = "Create";
                 string serverMapPath = Path.Combine(_env.WebRootPath, "html_template", "WI_Template.html");
                 string text = System.IO.File.ReadAllText(serverMapPath);
@@ -372,6 +375,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                         lionSteelViewModel.RevisionDate = DateTime.Now;
    
                         lionSteelViewModel.ArchiveId = lionSteelViewModelOld.Id;
+                        lionSteelViewModel.PrintCount = 0;
                     }
                     if (departmentsResponse.Succeeded)
                     {
@@ -382,6 +386,9 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                         var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
                         lionSteelViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                     }
+                    var response2 = _mediator.Send(new GetAttachmentByDocIdQuery() { DocId = id });
+                    List<AttachmentViewModel> attachmentViewModel = _mapper.Map<List<GetAttachmentByDocIdResponse>, List<AttachmentViewModel>>(response2.Result.Data);
+                    lionSteelViewModel.MyAttachments = attachmentViewModel.Where(w => w.IsActive == true && w.DocName == "LionSteel").ToList();
                     return View(lionSteelViewModel);
                 }
                 return null;
@@ -512,6 +519,10 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
 
             if (response.Succeeded)
             {
+                var companiesResponse = await _mediator.Send(new GetAllCompaniesCachedQuery());
+                var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+                var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
+                var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
                 var viewModel = _mapper.Map<List<LionSteelViewModel>>(response.Data);
                 viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId))).ToList();
 
@@ -519,7 +530,11 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                 }
-
+                foreach(LionSteelViewModel item in viewModel)
+                {
+                    item.CompanyName = companyViewModel.Where(w => w.Id == item.CompanyId).Select(s => s.Name).FirstOrDefault();
+                    item.ProcessName = departmentViewModel.Where(w => w.Id == item.DepartmentId).Select(s => s.Name).FirstOrDefault();
+                }
                 //foreach (LionSteelViewModel item in viewModel)
                 //{
                 //    var psStatat = _context.DocumentManualStatus.Where(a => a.DocumentManualId == item.Id).ToList();
@@ -622,7 +637,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 if (lionSteel.MyFiles != null ? lionSteel.MyFiles.Count > 0 : false)
                 {
                     string prefixFn = "EDOCS" + "_LionSteel" + DateTime.Now.ToString("ddMMyyyyhhmmss") + "_";
-                    string filePath = "C:\\EDOCS\\QualityRecord\\Uploads\\LionSteel";
+                    string filePath = "C:\\iis\\sites\\edocs\\file\\QualityRecord\\Uploads\\LionSteel";
                     foreach (var myFile in lionSteel.MyFiles)
                     {
                         //Save file details into table "Attachment"
@@ -692,7 +707,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
             //string wwwPath = this.webHostEnvironment.WebRootPath;
             //string contentPath = this.webHostEnvironment.ContentRootPath;
 
-            string path = Path.Combine("C:\\EDOCS\\QualityRecord\\Uploads", "LionSteel");
+            string path = Path.Combine("C:\\iis\\sites\\edocs\\file\\QualityRecord\\Uploads", "LionSteel");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -901,10 +916,11 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
             }
             var departmentsResponseC1 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelC1 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseC1.Data);
-            var allDeptIdC1 = departmentViewModelC1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
+            var allDeptId = departmentViewModelC1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
-            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptIdC1)).ToList();
+            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
 
             if (response.Succeeded)
             {
@@ -938,10 +954,11 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
             }
             var departmentsResponseC2 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelC2 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseC2.Data);
-            var allDeptIdC2 = departmentViewModelC2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
+            var allDeptId = departmentViewModelC2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
-            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptIdC2)).ToList();
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
 
             if (response.Succeeded)
             {

@@ -9,7 +9,7 @@
     {
         string userIds = ViewBag.userIds;
         List<string> userId = userIds.Split(',').ToList();
-        pendApp = nonAL.Where(w => (userId.Contains(w.Verified) && w.IssuanceStatusView == "Submitted") || (userId.Contains(w.ApprovedBy) && w.IssuanceStatusView == "Verified") || (userId.Contains(w.AcknowledgedBy) && w.IssuanceStatusView == "Approved")).ToList();
+        pendApp = nonAL.Where(w => (userId.Contains(w.VerifiedBy) && w.IssuanceStatusView == "Submitted") || (userId.Contains(w.ApprovedBy) && w.IssuanceStatusView == "Verified") || (userId.Contains(w.AcknowledgedBy) && w.IssuanceStatusView == "Approved")).ToList();
     }
 }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -103,9 +103,8 @@
     <thead>
         <tr>
             <th>DOC No</th>
-            <th>DOC Title</th>
             <th>Company</th>
-           @* <th>Process</th>*@
+            <th>Process</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -116,9 +115,8 @@
         {
             <tr>
                 <td style="text-indent: 35px; ">» @issuance.DOCNo</td>
-              @*  <td>@issuance.Title</td>*@
-                <td>@issuance.CompanyName</td>
-                @* <td><b>@issuance.ProcessName.ToUpper()</b> </td>*@
+             <td>@issuance.CompanyName</td>
+                 <td><b>@issuance.ProcessName.ToUpper()</b> </td>
               @*  <td><b>@Html.Encode(@issuance.ProcessName).ToUpper()</b> </td>*@
                 <td align="center">
                     @if (!User.IsInRole("None"))
@@ -149,7 +147,7 @@
                                 @*Can only Edit if New or Rejected status *@
                                 @if (@issuance.IssuanceStatusView == "New" || @issuance.IssuanceStatusView == "Rejected")
                                 {
-                                    <a href="/documentation/issuance/CreateOrEdit?id=@issuance.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                    <a href="/documentation/issuance/CreateOrEdit?id=@issuance.Id&docStatus=@issuance.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
                                         <i class="fas fa-pencil-alt"></i>
                                         Edit Issuance
                                     </a>
@@ -199,9 +197,8 @@
     <thead>
         <tr>
             <th>DOC No</th>
-            <th>DOC Title</th>
             <th>Company</th>
-           @* <th>Process</th>*@
+            <th>Process</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -212,9 +209,8 @@
         {
             <tr>
                 <td style="text-indent: 35px; ">» @issuance.DOCNo</td>
-               @* <td>@issuance.Title</td>*@
                 <td>@issuance.CompanyName</td>
-                @* <td><b>@issuance.ProcessName.ToUpper()</b> </td>*@
+                 <td><b>@issuance.ProcessName.ToUpper()</b> </td>
               @*  <td><b>@Html.Encode(@issuance.ProcessName).ToUpper()</b> </td>*@
                 <td align="center">
                     @if (!User.IsInRole("None"))
@@ -245,7 +241,7 @@
                                 @*Can only Edit if New or Rejected status *@
                                 @if (@issuance.IssuanceStatusView == "New" || @issuance.IssuanceStatusView == "Rejected")
                                 {
-                                    <a href="/documentation/issuance/CreateOrEdit?id=@issuance.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                    <a href="/documentation/issuance/CreateOrEdit?id=@issuance.Id&docStatus=@issuance.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
                                         <i class="fas fa-pencil-alt"></i>
                                         Edit Issuance
                                     </a>
@@ -295,9 +291,8 @@
            <thead>
         <tr>
             <th>DOC No</th>
-            <th>DOC Title</th>
             <th>Company</th>
-           @* <th>Process</th>*@
+            <th>Process</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -310,7 +305,7 @@
                 <td style="text-indent: 35px; ">» @issuance.DOCNo</td>
               @*  <td>@issuance.Title</td>*@
                 <td>@issuance.CompanyName</td>
-                @* <td><b>@issuance.ProcessName.ToUpper()</b> </td>*@
+                 <td><b>@issuance.ProcessName.ToUpper()</b> </td>
               @*  <td><b>@Html.Encode(@issuance.ProcessName).ToUpper()</b> </td>*@
                 <td align="center">
                     @if (!User.IsInRole("None"))
@@ -341,7 +336,7 @@
                                 @*Can only Edit if New or Rejected status *@
                                 @if (@issuance.IssuanceStatusView == "New" || @issuance.IssuanceStatusView == "Rejected")
                                 {
-                                    <a href="/documentation/issuance/CreateOrEdit?id=@issuance.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                    <a href="/documentation/issuance/CreateOrEdit?id=@issuance.Id&docStatus=@issuance.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
                                         <i class="fas fa-pencil-alt"></i>
                                         Edit Issuance
                                     </a>
@@ -391,36 +386,36 @@
 <script>
     $(document).ready(function () {
         $('#issuanceTable').DataTable( {
-        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+       order: [[1, 'asc'], [2, 'asc'],[0, 'asc']],
         rowGroup: {
-            dataSrc: [ 2 ]
+            dataSrc: [ 1,2 ]
         },
         columnDefs: [ {
-            targets: [ 2 ],
+            targets: [ 1,2 ],
             visible: false
         } ]
     } );
     });
      $(document).ready(function () {
         $('#issuancePendAppTable').DataTable( {
-        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+      order: [[1, 'asc'], [2, 'asc'],[0, 'asc']],
         rowGroup: {
-            dataSrc: [ 2 ]
+            dataSrc: [ 1,2 ]
         },
         columnDefs: [ {
-            targets: [ 2 ],
+            targets: [ 1,2 ],
             visible: false
         } ]
     } );
     });
      $(document).ready(function () {
         $('#issuanceArchiveListTable').DataTable( {
-        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+       order: [[1, 'asc'], [2, 'asc'],[0, 'asc']],
         rowGroup: {
-            dataSrc: [ 2 ]
+            dataSrc: [ 1,2 ]
         },
         columnDefs: [ {
-            targets: [ 2 ],
+            targets: [ 1,2 ],
             visible: false
         } ]
     } );

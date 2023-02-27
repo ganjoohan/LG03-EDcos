@@ -9,25 +9,29 @@
 <div class="card">
     <div class="card-body" style="max-width:1000px">
         <form id="create-form" method="post" asp-area="documentation" asp-controller="Issuance" asp-action="OnPostCreateOrEdit" asp-route-id="@Model.Id" enctype="multipart/form-data">
+            <div style="float:right">
+                 <label>@Model.DOCNo</label>
+            </div>
             <div class="row">
                 <div class="col-md-7">
                     <div class="form-group row">
+                        <input type="text" asp-for="Id" name="Id"  data-mask class="form-control" hidden="hidden">
+                         <input type="text" asp-for="DOCNo" name="DOCNo"  data-mask class="form-control" hidden="hidden">
                         <label class="col-md-4 col-form-label">Company</label>
                         <div class="col-md-8">
                             <div class="input-group">
                                 <select name="CompanyId" class="form-control select2bs4" id="CompanyId" asp-for="CompanyId" asp-items="@Model.Companies"></select>
                             </div>
                             <span asp-validation-for="CompanyId" class="text-danger"></span>
-                        </div>
+                        </div>                       
                     </div>
-                    <div>
-                        <div class="form-group row">
-                            <label class="col-md-4 col-form-label">Document No</label>
-                            <div class="col-md-8">
-                                <input type="text" asp-for="DOCNo" name="DOCNo"  data-mask class="form-control">
-                               @* data-inputmask='"mask": "****-***-***"'*@
-                                <span asp-validation-for="DOCNo" class="text-danger"></span>
+                       <div class="form-group row">
+                        <label class="col-md-4 col-form-label">Process</label>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <select name="DepartmentId" class="form-control select2bs4" id="DepartmentId" asp-for="DepartmentId" asp-items="@Model.Departments"></select>
                             </div>
+                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
                         </div>
                     </div>
                    
@@ -53,73 +57,103 @@
                 <i class="fa fa-plus-square"></i> Create
             </a>*@
 
-                            <a  asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-addInfo="true" class="btn btn-default" >Add Info</a>
-                             @*<button type="submit" class="btn btn-success" formaction="CreateOrEdit" formmethod="get" value="" >Add Info</button>*@
+                          @*  <a  asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-addInfo="true" class="btn btn-default" >Add Info</a>
+                             <button type="button" class="btn btn-success" formaction="CreateOrEdit" formmethod="get" value="" >Add Info</button>*@
+                              <button type="submit" class="btn btn-success" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-addInfo="true" asp-route-docStatus="@Model.DOCStatus">Add Info</button>
                              <br />
                              <table class="table table-bordered table-sm">
-                                <thead>No</thead>
-                                <thead>Type of Document</thead>
-                                <thead>Document No. / Issue to (max 6 recipients)</thead>
-                                @if(@Model.IssuanceInfo.Count > 0)
+                        <tbody>
+                            <tr>
+                                <td>No</td>
+                                <td>Type of Document</td>
+                                <td>Document No. / Issue to (max 6 recipients)</td>
+                            </tr>
+                               @if(Model.IssuanceInfo.Count > 0)
                                 {
-                                   @for(int x=1; x<(@Model.IssuanceInfo.Count + 1); x++)
+                                   @for(int x=0; x<(Model.IssuanceInfo.Count); x++)
                                     {
-                                        <tr>
-                                            <td>@x</td>
-                                        <td>
-                                            <table>
-                                                <tr>
-                                                    <td>
-                                                        <div class="input-group">
-                                                            <select name="DocType" class="form-control select2bs4" id="DocType" asp-for="@Model.IssuanceInfo[x].DocType" >
-                                                                <option value="">-- Select --</option>
-                                                                <option value="WSCP">WSCP</option>
-                                                                <option value="SOP">SOP</option>
-                                                                <option value="WI">WI</option>
-                                                                <option value="None">None</option>
-                                                            </select>
-                                                        </div>
+                                            <tr>  
+                                                @if(@Model.DOCStatus != "New")
+                                                {
+                                                     <td rowspan="3">
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].Id" class="form-control" hidden="hidden">  
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].HId" class="form-control" hidden="hidden">  
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].No" class="form-control" hidden="hidden">   
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].IsActive" class="form-control" hidden="hidden">
+                                                         @Model.IssuanceInfo[x].No
                                                     </td>
+                                                }
+                                                else
+                                                {
+                                                    <td rowspan="2">
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].Id" class="form-control" hidden="hidden">  
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].HId" class="form-control" hidden="hidden">  
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].No" class="form-control" hidden="hidden">   
+                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].IsActive" class="form-control" hidden="hidden">
+                                                         @Model.IssuanceInfo[x].No
+                                                    </td>
+                                                }
+                                            
+                                            <td>
+                                                        <div class="input-group">
+                                                            <input type="text" asp-for="@Model.IssuanceInfo[x].DocTypes" class="form-control" value="test" hidden="hidden">
+                                                            <select class="form-control select2bs4" asp-for="@Model.IssuanceInfo[x].DocType" asp-items="@Model.IssuanceInfo[x].DocTypes" ></select>
+                                                        </div>
+                                             </td>
+                                        <td>
+                                            <table class="table table-sm" style="border:hidden">
+                                                <tr>
+                                                    
                                                     <td>
-                                                        <table>
-                                                            <tr><input type="text" asp-for="@Model.IssuanceInfo[x].DOCNo" name="DOCNo" class="form-control"></tr>
+                                                        <table class="table table-sm" style="border:hidden">
+                                                            <tr>FormNo<input type="text" asp-for="@Model.IssuanceInfo[x].DOCNo" class="form-control"></tr>
+                                                            <tr>Url<input type="text" asp-for="@Model.IssuanceInfo[x].DocUrl" class="form-control"></tr>
                                                             <tr>Enter Recipient's Name (max 6 recipeints)</tr>                                        
                                                             <tr>
-                                                                <td>1. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName1" name="RecipientName1" class="form-control"></td>
-                                                                <td>4. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName4" name="RecipientName4" class="form-control"></td>
+                                                                 <td>1. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName1" class="form-control"></td>
+                                                                 <td>2. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName2" class="form-control"></td>
+                                                                
                                                                 </tr>
                                                              <tr>
-                                                                <td>2. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName2" name="RecipientName2" class="form-control"></td>
-                                                                <td>5. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName5" name="RecipientName5" class="form-control"></td>
+                                                                 <td>3. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName3" class="form-control"></td>
+                                                                 <td>4. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName4" class="form-control"></td>
+                                                                
                                                              </tr>
-                                                             <tr>
-                                                                <td>3. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName3" name="RecipientName3" class="form-control"></td>
-                                                                <td>6. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName6" name="RecipientName6" class="form-control"></td>
+                                                             <tr>                                                                
+                                                                <td>5. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName5" class="form-control"></td>
+                                                                <td>6. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName6" class="form-control"></td>
                                                             </tr>                     
                                                         </table>
                                                     </td>
                                                 </tr>
-                                                    @if (@ViewBag.CreateEditFlag != "Create")
-                                                    {
-                                                        <tr>
-                                                            <td>Details of Changes:</td>
-                                                            <td><input type="text" asp-for="@Model.IssuanceInfo[x].Amendment" name="Amendment" class="form-control"></td>
-                                                        </tr>
-                                                    }
-                                                    <tr>
-                                                    <td>Purpose for Print Request:</td>
-                                                    <td><input type="text" asp-for="@Model.IssuanceInfo[x].Purpose" name="Purpose" class="form-control"></td>
-                                                </tr>
+                                                
                                             </table>
-                                        
-                                        </td>
-                                        <td>
                                        
-                                         </td>
+                                        </td>
                                     </tr>
-                                    }
-                               
-                                }    
+                                         @if (@Model.DOCStatus != "New")
+                                         {
+                                            <tr>                                                           
+                                                            <td>Details of Changes:</td>
+                                                            <td><input type="text" asp-for="@Model.IssuanceInfo[x].Amendment" class="form-control"></td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr hidden="hidden">                                                            
+                                                            <td>Details of Changes:</td>
+                                                            <td><input type="text" asp-for="@Model.IssuanceInfo[x].Amendment" class="form-control" hidden="hidden"></td>
+                                                            </tr>
+                                                             
+                                                        }
+                                                        <tr>
+                                                          
+                                                    <td>Purpose for Print Request:</td>
+                                                    <td><input type="text" asp-for="@Model.IssuanceInfo[x].Purpose" class="form-control"></td>
+                                                </tr>
+                                    }                               
+                                } 
+                            </tbody>     
                              </table>
                          </div>
 
@@ -133,10 +167,10 @@
                         <tbody>
                             <tr>
                                 <td></td>
-                                <td><b>Prepared By</b></td>
-                                <td><b>1st Concurred By</b></td>
-                                <td><b>2nd Concurred By</b></td>
-                                <td><b>Approved By</b></td>
+                                <td><b>Requested By</b></td>
+                                <td><b>To Be Verify By</b></td>
+                                <td><b>To Be Approve By</b></td>
+                                <td><b>To Be Acknowledge By</b></td>
                             </tr>
                             <tr>
                                 <td><b>Name</b></td>
@@ -149,11 +183,11 @@
                                 <td>
                                     <div>
                                         
-                                            <select name="Concurred1" class="form-control select2bs4" id="Verified" asp-for="Verified" asp-items="@Model.UserListVer">
+                                            <select name="Concurred1" class="form-control select2bs4" id="VerifiedBy" asp-for="VerifiedBy" asp-items="@Model.UserListVer">
                                             <option value="">Select </option>
                                             </select>
                                         
-                                        <span asp-validation-for="Verified" class="text-danger"></span>
+                                        <span asp-validation-for="VerifiedBy" class="text-danger"></span>
                                     </div>
                                 </td>
                                 <td>
@@ -181,8 +215,8 @@
                                 <td><b>Position</b></td>
                                 <td>
                                     
-                                    <input type="text" asp-for="PositionReq" name="PositionReq" class="form-control">
-                                    <span asp-validation-for="PositionReq" class="text-danger"></span>
+                                    <input type="text" asp-for="RequestedByPosition" name="RequestedByPosition" class="form-control">
+                                    <span asp-validation-for="RequestedByPosition" class="text-danger"></span>
                                     
                                 </td>
                                 <td></td>
@@ -192,12 +226,12 @@
                             <tr>
                                 <td><b>Date</b></td>
                                 <td>
-                                    <div class="col-md-12 input-group date" id="DateRequested" name="DateRequested" asp-for="DateRequested" data-target-input="nearest">
-                                        <input type="text" asp-for="DateRequested" name="DateRequested" class="form-control datetimepicker-input" , data_inputmask_inputformat="dd/mm/yyyy" placeholder="dd/mm/yyyy">
+                                    <div class="col-md-12 input-group date" id="RequestedByDate" name="RequestedByDate" asp-for="RequestedByDate" data-target-input="nearest">
+                                        <input type="text" asp-for="RequestedByDate" name="RequestedByDate" class="form-control datetimepicker-input" , data_inputmask_inputformat="dd/mm/yyyy" placeholder="dd/mm/yyyy">
                                         <div class="input-group-append" data-target="#PreparedByDate" data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
-                                        <span asp-validation-for="DateRequested" class="text-danger"></span>
+                                        <span asp-validation-for="RequestedByDate" class="text-danger"></span>
                                     </div>
                                 </td>
                                 <td></td>

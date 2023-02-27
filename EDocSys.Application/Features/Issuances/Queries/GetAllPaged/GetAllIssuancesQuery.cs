@@ -38,9 +38,6 @@ namespace EDocSys.Application.Features.Issuances.Queries.GetAllPaged
             {
                 Id = e.Id,
                 DOCNo = e.DOCNo,
-                Title = e.Title,
-                Category = e.Category,
-                Body = e.Body,
                 IsActive = e.IsActive
 
             };

@@ -118,7 +118,7 @@ namespace EDocSys.Web.Authorization
 
             if (context.User.IsInRole("B1"))
             {
-                if (issuance.CompanyId == user.UserCompanyId && issuance.Concurred1 == user.Id)
+                if (issuance.CompanyId == user.UserCompanyId && issuance.VerifiedBy == user.Id)
                 {
                     context.Succeed(requirement);
                     return Task.CompletedTask;
@@ -126,7 +126,7 @@ namespace EDocSys.Web.Authorization
             }
             if (context.User.IsInRole("A"))
             {
-                if (issuance.Concurred1 == user.Id)
+                if (issuance.VerifiedBy == user.Id)
                 {
                     context.Succeed(requirement);
                     return Task.CompletedTask;

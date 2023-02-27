@@ -41,7 +41,8 @@ namespace EDocSys.Infrastructure.Repositories.QualityRepositories
 
         public async Task<List<LionSteel>> GetListAsync()
         {
-            return await _repository.EntitiesQuality.ToListAsync();
+            return await _repository.EntitiesQuality
+                .ToListAsync();
         }
 
         public async Task<int> InsertAsync(LionSteel lionSteel)

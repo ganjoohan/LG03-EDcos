@@ -30,7 +30,7 @@ using EDocSys.Application.Features.SOPs.Commands.Update;
 using EDocSys.Application.Features.Procedures.Commands.Update;
 using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
-
+using EDocSys.Application.Features.Issuances.Queries.GetById;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -66,8 +66,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
 
         [Authorize(Policy = "CanViewWI")]
-        public async Task<IActionResult> Preview(int id, bool print = false)
+        public async Task<IActionResult> Preview(int id, bool print = false, int IPrint = 0)
         {
+            ViewBag.IPrint = false;
+            ViewBag.IAmend = false;
             ViewBag.RoleAB1 = false;
             ViewBag.RoleA = false;
             ViewBag.RoleB1 = false;
@@ -76,6 +78,31 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
+            if (IPrint != 0)
+            {
+                var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
+                if (responseInfo.Succeeded)
+                {
+                    var issuanceInfoViewModel = _mapper.Map<IssuanceInfoViewModel>(responseInfo.Data);
+                    var urlText = "https://edocs.lion.com.my/documentation/procedure/preview?id=" + id.ToString();
+                    if (urlText == issuanceInfoViewModel.DocUrl)
+                    {
+                        var responseInfoH = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceInfoViewModel.HId });
+                        if (responseInfoH.Succeeded)
+                        {
+                            var issuanceViewModel = _mapper.Map<IssuanceViewModel>(responseInfoH.Data);
+                            if (issuanceViewModel.IssuanceStatusView == "Approved")
+                            {
+                                ViewBag.IPrint = true;
+                                if (issuanceViewModel.DOCStatus != "New")
+                                {
+                                    ViewBag.IAmend = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
@@ -290,9 +317,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             int allDeptId = 0;
             var companiesResponse = await _mediator.Send(new GetAllCompaniesCachedQuery());
-
-
-            
+            int allCompId = 0;
 
             if (id == 0)
             {
@@ -334,7 +359,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
 
                 // Concurred 1
-                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC1 = (from a1 in responseC1
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -345,7 +370,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 wiViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                 // Concurred 2
-                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -356,7 +381,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 wiViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                 // Concurred APP
-                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelAPP = (from a1 in responseAPP
                                         join a2 in _userManager.Users on a1.UserId equals a2.Id
                                         select new UserApproverViewModel
@@ -393,6 +418,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         wiViewModel.EstalishedDate = defDate;
                         wiViewModel.PreparedByDate = defDate;
                         wiViewModel.ArchiveId = wiViewModelOld.Id;
+                        wiViewModel.PrintCount = 0;
                     }
                     if (departmentsResponse.Succeeded)
                     {
@@ -407,7 +433,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         wiViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                     }
                     // Concurred 1
-                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC1 = (from a1 in responseC1
                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
                                            select new UserApproverViewModel
@@ -418,7 +444,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     wiViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                     // Concurred 2
-                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC2 = (from a1 in responseC2
                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
                                            select new UserApproverViewModel
@@ -429,7 +455,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     wiViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                     // Concurred APP
-                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelAPP = (from a1 in responseAPP
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel

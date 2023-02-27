@@ -11,6 +11,7 @@ namespace EDocSys.Application.Features.Departments.Commands.Update
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string InformedList { get; set; }
 
         public class UpdateProductCommandHandler : IRequestHandler<UpdateDepartmentCommand, Result<int>>
         {
@@ -35,6 +36,7 @@ namespace EDocSys.Application.Features.Departments.Commands.Update
                 {
                     department.Name = command.Name ?? department.Name;
                     department.Description = command.Description ?? department.Description;
+                    department.InformedList = command.InformedList ?? department.InformedList;
                     await _departmentRepository.UpdateAsync(department);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(department.Id);

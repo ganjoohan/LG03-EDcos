@@ -13,12 +13,14 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
         public IssuanceProfile()
         {
             CreateMap<Issuance, GetAllIssuancesCachedResponse>()
+                .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
                 .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
             CreateMap<GetAllIssuancesCachedResponse, IssuanceViewModel>().ReverseMap();
 
 
             CreateMap<Issuance, GetIssuanceByIdResponse>()
+               .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
                 .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
 

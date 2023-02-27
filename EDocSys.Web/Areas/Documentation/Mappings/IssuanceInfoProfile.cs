@@ -12,17 +12,17 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
     {
         public IssuanceInfoProfile()
         {
-            CreateMap<Issuance, GetAllIssuancesInfoCachedResponse>()
-                .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
+            CreateMap<Issuance, GetAllIssuancesInfoCachedResponse>();
+                //.ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
             CreateMap<GetAllIssuancesInfoCachedResponse, IssuanceInfoViewModel>().ReverseMap();
 
 
-            CreateMap<IssuanceInfo, GetIssuanceInfoByIdResponse>()
-                .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
+            //CreateMap<IssuanceInfo, GetIssuanceInfoByIdResponse>()
+            //    .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
 
-            CreateMap<GetIssuanceInfoByIdResponse, IssuanceInfoViewModel>().ReverseMap();
+            CreateMap<GetIssuanceInfoByIHdResponse, IssuanceInfoViewModel>().ReverseMap();
             CreateMap<CreateIssuanceInfoCommand, IssuanceInfoViewModel>().ReverseMap();
             CreateMap<UpdateIssuanceInfoCommand, IssuanceInfoViewModel>().ReverseMap();
 

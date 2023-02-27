@@ -1,13 +1,8 @@
-﻿using EDocSys.Domain.Entities.Documentation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
-namespace EDocSys.Application.Features.Issuances.Queries.GetAllCached
+namespace EDocSys.Application.Features.Issuances.Queries.GetById
 {
-    public class GetAllIssuancesInfoCachedResponse
+    public class GetIssuanceInfoByIHdResponse
     {
         public int Id { get; set; }
         public int HId { get; set; }
@@ -27,3 +22,5 @@ namespace EDocSys.Application.Features.Issuances.Queries.GetAllCached
         public string DocUrl { get; set; }
     }
 }
+
+

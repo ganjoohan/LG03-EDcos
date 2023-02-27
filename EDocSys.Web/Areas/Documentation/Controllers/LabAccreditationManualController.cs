@@ -28,6 +28,7 @@ using EDocSys.Application.Features.LabAccreditationManualStatuses.Queries.GetAll
 using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
+using EDocSys.Application.Features.Issuances.Queries.GetById;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -112,12 +113,39 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         //}
 
         [Authorize(Policy = "CanViewLabAccreditationManual")]
-        public async Task<IActionResult> Preview(int id, bool print = false, LabAccreditationManualViewModel labAManual = null)
+        public async Task<IActionResult> Preview(int id, bool print = false, LabAccreditationManualViewModel labAManual = null, int IPrint = 0)
         {
+            ViewBag.IPrint = false;
+            ViewBag.IAmend = false;
             ViewBag.RoleA = false;
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
+            if (IPrint != 0)
+            {
+                var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
+                if (responseInfo.Succeeded)
+                {
+                    var issuanceInfoViewModel = _mapper.Map<IssuanceInfoViewModel>(responseInfo.Data);
+                    var urlText = "https://edocs.lion.com.my/documentation/procedure/preview?id=" + id.ToString();
+                    if (urlText == issuanceInfoViewModel.DocUrl)
+                    {
+                        var responseInfoH = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceInfoViewModel.HId });
+                        if (responseInfoH.Succeeded)
+                        {
+                            var issuanceViewModel = _mapper.Map<IssuanceViewModel>(responseInfoH.Data);
+                            if (issuanceViewModel.IssuanceStatusView == "Approved")
+                            {
+                                ViewBag.IPrint = true;
+                                if (issuanceViewModel.DOCStatus != "New")
+                                {
+                                    ViewBag.IAmend = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
@@ -323,6 +351,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
             var allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             if (id == 0)
             {
                 var labAccreditationManualViewModel = new LabAccreditationManualViewModel();
@@ -342,7 +371,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
 
                 // Concurred 1
-                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptId)).ToList();
+                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC1 = (from a1 in responseC1
                                      join a2 in _userManager.Users on a1.UserId equals a2.Id
                                      select new UserApproverViewModel
@@ -353,7 +382,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 labAccreditationManualViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                 // Concurred 2
-                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptId)).ToList();
+                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -364,7 +393,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 labAccreditationManualViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                 // Concurred APP
-                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == allDeptId)).ToList();
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptId)).ToList();
                 var userViewModelAPP = (from a1 in responseAPP
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -399,6 +428,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         labAccreditationManualViewModel.EstalishedDate = DateTime.Now;
                         labAccreditationManualViewModel.PreparedByDate = DateTime.Now;
                         labAccreditationManualViewModel.ArchiveId = labAccreditationManualViewModelOld.Id;
+                        labAccreditationManualViewModel.PrintCount = 0;
                     }
                     //labAccreditationManualViewModel.RevisionNo = labAccreditationManualViewModel.RevisionNo == null ? 1 : (labAccreditationManualViewModel.RevisionNo + 1);
                     //labAccreditationManualViewModel.RevisionDate = DateTime.Now;
@@ -410,7 +440,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     }
 
                     // Concurred 1
-                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptId)).ToList();
+                    var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC1 = (from a1 in responseC1
                                          join a2 in _userManager.Users on a1.UserId equals a2.Id
                                          select new UserApproverViewModel
@@ -421,7 +451,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     labAccreditationManualViewModel.UserListC1 = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                     // Concurred 2
-                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptId)).ToList();
+                    var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptId)).ToList();
                     var userViewModelC2 = (from a1 in responseC2
                                            join a2 in _userManager.Users on a1.UserId equals a2.Id
                                            select new UserApproverViewModel
@@ -432,7 +462,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     labAccreditationManualViewModel.UserListC2 = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                     // Concurred APP
-                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == allDeptId)).ToList();
+                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptId)).ToList();
                     var userViewModelAPP = (from a1 in responseAPP
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel
@@ -880,9 +910,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var departmentsResponseLA1 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelLA1 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseLA1.Data);
             var allDeptIdLA1 = departmentViewModelLA1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             var response = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = id });
 
-            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptIdLA1)).ToList();
+            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptIdLA1)).ToList();
 
             if (response.Succeeded)
             {
@@ -908,18 +939,13 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
-            List<string> rolesList = new List<string>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                rolesList.AddRange(roles);
-            }
             var departmentsResponseLA2 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelLA2 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseLA2.Data);
             var allDeptIdLA2 = departmentViewModelLA2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             var response = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = id });
 
-            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptIdLA2)).ToList();
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptIdLA2)).ToList();
 
             if (response.Succeeded)
             {
@@ -942,7 +968,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         public async Task<JsonResult> OnGetAssignApprovedBy(int id)
         {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            var departmentsResponseLA2 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+            var departmentViewModelLA2 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseLA2.Data);
+            var allDeptIdLA2 = departmentViewModelLA2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             var response = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = id });
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == allDeptIdLA2)).ToList();
 
             if (response.Succeeded)
             {

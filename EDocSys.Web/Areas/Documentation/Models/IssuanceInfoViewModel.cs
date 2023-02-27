@@ -9,7 +9,10 @@ namespace EDocSys.Web.Areas.Documentation.Models
     public class IssuanceInfoViewModel
     {
         public int Id { get; set; }
+        public int HId { get; set; }
+        public int No { get; set; }
         public string DOCNo { get; set; }
+        public SelectList DocTypes { get; set; }
         public string DocType { get; set; }
         public string RecipientName1 { get; set; }
         public string RecipientName2 { get; set; }
@@ -20,7 +23,9 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public string Purpose { get; set; }
         public string Amendment { get; set; }
         public bool IsActive { get; set; } = true;
-      
+
+        public string DocUrl { get; set; }
+
     }
 
 }

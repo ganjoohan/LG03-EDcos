@@ -9,27 +9,22 @@ namespace EDocSys.Application.Features.Issuances.Commands.Update
 {
     public class UpdateIssuanceInfoCommand : IRequest<Result<int>>
     {
-        public int Id { get; set; }      
-        public string Title { get; set; }
-        public string Category { get; set; }
-
-        public string Body { get; set; }
-        public DateTime? EffectiveDate { get; set; }
-        public DateTime? RevisionDate { get; set; }
-        public int? RevisionNo { get; set; }
-        public DateTime? EstalishedDate { get; set; }
-        public int CompanyId { get; set; }
-        public string Concurred1 { get; set; }
-        public string Concurred2 { get; set; }
-        public string ApprovedBy { get; set; }
-        public string PreparedBy { get; set; }
-        public string PreparedByPosition { get; set; }
-        public DateTime? PreparedByDate { get; set; }
+        public int Id { get; set; }
+        public int HId { get; set; }
+        public int No { get; set; }
+        public string DOCNo { get; set; }
+        public string DocType { get; set; }
+        public string RecipientName1 { get; set; }
+        public string RecipientName2 { get; set; }
+        public string RecipientName3 { get; set; }
+        public string RecipientName4 { get; set; }
+        public string RecipientName5 { get; set; }
+        public string RecipientName6 { get; set; }
+        public string Purpose { get; set; }
+        public string Amendment { get; set; }
         public bool IsActive { get; set; }
-        public bool IsArchive { get; set; }
-        public int ArchiveId { get; set; }
-        public int PrintCount { get; set; }
-        public DateTime? ArchiveDate { get; set; }
+
+        public string DocUrl { get; set; }
 
         public class UpdateIssuanceInfoCommandHandler : IRequestHandler<UpdateIssuanceInfoCommand, Result<int>>
         {
@@ -52,29 +47,18 @@ namespace EDocSys.Application.Features.Issuances.Commands.Update
                 }
                 else
                 {
-                    issuanceInfo.Title = command.Title ?? issuanceInfo.Title;
-                    issuanceInfo.Body = command.Body ?? issuanceInfo.Body;
-
-                    issuanceInfo.EffectiveDate = command.EffectiveDate ?? issuanceInfo.EffectiveDate;
-                    issuanceInfo.RevisionDate = command.RevisionDate ?? issuanceInfo.RevisionDate;
-                    issuanceInfo.RevisionNo = command.RevisionNo ?? issuanceInfo.RevisionNo;
-                    issuanceInfo.EstalishedDate = command.EstalishedDate ?? issuanceInfo.EstalishedDate;
-
-                    issuanceInfo.CompanyId = (command.CompanyId == 0) ? issuanceInfo.CompanyId : command.CompanyId;
-
-                    issuanceInfo.Concurred1 = command.Concurred1 ?? issuanceInfo.Concurred1;
-                    issuanceInfo.Concurred2 = command.Concurred2;
-                    issuanceInfo.ApprovedBy = command.ApprovedBy ?? issuanceInfo.ApprovedBy;
-
-                    issuanceInfo.PreparedBy = command.PreparedBy ?? issuanceInfo.PreparedBy;
-                    issuanceInfo.PreparedByDate = command.PreparedByDate ?? issuanceInfo.PreparedByDate;
-                    issuanceInfo.PreparedByPosition = command.PreparedByPosition ?? issuanceInfo.PreparedByPosition;
-
+                    issuanceInfo.DOCNo = command.DOCNo ?? issuanceInfo.DOCNo;
+                    issuanceInfo.DocType = command.DocType ?? issuanceInfo.DocType;
+                    issuanceInfo.RecipientName1 = command.RecipientName1 ?? issuanceInfo.RecipientName1;
+                    issuanceInfo.RecipientName2 = command.RecipientName2 ?? issuanceInfo.RecipientName2;
+                    issuanceInfo.RecipientName3 = command.RecipientName3 ?? issuanceInfo.RecipientName3;
+                    issuanceInfo.RecipientName4 = command.RecipientName4 ?? issuanceInfo.RecipientName4;
+                    issuanceInfo.RecipientName5 = command.RecipientName5 ?? issuanceInfo.RecipientName5;
+                    issuanceInfo.RecipientName6 = command.RecipientName6 ?? issuanceInfo.RecipientName6;
+                    issuanceInfo.Purpose = command.Purpose ?? issuanceInfo.Purpose;
+                    issuanceInfo.Amendment = command.Amendment ?? issuanceInfo.Amendment;
+                    issuanceInfo.DocUrl = command.DocUrl ?? issuanceInfo.DocUrl;
                     issuanceInfo.IsActive = command.IsActive;
-                    issuanceInfo.IsArchive = command.IsArchive ? true : issuanceInfo.IsArchive;
-                    issuanceInfo.ArchiveId = (command.ArchiveId == 0) ? issuanceInfo.ArchiveId : command.ArchiveId;
-                    issuanceInfo.PrintCount = (command.PrintCount == 0) ? issuanceInfo.PrintCount : command.PrintCount;
-                    issuanceInfo.ArchiveDate = command.ArchiveDate ?? issuanceInfo.ArchiveDate;
                     await _issuanceInfoRepository.UpdateAsync(issuanceInfo);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(issuanceInfo.Id);

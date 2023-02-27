@@ -10,21 +10,25 @@ namespace EDocSys.Web.Areas.Documentation.Models
     {
         public int Id { get; set; }
         public string DOCNo { get; set; }
-        public string ProcessName { get; set; }        
+
+        public string TitleName { get; set; }
 
         public int CompanyId { get; set; }
         public SelectList Companies { get; set; }
         public string CompanyName { get; set; }
 
+        public int DepartmentId { get; set; }
+        public SelectList Departments { get; set; }
+        public string ProcessName { get; set; }
 
         public IEnumerable<string> IssuanceStatus { get; set; }
 
         public string IssuanceStatusView { get; set; }
 
-        public List<IssuanceInfoViewModel> IssuanceInfo { get; set; }
+        public List<IssuanceInfoViewModel> IssuanceInfo { get; set; } = new List<IssuanceInfoViewModel>();
 
         public string RequestedBy { get; set; }
-        public string Verified { get; set; }
+        public string VerifiedBy { get; set; }
         public string VerifiedName { get; set; }
         public string ApprovedBy { get; set; }
         public string AcknowledgedBy { get; set; }
@@ -34,7 +38,7 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public SelectList UserListApp { get; set; }
         public SelectList UserListAck { get; set; }
 
-        public string PositionReq { get; set; }
+        public string RequestedByPosition { get; set; }
         public string PositionVer { get; set; }
         public string PositionApp { get; set; }
         public string PositionAck { get; set; }
@@ -43,10 +47,12 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public bool IsActive { get; set; } = true;
         public bool IsArchive { get; set; }
         public int ArchiveId { get; set; }
-        
+
+        public string DOCStatus { get; set; }
+
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
-        public DateTime? DateRequested { get; set; }
+        public DateTime? RequestedByDate { get; set; }
 
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]

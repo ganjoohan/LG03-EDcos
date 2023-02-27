@@ -31,10 +31,14 @@ namespace EDocSys.Infrastructure.Repositories
         public async Task<IssuanceInfo> GetByIdAsync(int docId)
         {
             return await _repository.Entities.Where(p => p.Id == docId)
-                .Include(a => a.Company)
+                //.Include(a => a.Company)
                 .FirstOrDefaultAsync();
         }
-
+        public async Task<List<IssuanceInfo>> GetByHIdAsync(int HId)
+        {
+            return  _repository.Entities.Where(p => p.HId == HId)
+                .ToList();
+        }
         public async Task<IssuanceInfo> GetByDOCNoAsync(string docno)
         {
             return await _repository.Entities.Where(p => p.DOCNo == docno)
@@ -45,7 +49,7 @@ namespace EDocSys.Infrastructure.Repositories
         public async Task<List<IssuanceInfo>> GetListAsync()
         {
             return _repository.Entities
-                 .Include(a => a.Company)
+                 //.Include(a => a.Company)
                  .ToList();
             //big data, slow loading (Elaine Ho 5Aug2022)
             //return await _repository.Entities

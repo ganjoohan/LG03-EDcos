@@ -295,7 +295,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (issuanceStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetIssuanceById.Data.EffectiveDate = DateTime.Now;
+                    //responseGetIssuanceById.Data.EffectiveDate = DateTime.Now;
+                    responseGetIssuanceById.Data.IssuanceStatusView = "";
                     var updateIssuancelCommand = _mapper.Map<UpdateIssuanceCommand>(responseGetIssuanceById.Data);
                     var result1 = await _mediator.Send(updateIssuancelCommand);
                 }

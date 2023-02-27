@@ -62,6 +62,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
             public async Task<IActionResult> IndexNewAsync()
         {
+            ViewBag.docStatus = "New";
             ViewBag.RoleAB1 = false;
             ViewBag.RoleA = false;
             ViewBag.RoleB1 = false;
@@ -114,6 +115,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         public async Task<IActionResult> IndexEditAsync()
         {
+            ViewBag.docStatus = "Amend";
             ViewBag.RoleAB1 = false;
             ViewBag.RoleA = false;
             ViewBag.RoleB1 = false;
@@ -248,10 +250,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 {
                     ViewBag.RoleSA = true;
                 }
-                // issuanceViewModel.pro String.Format("{0:y yy yyy yyyy}", dt);  // "8 08 008 2008"   year
-
-                // issuanceViewModel.PreparedByDate = String.Format("{0:dd/mm/yyyy}", issuanceViewModel.PreparedByDate);
-
+                issuanceViewModel.TitleName = issuanceViewModel.DOCStatus == "New" ? "New Issue Requisition" : "Amendment Requisition";
                 if (statusById.Count() != 0)
                 {
                     var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == id).OrderBy(a => a.CreatedOn)
@@ -264,14 +263,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 {
                     issuanceViewModel.IssuanceStatusView = "New";
                 }
-                var RequestedByUser = _userManager.Users.Where(a => a.Id == issuanceViewModel.RequestedBy).SingleOrDefault();
-                issuanceViewModel.RequestedBy = RequestedByUser.Id;
-               issuanceViewModel.PositionReq = RequestedByUser.Position;
-                if (issuanceViewModel.Verified != null)
+               if (issuanceViewModel.VerifiedBy != null)
                 {
-                    var VerifiedByUser = _userManager.Users.Where(a => a.Id == issuanceViewModel.Verified).SingleOrDefault();
+                    var VerifiedByUser = _userManager.Users.Where(a => a.Id == issuanceViewModel.VerifiedBy).SingleOrDefault();
                     issuanceViewModel.VerifiedName = VerifiedByUser.FirstName + " " + VerifiedByUser.LastName;
-                    issuanceViewModel.Verified = VerifiedByUser.Id;
+                    issuanceViewModel.VerifiedBy = VerifiedByUser.Id;
                     issuanceViewModel.PositionVer = VerifiedByUser.Position;
 
                     if (statusById.Count() != 0)
@@ -382,17 +378,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     ViewBag.IsAck = true;
                 }
 
-
-
-
-
-                return View(issuanceViewModel);
+                var responseInfo = await _mediator.Send(new GetIssuanceInfoByHIdQuery() { HId = id });
+                if (responseInfo.Succeeded)
+                {
+                    var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);
+                    issuanceViewModel.IssuanceInfo = issuanceInfoViewModel;
+                }
+                    return View(issuanceViewModel);
             }
             return null;
         }
 
         [Authorize(Policy = "CanCreateEditIssuance")]
-        public async Task<IActionResult> CreateOrEdit(int id = 0, bool addInfo = false)
+        public async Task<IActionResult> CreateOrEdit(int id = 0, bool addInfo = false, IssuanceViewModel ivm = null, string docStatus = "New")
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
@@ -408,12 +406,49 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
             var qaId = departmentViewModel.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
             var allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
+            var items = new List<string>() { "WSCP", "SOP", "WI", "None" };
             if (id == 0)
             {
                 var issuanceViewModel = new IssuanceViewModel();
-                issuanceViewModel.RequestedBy = currentUser.Id;
-                issuanceViewModel.DateRequested = DateTime.Now;
-                issuanceViewModel.PositionReq = currentUser.Position;
+                issuanceViewModel.DOCStatus = docStatus;
+                if (addInfo)
+                {
+                    issuanceViewModel = ivm;
+                    var newInfo = new IssuanceInfoViewModel();
+                    newInfo.DocTypes = new SelectList(items);
+                    if (issuanceViewModel.IssuanceInfo == null)
+                    {
+                        issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
+                        newInfo.No = 1;
+                    }
+                    else
+                        newInfo.No = issuanceViewModel.IssuanceInfo.Count + 1;
+                    issuanceViewModel.IssuanceInfo.Add(newInfo);
+                    issuanceViewModel.IssuanceInfo.All(c => { c.DocTypes = new SelectList(items); return true; });
+                }
+                else
+                {
+                    //var response = await _mediator.Send(new GetAllIssuancesCachedQuery());
+
+                    //if (response.Succeeded)
+                    //{
+                    //    var viewModel = _mapper.Map<List<IssuanceViewModel>>(response.Data);
+                    //    issuanceViewModel.DOCNo = (viewModel.Count + 1).ToString().PadLeft(6, '0');
+                    //}
+                    //else
+                        issuanceViewModel.DOCNo = (1).ToString().PadLeft(6, '0');
+
+                    issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
+                    var newInfo = new IssuanceInfoViewModel();
+                    newInfo.No = 1;
+                    newInfo.DocTypes = new SelectList(items);
+                    issuanceViewModel.IssuanceInfo.Add(newInfo);
+                    issuanceViewModel.IssuanceInfo.All(c => { c.DocTypes = new SelectList(items); return true; });
+                }
+                issuanceViewModel.RequestedBy = currentUser.FirstName + " " + currentUser.LastName;
+                issuanceViewModel.RequestedByDate = DateTime.Now;
+                issuanceViewModel.RequestedByPosition = currentUser.Position;               
                 if (companiesResponse.Succeeded)
                 {
                     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
@@ -424,10 +459,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     issuanceViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                 }
+                if (departmentsResponse.Succeeded)
+                {
+                    if (rolesList.Contains("D"))
+                    {
+                        departmentViewModel = departmentViewModel.Where(a => users.Select(s => s.UserDepartmentId).Contains(a.Id)).ToList();
+                    }
 
-                issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
+                    issuanceViewModel.Departments = new SelectList(departmentViewModel, nameof(DepartmentViewModel.Id), nameof(DepartmentViewModel.Name), null, null);
+                }
+
                 // Concurred 1
-                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
+                var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "VER" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC1 = (from a1 in responseC1
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -438,7 +481,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 issuanceViewModel.UserListVer = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
                 // Concurred 2
-                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
+                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC2 = (from a1 in responseC2
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
@@ -449,7 +492,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 issuanceViewModel.UserListApp = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
 
                 // Concurred APP
-                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "ACK" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelAPP = (from a1 in responseAPP
                                         join a2 in _userManager.Users on a1.UserId equals a2.Id
                                         select new UserApproverViewModel
@@ -459,13 +502,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                                         }).OrderBy(a => a.Email).ToList();
                 issuanceViewModel.UserListAck = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
 
-                if (addInfo)
-                {
-                    var newInfo = new IssuanceInfoViewModel();
-                    if (issuanceViewModel.IssuanceInfo == null)
-                        issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
-                    issuanceViewModel.IssuanceInfo.Add(newInfo); ;
-                }
                 ViewBag.CreateEditFlag = "Create";
                 string serverMapPath = Path.Combine(_env.WebRootPath, "html_template", "DOC_Template.html");
                 string text = System.IO.File.ReadAllText(serverMapPath);
@@ -480,6 +516,39 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 if (response.Succeeded)
                 {
                     var issuanceViewModel = _mapper.Map<IssuanceViewModel>(response.Data);
+                    if (addInfo)
+                    {
+                        issuanceViewModel = ivm;
+                        var newInfo = new IssuanceInfoViewModel();
+                        newInfo.DocTypes = new SelectList(items);
+                        if (issuanceViewModel.IssuanceInfo == null)
+                        {
+                            issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
+                            newInfo.No = 1;
+                        }
+                        else
+                            newInfo.No = issuanceViewModel.IssuanceInfo.Count + 1;
+                        issuanceViewModel.IssuanceInfo.Add(newInfo);
+                        issuanceViewModel.IssuanceInfo.All(c => { c.DocTypes = new SelectList(items); return true; });
+                    }
+                    else
+                    {
+                        if (issuanceViewModel.IssuanceInfo == null)
+                        {
+                            issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
+                            var newInfo = new IssuanceInfoViewModel();
+                            newInfo.No = 1;                           
+                            newInfo.DocTypes = new SelectList(items);
+                            issuanceViewModel.IssuanceInfo.Add(newInfo);
+                        }
+                        var responseInfo = await _mediator.Send(new GetIssuanceInfoByHIdQuery() { HId = id });
+                        if (responseInfo.Succeeded)
+                        {
+                            var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);
+                            issuanceViewModel.IssuanceInfo = issuanceInfoViewModel;
+                        }
+                        issuanceViewModel.IssuanceInfo.All(c => { c.DocTypes = new SelectList(items); return true; });
+                    }
                     //var issuanceViewModelOld = _mapper.Map<IssuanceViewModel>(response.Data);
 
                     if (companiesResponse.Succeeded)
@@ -487,16 +556,17 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
                         issuanceViewModel.Companies = new SelectList(companyViewModel, nameof(CompanyViewModel.Id), nameof(CompanyViewModel.Name), null, null);
                     }
-
-                    issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
-                    var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = id });
-                    if (responseInfo.Succeeded)
+                    if (departmentsResponse.Succeeded)
                     {
-                        var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);
-                        issuanceViewModel.IssuanceInfo = issuanceInfoViewModel;
+                        if (rolesList.Contains("D"))
+                        {
+                            departmentViewModel = departmentViewModel.Where(a => users.Select(s => s.UserDepartmentId).Contains(a.Id)).ToList();
+                        }
+                        issuanceViewModel.Departments = new SelectList(departmentViewModel, nameof(DepartmentViewModel.Id), nameof(DepartmentViewModel.Name), null, null);
                     }
+
                     // Verified
-                    var responseVer = _context.UserApprovers.Where(a => a.ApprovalType == "VER" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
+                    var responseVer = _context.UserApprovers.Where(a => a.ApprovalType == "VER" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelVer = (from a1 in responseVer
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel
@@ -507,7 +577,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     issuanceViewModel.UserListVer = new SelectList(userViewModelVer, "UserVerifiedId", "FullName");
 
                     // Approver
-                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
+                    var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelAPP = (from a1 in responseAPP
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel
@@ -518,7 +588,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     issuanceViewModel.UserListApp = new SelectList(userViewModelAPP, "UserApprovedId", "FullName");
 
                     // Acknowledge
-                    var responseACK = _context.UserApprovers.Where(a => a.ApprovalType == "ACK" && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
+                    var responseACK = _context.UserApprovers.Where(a => a.ApprovalType == "ACK" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
                     var userViewModelACK = (from a1 in responseACK
                                             join a2 in _userManager.Users on a1.UserId equals a2.Id
                                             select new UserApproverViewModel
@@ -527,13 +597,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                                                 FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
                                             }).OrderBy(a => a.Email).ToList();
                     issuanceViewModel.UserListAck = new SelectList(userViewModelACK, "UserAcknowledgedBy", "FullName");
-                    if (addInfo)
-                    {
-                        var newInfo = new IssuanceInfoViewModel();
-                        if (issuanceViewModel.IssuanceInfo == null)
-                            issuanceViewModel.IssuanceInfo = new List<IssuanceInfoViewModel>();
-                        issuanceViewModel.IssuanceInfo.Add(newInfo); ;
-                    }
 
                     return View(issuanceViewModel);
                 }
@@ -620,11 +683,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     issuanceViewModel.IssuanceStatusView = "New";
                 }
 
-                if (issuanceViewModel.Verified != null)
+                if (issuanceViewModel.VerifiedBy != null)
                 {
-                    var VerifiedUser = _userManager.Users.Where(a => a.Id == issuanceViewModel.Verified).SingleOrDefault();
+                    var VerifiedUser = _userManager.Users.Where(a => a.Id == issuanceViewModel.VerifiedBy).SingleOrDefault();
                     issuanceViewModel.VerifiedName = VerifiedUser.FirstName + " " + VerifiedUser.LastName;
-                    issuanceViewModel.Verified = VerifiedUser.Id;
+                    issuanceViewModel.VerifiedBy = VerifiedUser.Id;
                 }
 
                 if (issuanceViewModel.ApprovedBy != null)
@@ -644,7 +707,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             return null;
         }
 
-        public async Task<IActionResult> LoadAll()
+        public async Task<IActionResult> LoadAllNew()
         {
             ViewBag.RoleA = false;
             ViewBag.RoleB1 = false;
@@ -689,7 +752,89 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<IssuanceViewModel>>(response.Data);
-                viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId))).ToList();
+                viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) && a.DOCStatus == "New").ToList();
+
+                if (!rolesList.Contains("A") && !rolesList.Contains("SuperAdmin"))
+                {
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
+                }
+
+                foreach (IssuanceViewModel item in viewModel)
+                {
+                    var psStatat = _context.IssuanceStatus.Where(a => a.IssuanceId == item.Id).ToList();
+
+                    if (psStatat.Count != 0)
+                    {
+                        var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == item.Id).OrderBy(a => a.CreatedOn)
+                            .Include(a => a.DocumentStatus)
+                            .Last();
+                        item.IssuanceStatusView = StatusId.DocumentStatus.Name;
+                    }
+                    else
+                    {
+                        item.IssuanceStatusView = "New";
+                    }
+                }
+                if (rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
+                {
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
+                }
+                else if (rolesList.Contains("C"))
+                {
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && a.IssuanceStatusView == "Approved").ToList();
+                }
+
+                return PartialView("_ViewAll", viewModel);
+            }
+            return null;
+        }
+        
+        public async Task<IActionResult> LoadAllAmend()
+        {
+            ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleE = false;
+            ViewBag.RoleD = false;
+            ViewBag.RoleSA = false;
+            ViewBag.userIds = "";
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            List<int> listComp = new List<int>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+                listComp.Add(user.UserCompanyId);
+                ViewBag.userIds = ViewBag.userIds != "" ? (ViewBag.userIds + "," + user.Id) : user.Id;
+            }
+            if (rolesList.Contains("A"))
+            {
+                ViewBag.RoleA = true;
+            }
+            if (rolesList.Contains("B1"))
+            {
+                ViewBag.RoleB1 = true;
+            }
+            if (rolesList.Contains("E"))
+            {
+                ViewBag.RoleE = true;
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
+            if (rolesList.Contains("SuperAdmin"))
+            {
+                ViewBag.RoleSA = true;
+            }
+
+            var response = await _mediator.Send(new GetAllIssuancesCachedQuery());
+
+            if (response.Succeeded)
+            {
+                var viewModel = _mapper.Map<List<IssuanceViewModel>>(response.Data);
+                viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) && a.DOCStatus == "Amend").ToList();
 
                 if (!rolesList.Contains("A") && !rolesList.Contains("SuperAdmin"))
                 {
@@ -756,13 +901,9 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> OnPostCreateOrEdit(int id, IssuanceViewModel issuance)
-        {
-            // issuance.EffectiveDate.Value.ToString("g");
-
-
-
-            if (ModelState.IsValid)
+        public async Task<IActionResult> OnPostCreateOrEdit(int id, bool addInfo, IssuanceViewModel issuance)
+        {   
+           if (ModelState.IsValid)
             {
                 if (id == 0)
                 {
@@ -772,6 +913,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     {
                         id = result.Data;
                         _notify.Success($"Issuance with ID {result.Data} Created.");
+                        foreach(var info in issuance.IssuanceInfo)
+                        {
+                            info.HId = id;
+                            var createIssuanceInfoCommand = _mapper.Map<CreateIssuanceInfoCommand>(info);
+                            var resultInfo = await _mediator.Send(createIssuanceInfoCommand);
+                        }
                     }
                     else _notify.Error(result.Message);
                 }
@@ -780,6 +927,20 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(issuance);
                     var result = await _mediator.Send(updateIssuanceCommand);
                     if (result.Succeeded) _notify.Information($"Issuance with ID {result.Data} Updated.");
+                    foreach (var info in issuance.IssuanceInfo)
+                    {
+                        if (info.Id == 0)
+                        {
+                            info.HId = id;
+                            var createIssuanceInfoCommand = _mapper.Map<CreateIssuanceInfoCommand>(info);
+                            var resultInfo = await _mediator.Send(createIssuanceInfoCommand);
+                        }
+                        else
+                        {
+                            var updateIssuanceInfoCommand = _mapper.Map<UpdateIssuanceInfoCommand>(info);
+                            var resultInfo = await _mediator.Send(updateIssuanceInfoCommand);
+                        }
+                    }
                 }
                 if (issuance.ArchiveId != 0)
                 {
@@ -819,17 +980,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 return View(nameof(IndexNewAsync));
             }
         }
-        //[HttpPost]
-    
-      public async Task<IActionResult> OnAddInfo(IssuanceViewModel issuance = null)
-       {
-            var newInfo = new IssuanceInfoViewModel();
-            if (issuance.IssuanceInfo == null)
-                issuance.IssuanceInfo = new List<IssuanceInfoViewModel>();
-            issuance.IssuanceInfo.Add(newInfo);
-            return View(issuance);
-        }
-
 
         [HttpPost]
         public async Task<JsonResult> OnPostDeactivate(int id)
@@ -997,19 +1147,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
-            List<string> rolesList = new List<string>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                rolesList.AddRange(roles);
-            }
             var departmentsResponseC1 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelC1 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseC1.Data);
             var qaId = departmentViewModelC1.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
             var allDeptIdC1 = departmentViewModelC1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             var response = await _mediator.Send(new GetIssuanceByIdQuery() { Id = id });
 
-            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == qaId || a.DepartmentId == allDeptIdC1)).ToList();
+            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "VER" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptIdC1)).ToList();
 
             if (response.Succeeded)
             {
@@ -1035,19 +1180,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
-            List<string> rolesList = new List<string>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                rolesList.AddRange(roles);
-            }
             var departmentsResponseC2 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelC2 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseC2.Data);
             var qaId = departmentViewModelC2.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
             var allDeptIdC2 = departmentViewModelC2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             var response = await _mediator.Send(new GetIssuanceByIdQuery() { Id = id });
 
-            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == qaId || a.DepartmentId == allDeptIdC2)).ToList();
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptIdC2)).ToList();
 
             if (response.Succeeded)
             {
@@ -1070,20 +1210,27 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
         public async Task<JsonResult> OnGetAssignApprovedBy(int id)
         {
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+            var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
+            var qaId = departmentViewModel.Where(w => w.Name == "Quality Assurance").FirstOrDefault().Id;
+            var allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
             var response = await _mediator.Send(new GetIssuanceByIdQuery() { Id = id });
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "ACK" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (a.DepartmentId == qaId || a.DepartmentId == allDeptId)).ToList();
 
             if (response.Succeeded)
             {
                 var issuanceViewModel = _mapper.Map<IssuanceViewModel>(response.Data);
 
-
-                var userViewModel = (from a1 in await _userManager.Users.ToListAsync()
-                                     select new UserViewModel
+                var userViewModel = (from a1 in responseC2
+                                     join a2 in _userManager.Users on a1.UserId equals a2.Id
+                                     select new UserApproverViewModel
                                      {
-                                         UserApproveBy = a1.Id,
-                                         FullName = a1.LastName + " " + a1.FirstName + " (" + a1.Email + ")"
+                                         UserConcurred2Id = a1.UserId,
+                                         FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
                                      }).OrderBy(a => a.Email).ToList();
-
 
                 issuanceViewModel.UserList = new SelectList(userViewModel, "UserApproveBy", "FullName");
 
@@ -1109,7 +1256,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
             else
             {
-                issuance.Verified = issuance.Verified;
+                issuance.VerifiedBy = issuance.VerifiedBy;
                 var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(issuance);
                 var result = await _mediator.Send(updateIssuanceCommand);
                 if (result.Succeeded) _notify.Information($"Issuance Assignment with ID {result.Data} Updated.");

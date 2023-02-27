@@ -37,10 +37,8 @@ namespace EDocSys.Application.Features.Issuances.Queries.GetAllPaged
             Expression<Func<IssuanceInfo, GetAllIssuancesInfoResponse>> expression = e => new GetAllIssuancesInfoResponse
             {
                 Id = e.Id,
+                HId = e.HId,
                 DOCNo = e.DOCNo,
-                Title = e.Title,
-                Category = e.Category,
-                Body = e.Body,
                 IsActive = e.IsActive
 
             };

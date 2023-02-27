@@ -242,6 +242,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                         lionSteelViewModel.RevisionNo = revNo + 1;
                         lionSteelViewModel.RevisionDate = DateTime.Now;
                         lionSteelViewModel.ArchiveId = lionSteelViewModelOld.Id;
+                        lionSteelViewModel.PrintCount = 0;
                     }
                     if (departmentsResponse.Succeeded)
                     {
@@ -354,8 +355,17 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
 
             if (response.Succeeded)
             {
+                var companiesResponse = await _mediator.Send(new GetAllCompaniesCachedQuery());
+                var departmentsResponse = await _mediator.Send(new GetAllDepartmentsCachedQuery());
+                var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
+                var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
                 var viewModel = _mapper.Map<List<LionSteelViewModel>>(response.Data);
                 viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId))).ToList();
+                foreach (LionSteelViewModel item in viewModel)
+                {
+                    item.CompanyName = companyViewModel.Where(w => w.Id == item.CompanyId).Select(s => s.Name).FirstOrDefault();
+                    item.ProcessName = departmentViewModel.Where(w => w.Id == item.DepartmentId).Select(s => s.Name).FirstOrDefault();
+                }
                 if (viewModel.Count == 1)
                 {
                     RecurringJob.RemoveIfExists("expiredExternalLS");
@@ -365,7 +375,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                     if (viewModel0.Count > 0)
                     {
                         RecurringJob.TriggerJob("expiredExternalLS");
-                        //BackgroundJob.Enqueue(() => sendMailAsync());
+                        BackgroundJob.Enqueue(() => sendMailAsync());
                     }
                 }
                 else
@@ -382,7 +392,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                             var manager = new RecurringJobManager();
                             manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
                             RecurringJob.TriggerJob("expiredExternalLS");
-                            //BackgroundJob.Enqueue(() => sendMailAsync());
+                            BackgroundJob.Enqueue(() => sendMailAsync());
                         }
                     }
                     else
@@ -489,7 +499,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                 if (lionSteel.MyFiles != null ? lionSteel.MyFiles.Count > 0 : false)
                 {
                     string prefixFn = "EDOCS" + "_LionSteel" + DateTime.Now.ToString("ddMMyyyyhhmmss") + "_";
-                    string filePath = "C:\\EDOCS\\ExternalRecord\\Uploads\\LionSteel";
+                    string filePath = "C:\\iis\\sites\\edocs\\file\\ExternalRecord\\Uploads\\LionSteel";
                     foreach (var myFile in lionSteel.MyFiles)
                     {
                         //Save file details into table "Attachment"
@@ -559,7 +569,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             //string wwwPath = this.webHostEnvironment.WebRootPath;
             //string contentPath = this.webHostEnvironment.ContentRootPath;
 
-            string path = Path.Combine("C:\\EDOCS\\ExternalRecord\\Uploads", "LionSteel");
+            string path = Path.Combine("C:\\iis\\sites\\edocs\\file\\ExternalRecord\\Uploads", "LionSteel");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -768,10 +778,11 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             }
             var departmentsResponseC1 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelC1 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseC1.Data);
-            var allDeptIdC1 = departmentViewModelC1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
+            var allDeptId = departmentViewModelC1.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
-            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (a.DepartmentId == allDeptIdC1)).ToList();
+            var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
 
             if (response.Succeeded)
             {
@@ -805,10 +816,11 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             }
             var departmentsResponseC2 = await _mediator.Send(new GetAllDepartmentsCachedQuery());
             var departmentViewModelC2 = _mapper.Map<List<DepartmentViewModel>>(departmentsResponseC2.Data);
-            var allDeptIdC2 = departmentViewModelC2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
+            int allCompId = 0;
+            var allDeptId = departmentViewModelC2.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
-            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (a.DepartmentId == allDeptIdC2)).ToList();
+            var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
 
             if (response.Succeeded)
             {

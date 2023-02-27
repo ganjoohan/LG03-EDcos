@@ -34,6 +34,12 @@ namespace EDocSys.Infrastructure.CacheRepositories
             return issuanceInfo;
         }
 
+        public async Task<List<IssuanceInfo>> GetByHIdAsync(int HId)
+        {
+            var issuanceInfo = await _issuanceInfoRepository.GetByHIdAsync(HId);
+            return issuanceInfo;
+        }
+
         public async Task<List<IssuanceInfo>> GetCachedListAsync()
         {
             string cacheKey = IssuanceInfoCacheKeys.ListKey;

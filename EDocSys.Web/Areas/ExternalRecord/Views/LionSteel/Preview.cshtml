@@ -6,7 +6,7 @@
 <div class="row" style="max-width:1000px">
     <div class="col-12">
         <div class="documentation p-3 mb-3 print-container">
-            <div class="@(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA ? "" : "no-print")">
+            <div class="@(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint ? "" : "no-print")">
             <div class="row">
                 <div class="col-sm-3 documentation-col">
                     <h4>
@@ -176,7 +176,7 @@
                             <i class="fas fa-copy"></i>
                             New Revision Lion Steel
                         </a>
-                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)//User.IsInRole("D") || User.IsInRole("A") || 
+                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint)//User.IsInRole("D") || User.IsInRole("A") || 
                     {
                        @* <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>*@
                            <a  class="btn btn-default" onclick="window.print();" ><i class="fas fa-print"></i> Print</a>
@@ -202,6 +202,14 @@
         .print-only{
             display: block;
         }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        div { page-break-inside:auto; width:auto }
+        table { page-break-inside:auto; width:auto; margin-bottom:5px }
+        tr    { page-break-inside:auto}
 }
 </style>
     <script>

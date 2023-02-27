@@ -8,7 +8,8 @@ namespace EDocSys.Application.Interfaces.CacheRepositories
     {
         Task<List<IssuanceInfo>> GetCachedListAsync();
 
-        Task<IssuanceInfo> GetByIdAsync(int departmentId);
+        Task<IssuanceInfo> GetByIdAsync(int Id);
+        Task<List<IssuanceInfo>> GetByHIdAsync(int HId);
         Task<IssuanceInfo> GetByDOCNoAsync(string docno);
     }
 }

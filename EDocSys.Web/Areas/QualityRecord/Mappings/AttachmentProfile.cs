@@ -1,14 +1,14 @@
-﻿using EDocSys.Application.Features.ExternalFeatures.Attachments.Commands.Create;
-using EDocSys.Application.Features.ExternalFeatures.Attachments.Commands.Update;
-using EDocSys.Application.Features.ExternalFeatures.Attachments.Queries.GetAllCached;
-using EDocSys.Application.Features.ExternalFeatures.Attachments.Queries.GetById;
-using EDocSys.Web.Areas.ExternalRecord.Models;
+﻿using EDocSys.Application.Features.QualityFeatures.Attachments.Commands.Create;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Commands.Update;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Queries.GetAllCached;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Queries.GetById;
+using EDocSys.Web.Areas.QualityRecord.Models;
 using AutoMapper;
-using EDocSys.Domain.Entities.ExternalRecord;
-using EDocSys.Application.Features.ExternalFeatures.Attachments.Queries.GetByDocId;
+using EDocSys.Domain.Entities.QualityRecord;
+using EDocSys.Application.Features.QualityFeatures.Attachments.Queries.GetByDocId;
 using System.Collections.Generic;
 
-namespace EDocSys.Web.Areas.ExternalRecord.Mappings
+namespace EDocSys.Web.Areas.QualityRecord.Mappings
 {
     internal class AttachmentProfile : Profile
     {
