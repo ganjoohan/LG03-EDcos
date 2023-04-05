@@ -7,7 +7,7 @@ namespace EDocSys.Application.Features.Issuances.Queries.GetByDOCPNo
         public int Id { get; set; }
         public int HId { get; set; }
         public int No { get; set; }
-        public string DOCNo { get; set; }
+        public string DOCId { get; set; }
         public string DocType { get; set; }
         public string RecipientName1 { get; set; }
         public string RecipientName2 { get; set; }

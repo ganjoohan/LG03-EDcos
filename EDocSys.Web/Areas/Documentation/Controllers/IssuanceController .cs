@@ -301,7 +301,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 
                 var userChkE = users.Select(s => s.UserCompanyId).Contains(issuanceViewModel.CompanyId);
                 var userChk = users.Select(s => s.UserCompanyId).Contains(issuanceViewModel.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(issuanceViewModel.DepartmentId);
-                if (userChk && issuanceViewModel.DOCStatus != "New")
+                var userChkD = users.Select(s => s.UserCompanyId).Contains(issuanceViewModel.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(issuanceViewModel.DepartmentId) && (rolesList.Contains("D") || rolesList.Contains("SuperAdmin"));
+                if (userChkD && issuanceViewModel.DOCStatus != "New")
                     ViewBag.Amend = true;
                 var validUser = false;
                 if (rolesList.Contains("A"))
@@ -493,12 +494,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             {
                                 var procedureViewModel = _mapper.Map<ProcedureViewModel>(responseWSCP.Data);
                                 issinfo.DOCNo = procedureViewModel.WSCPNo;
-                                if(issuanceViewModel.DOCStatus != "New" && procedureViewModel.ArchiveId == 0)
-                                {
-                                    issinfo.DOCUrl = "";
-                                }
-                                else
-                                    issinfo.DOCUrl = "/documentation/procedure/Preview?id="+ issinfo.DOCId;
+                                issinfo.DOCUrl = "/documentation/procedure/Preview?id="+ issinfo.DOCId;
                             }
                         }
                         else if (issinfo.DocType == "SOP")
@@ -508,12 +504,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             {
                                 var sopViewModel = _mapper.Map<SOPViewModel>(responseSOP.Data);
                                 issinfo.DOCNo = sopViewModel.SOPNo + " <" + sopViewModel.WSCPNo + ">";
-                                if (issuanceViewModel.DOCStatus != "New" && sopViewModel.ArchiveId == 0)
-                                {
-                                    issinfo.DOCUrl = "";
-                                }
-                                else
-                                    issinfo.DOCUrl = "/documentation/sop/Preview?id=" + issinfo.DOCId;
+                                issinfo.DOCUrl = "/documentation/sop/Preview?id=" + issinfo.DOCId;
                             }
                         }
                         else if (issinfo.DocType == "WI")
@@ -523,12 +514,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             {
                                 var wiViewModel = _mapper.Map<WIViewModel>(responseWI.Data);
                                 issinfo.DOCNo = wiViewModel.WINo + " <" + wiViewModel.WSCPNo + "|" + wiViewModel.SOPNo + ">";
-                                if (issuanceViewModel.DOCStatus != "New" && wiViewModel.ArchiveId == 0)
-                                {
-                                    issinfo.DOCUrl = "";
-                                }
-                                else
-                                    issinfo.DOCUrl = "/documentation/wi/Preview?id=" + issinfo.DOCId;
+                                issinfo.DOCUrl = "/documentation/wi/Preview?id=" + issinfo.DOCId;
                             }
                         }
                         else

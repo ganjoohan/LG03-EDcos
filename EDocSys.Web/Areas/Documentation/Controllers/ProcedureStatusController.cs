@@ -372,9 +372,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         var updateProcedureCommandOld = _mapper.Map<UpdateProcedureCommand>(procedureViewModelOld);
                         var result1Old = await _mediator.Send(updateProcedureCommandOld);
 
-                        var responseGetIssuanceInfoByDocNo = await _mediator.Send(new GetIssuanceInfoByDOCNoQuery() { docNo = procedureViewModel.Id.ToString(), docType = "WSCP" });
+                        var responseGetIssuanceInfoByDocNo = await _mediator.Send(new GetIssuanceInfoByDOCNoQuery() { docNo = procedureViewModelOld.Id.ToString(), docType = "WSCP" });
                         var issInfoViewModelOld = _mapper.Map<List<IssuanceInfoViewModel>>(responseGetIssuanceInfoByDocNo.Data);
-                        issInfoViewModelOld = issInfoViewModelOld.Where(w => w.DOCId == procedureViewModelOld.Id.ToString()).ToList();
                         var listHID = issInfoViewModelOld.Select(s => s.HId).Distinct().ToList();
                         foreach(var Hid in listHID)
                         {

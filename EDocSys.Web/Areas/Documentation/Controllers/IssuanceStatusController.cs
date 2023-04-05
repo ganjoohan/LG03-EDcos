@@ -329,19 +329,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     }
                 }
-                else if(issuanceStatus.DocumentStatusId == 7) //ACKNOWLEDGED
+                else if (issuanceStatus.DocumentStatusId == 7) //ACKNOWLEDGED
                 {
+                    var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == responseGetIssuanceById.Data.Id).OrderBy(a => a.CreatedOn)
+                        .Include(a => a.DocumentStatus)
+                        .Last();
+                    var ivm = _mapper.Map<IssuanceViewModel>(responseGetIssuanceById.Data);
+                    if (StatusId.DocumentStatus.Name == "Acknowledged")
+                        ivm.AcknowledgedBy = StatusId.CreatedBy;
+                    var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(ivm);
+                    var result0 = await _mediator.Send(updateIssuanceCommand);
                     if (responseGetIssuanceById.Data.DOCStatus == "New")
                     {
                         var responseInfo = await _mediator.Send(new GetIssuanceInfoByHIdQuery() { HId = responseGetIssuanceById.Data.Id });
-                        var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == responseGetIssuanceById.Data.Id).OrderBy(a => a.CreatedOn)
-                            .Include(a => a.DocumentStatus)
-                            .Last();
-                        var ivm = _mapper.Map<IssuanceViewModel>(responseGetIssuanceById.Data);
-                        if (StatusId.DocumentStatus.Name == "Acknowledged")
-                            ivm.AcknowledgedBy = StatusId.CreatedBy;
-                        var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(ivm);
-                        var result0 = await _mediator.Send(updateIssuanceCommand);
                         if (responseInfo.Succeeded)
                         {
                             var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);

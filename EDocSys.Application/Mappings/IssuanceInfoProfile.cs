@@ -4,6 +4,7 @@ using EDocSys.Application.Features.Issuances.Queries.GetAllPaged;
 using EDocSys.Application.Features.Issuances.Queries.GetById;
 using EDocSys.Domain.Entities.Documentation;
 using AutoMapper;
+using EDocSys.Application.Features.Issuances.Queries.GetByDOCPNo;
 
 namespace EDocSys.Application.Mappings
 {
@@ -16,6 +17,8 @@ namespace EDocSys.Application.Mappings
 
             CreateMap<GetAllIssuancesInfoCachedResponse, IssuanceInfo>().ReverseMap();
             CreateMap<GetAllIssuancesInfoResponse, IssuanceInfo>().ReverseMap();
+
+            CreateMap<GetIssuanceInfoByDOCNoResponse, IssuanceInfo>().ReverseMap();
         }
     }
 }

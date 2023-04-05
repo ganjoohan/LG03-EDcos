@@ -5,6 +5,7 @@ using EDocSys.Application.Features.Issuances.Queries.GetById;
 using EDocSys.Web.Areas.Documentation.Models;
 using AutoMapper;
 using EDocSys.Domain.Entities.Documentation;
+using EDocSys.Application.Features.Issuances.Queries.GetByDOCPNo;
 
 namespace EDocSys.Web.Areas.Catalog.Mappings
 {
@@ -23,6 +24,7 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
 
 
             CreateMap<GetIssuanceInfoByHIdResponse, IssuanceInfoViewModel>().ReverseMap();
+            CreateMap<GetIssuanceInfoByDOCNoResponse, IssuanceInfoViewModel>().ReverseMap();
             CreateMap<CreateIssuanceInfoCommand, IssuanceInfoViewModel>().ReverseMap();
             CreateMap<UpdateIssuanceInfoCommand, IssuanceInfoViewModel>().ReverseMap();
 

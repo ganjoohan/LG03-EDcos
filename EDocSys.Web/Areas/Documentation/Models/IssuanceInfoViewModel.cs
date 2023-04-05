@@ -12,9 +12,11 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public int HId { get; set; }
         public int No { get; set; }
         public string DOCId { get; set; }
+
         public string DOCNo { get; set; } //temp
         public SelectList DOCNos { get; set; }
         public SelectList DocTypes { get; set; }
+
         public string DocType { get; set; }
         public string RecipientName1 { get; set; }
         public string RecipientName2 { get; set; }
