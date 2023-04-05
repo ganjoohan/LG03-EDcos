@@ -5,6 +5,7 @@ using EDocSys.Application.Features.SOPs.Queries.GetById;
 using EDocSys.Web.Areas.Documentation.Models;
 using AutoMapper;
 using EDocSys.Domain.Entities.Documentation;
+using EDocSys.Application.Features.SOPs.Queries.GetByParameter;
 
 namespace EDocSys.Web.Areas.Catalog.Mappings
 {
@@ -23,6 +24,13 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
             CreateMap<GetAllSOPsCachedResponse, SOPViewModel>().ReverseMap();
 
             CreateMap<GetSOPByIdResponse, SOPViewModel>().ReverseMap();
+
+            CreateMap<SOP, GetSOPsByParameterResponse>()
+                .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
+                .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
+
+
+            CreateMap<GetSOPsByParameterResponse, SOPViewModel>().ReverseMap();
             CreateMap<CreateSOPCommand, SOPViewModel>().ReverseMap();
             CreateMap<UpdateSOPCommand, SOPViewModel>().ReverseMap();
 

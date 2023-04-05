@@ -35,7 +35,11 @@ namespace EDocSys.Infrastructure.Repositories
                 .Include(a => a.Company)
                 .FirstOrDefaultAsync();
         }
-
+        public async Task<List<WI>> GetByParameterAsync(int companyId, int departmentId)
+        {
+            return _repository.Entities.Where(p => p.CompanyId == companyId && p.DepartmentId == departmentId && p.IsActive == true)
+               .ToList();
+        }
         public async Task<List<WI>> GetListAsync()
         {
             return _repository.Entities

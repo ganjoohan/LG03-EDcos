@@ -10,6 +10,6 @@ namespace EDocSys.Application.Interfaces.CacheRepositories
 
         Task<IssuanceInfo> GetByIdAsync(int Id);
         Task<List<IssuanceInfo>> GetByHIdAsync(int HId);
-        Task<IssuanceInfo> GetByDOCNoAsync(string docno);
+        Task<List<IssuanceInfo>> GetByDOCNoAsync(string docNo, string docType);
     }
 }

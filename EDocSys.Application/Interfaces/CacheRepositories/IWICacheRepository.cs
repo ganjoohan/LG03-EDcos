@@ -9,5 +9,7 @@ namespace EDocSys.Application.Interfaces.CacheRepositories
         Task<List<WI>> GetCachedListAsync();
 
         Task<WI> GetByIdAsync(int departmentId);
+
+        Task<List<WI>> GetByParameterAsync(int companyId, int departmentId);
     }
 }

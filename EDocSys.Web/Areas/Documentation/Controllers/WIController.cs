@@ -31,6 +31,8 @@ using EDocSys.Application.Features.Procedures.Commands.Update;
 using EDocSys.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using EDocSys.Application.Features.Issuances.Queries.GetById;
+using EDocSys.Application.Features.Issuances.Queries.GetAllCached;
+using EDocSys.Application.Features.Issuances.Commands.Update;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -66,7 +68,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
 
         [Authorize(Policy = "CanViewWI")]
-        public async Task<IActionResult> Preview(int id, bool print = false, int IPrint = 0)
+        public async Task<IActionResult> Preview(int id, bool print = false, int IPrint = 0, bool revert = false)
         {
             ViewBag.IPrint = false;
             ViewBag.IAmend = false;
@@ -78,37 +80,21 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
-            if (IPrint != 0)
-            {
-                var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
-                if (responseInfo.Succeeded)
-                {
-                    var issuanceInfoViewModel = _mapper.Map<IssuanceInfoViewModel>(responseInfo.Data);
-                    var urlText = "https://edocs.lion.com.my/documentation/procedure/preview?id=" + id.ToString();
-                    if (urlText == issuanceInfoViewModel.DocUrl)
-                    {
-                        var responseInfoH = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceInfoViewModel.HId });
-                        if (responseInfoH.Succeeded)
-                        {
-                            var issuanceViewModel = _mapper.Map<IssuanceViewModel>(responseInfoH.Data);
-                            if (issuanceViewModel.IssuanceStatusView == "Approved")
-                            {
-                                ViewBag.IPrint = true;
-                                if (issuanceViewModel.DOCStatus != "New")
-                                {
-                                    ViewBag.IAmend = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
             List<string> rolesListDept = new List<string>();
-          
+            if (revert)
+            {
+                var response2 = await _mediator.Send(new GetWIByIdQuery() { Id = id });
+                var wiViewModelOld = _mapper.Map<WIViewModel>(response2.Data);
+                wiViewModelOld.IsArchive = false;
+                wiViewModelOld.ArchiveDate = null;
+                var updateWICommandOld = _mapper.Map<UpdateWICommand>(wiViewModelOld);
+                var result2 = await _mediator.Send(updateWICommandOld);
+            }
             var response = await _mediator.Send(new GetWIByIdQuery() { Id = id });
 
             var statusById = _context.WIStatus.Where(a => a.WIId == id).ToList();
@@ -116,13 +102,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             if (response.Succeeded)
             {
                 var wiViewModel = _mapper.Map<WIViewModel>(response.Data);
-                if (print)
-                {
-                    wiViewModel.PrintCount = wiViewModel.PrintCount + 1;
-                    var updateWICommand = _mapper.Map<UpdateWICommand>(wiViewModel);
-                    var result = await _mediator.Send(updateWICommand);
-                    return RedirectToAction("Preview", new { Id = id });
-                }
                 foreach (var user in users)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
@@ -134,6 +113,78 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             rolesListDept.AddRange(roles);
                     }
                 }
+                if (IPrint != 0 && !print)
+                {
+                    var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
+                    if (responseInfo.Succeeded)
+                    {
+                        var issuanceInfoViewModel = _mapper.Map<IssuanceInfoViewModel>(responseInfo.Data);
+                        var responseInfoH = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceInfoViewModel.HId });
+                        if (responseInfoH.Succeeded)
+                        {
+                            var issuanceViewModel = _mapper.Map<IssuanceViewModel>(responseInfoH.Data);
+                            var psStatat = _context.IssuanceStatus.Where(a => a.IssuanceId == issuanceViewModel.Id).ToList();
+
+                            if (psStatat.Count != 0)
+                            {
+                                var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == issuanceViewModel.Id).OrderBy(a => a.CreatedOn)
+                                    .Include(a => a.DocumentStatus)
+                                    .Last();
+                                if (StatusId.DocumentStatus.Name == "Concurred1")
+                                {
+                                    issuanceViewModel.IssuanceStatusView = "Verified";
+                                }
+                                else
+                                {
+                                    issuanceViewModel.IssuanceStatusView = StatusId.DocumentStatus.Name;
+                                }
+                            }
+                            else
+                            {
+                                issuanceViewModel.IssuanceStatusView = "New";
+                            }
+                            if (issuanceViewModel.IssuanceStatusView == "Acknowledged")
+                            {
+                                var responseP = await _mediator.Send(new GetAllIssuancesInfoPrintCachedQuery());
+                                var viewModelP = _mapper.Map<List<IssuanceInfoPrintViewModel>>(responseP.Data);
+                                var printed = viewModelP.Where(w => w.IsPrinted = true && w.PrintedDate != null && w.IsReturned == false).ToList();
+                                issuanceViewModel.PrintCountAct = printed.Count();
+                                viewModelP = viewModelP.Where(w => w.IssInfoId == IPrint && w.IsPrinted && w.PrintedDate == null).ToList();
+                                if (viewModelP.Count > 0)
+                                {
+                                    if (rolesListComp.Contains("E") || rolesListComp.Contains("SuperAdmin"))
+                                        ViewBag.IPrint = true;
+                                }
+                                if (issuanceViewModel.DOCStatus != "New" && wiViewModel.IsArchive == false)
+                                {
+                                    if (rolesListComp.Contains("D") || rolesListComp.Contains("SuperAdmin"))
+                                    {
+                                        if (issuanceViewModel.PrintCountAct == 0)
+                                            ViewBag.IAmend = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (print)
+                {
+                    wiViewModel.PrintCount = wiViewModel.PrintCount + 1;
+                    var updateWICommand = _mapper.Map<UpdateWICommand>(wiViewModel);
+                    var result = await _mediator.Send(updateWICommand);
+                    var responseP = await _mediator.Send(new GetAllIssuancesInfoPrintCachedQuery());
+                    var viewModelP = _mapper.Map<List<IssuanceInfoPrintViewModel>>(responseP.Data);
+                    viewModelP = viewModelP.Where(w => w.PrintedBy == currentUser.Id && w.IsPrinted && w.PrintedDate == null).ToList();
+                    if (viewModelP.Count > 0)
+                    {
+                        var vmP = viewModelP.FirstOrDefault();
+                        vmP.PrintedDate = DateTime.Now;
+                        var updateIssuanceInfoPrintCommand = _mapper.Map<UpdateIssuanceInfoPrintCommand>(vmP);
+                        var resultP = await _mediator.Send(updateIssuanceInfoPrintCommand);
+                    }
+                    return RedirectToAction("Preview", new { Id = id });
+                }
+               
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;

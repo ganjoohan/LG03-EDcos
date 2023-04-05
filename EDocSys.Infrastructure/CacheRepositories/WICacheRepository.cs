@@ -33,7 +33,17 @@ namespace EDocSys.Infrastructure.CacheRepositories
             }
             return wi;
         }
-
+        public async Task<List<WI>> GetByParameterAsync(int companyId, int departmentId)
+        {
+            string cacheKey = WICacheKeys.GetKeyParameter(companyId, departmentId);
+            var wiList = await _distributedCache.GetAsync<List<WI>>(cacheKey);
+            if (wiList == null)
+            {
+                wiList = await _wiRepository.GetByParameterAsync(companyId, departmentId);
+                await _distributedCache.SetAsync(cacheKey, wiList);
+            }
+            return wiList;
+        }
         public async Task<List<WI>> GetCachedListAsync()
         {
             string cacheKey = WICacheKeys.ListKey;

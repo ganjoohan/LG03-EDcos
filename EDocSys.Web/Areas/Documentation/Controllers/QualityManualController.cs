@@ -113,10 +113,8 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         //}
 
         [Authorize(Policy = "CanViewQualityManual")]
-        public async Task<IActionResult> Preview(int id, bool print = false, QualityManualViewModel qlyManual = null, int IPrint = 0)
+        public async Task<IActionResult> Preview(int id, bool print = false, QualityManualViewModel qlyManual = null, bool revert = false)
         {
-            ViewBag.IPrint = false;
-            ViewBag.IAmend = false;
             ViewBag.RoleAB1 = false;
             ViewBag.RoleA = false;
             ViewBag.RoleB1 = false;
@@ -125,37 +123,20 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
-            if (IPrint != 0)
-            {
-                var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
-                if (responseInfo.Succeeded)
-                {
-                    var issuanceInfoViewModel = _mapper.Map<IssuanceInfoViewModel>(responseInfo.Data);
-                    var urlText = "https://edocs.lion.com.my/documentation/procedure/preview?id=" + id.ToString();
-                    if (urlText == issuanceInfoViewModel.DocUrl)
-                    {
-                        var responseInfoH = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceInfoViewModel.HId });
-                        if (responseInfoH.Succeeded)
-                        {
-                            var issuanceViewModel = _mapper.Map<IssuanceViewModel>(responseInfoH.Data);
-                            if (issuanceViewModel.IssuanceStatusView == "Approved")
-                            {
-                                ViewBag.IPrint = true;
-                                if (issuanceViewModel.DOCStatus != "New")
-                                {
-                                    ViewBag.IAmend = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
             List<string> rolesListDept = new List<string>();
-           
+            if (revert)
+            {
+                var response2 = await _mediator.Send(new GetQualityManualByIdQuery() { Id = id });
+                var qualityManualViewModelOld = _mapper.Map<LabAccreditationManualViewModel>(response2.Data);
+                qualityManualViewModelOld.IsArchive = false;
+                qualityManualViewModelOld.ArchiveDate = null;
+                var updateQualityManualCommandOld = _mapper.Map<UpdateQualityManualCommand>(qualityManualViewModelOld);
+                var result2 = await _mediator.Send(updateQualityManualCommandOld);
+            }
             var response = await _mediator.Send(new GetQualityManualByIdQuery() { Id = id });
             var adg = _context.QualityManualStatus;
             var statusById = _context.QualityManualStatus.Where(a => a.QualityManualId == id).ToList();
@@ -187,35 +168,49 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             rolesListDept.AddRange(roles);
                     }
                 }
+                var userChk = users.Select(s => s.UserCompanyId).Contains(qualityManualViewModel.CompanyId);
+                var validUser = false;
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;
                     ViewBag.RoleAB1 = true;
+                    validUser = true;
                 }
-                if (rolesListComp.Contains("B1"))
+                if (rolesListComp.Contains("B1") && userChk)
                 {
                     ViewBag.RoleB1 = true;
                     ViewBag.RoleAB1 = true;
+                    validUser = true;
                 }
-                if (rolesListComp.Contains("B2"))
+                if (rolesListComp.Contains("B2") && userChk)
                 {
                     ViewBag.RoleB2 = true;
+                    validUser = true;
                 }
-                if (rolesListDept.Contains("C"))
+                if (rolesListDept.Contains("C") && userChk)
                 {
                     ViewBag.RoleC = true;
+                    validUser = true;
                 }
-                if (rolesListComp.Contains("E"))
+                if (rolesListComp.Contains("E") && userChk)
                 {
                     ViewBag.RoleE = true;
+                    validUser = true;
                 }
-                if (rolesListDept.Contains("D"))
+                if (rolesListDept.Contains("D") && userChk)
                 {
                     ViewBag.RoleD = true;
+                    validUser = true;
                 }
                 if (rolesList.Contains("SuperAdmin"))
                 {
                     ViewBag.RoleSA = true;
+                    validUser = true;
+                }
+                if (!validUser)
+                {
+                    _notify.Error("Access Denied");
+                    return View(nameof(Index));
                 }
                 // QualityManualViewModel.pro String.Format("{0:y yy yyy yyyy}", dt);  // "8 08 008 2008"   year
 

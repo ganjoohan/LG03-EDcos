@@ -12,7 +12,7 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
     {
         public IssuanceInfoProfile()
         {
-            CreateMap<Issuance, GetAllIssuancesInfoCachedResponse>();
+            CreateMap<IssuanceInfo, GetAllIssuancesInfoCachedResponse>();
                 //.ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
             CreateMap<GetAllIssuancesInfoCachedResponse, IssuanceInfoViewModel>().ReverseMap();
@@ -22,7 +22,7 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
             //    .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
 
-            CreateMap<GetIssuanceInfoByIHdResponse, IssuanceInfoViewModel>().ReverseMap();
+            CreateMap<GetIssuanceInfoByHIdResponse, IssuanceInfoViewModel>().ReverseMap();
             CreateMap<CreateIssuanceInfoCommand, IssuanceInfoViewModel>().ReverseMap();
             CreateMap<UpdateIssuanceInfoCommand, IssuanceInfoViewModel>().ReverseMap();
 

@@ -52,13 +52,13 @@ namespace EDocSys.Infrastructure.CacheRepositories
             return issuanceInfoList;
         }
 
-        public async Task<IssuanceInfo> GetByDOCNoAsync(string docno)
+        public async Task<List<IssuanceInfo>> GetByDOCNoAsync(string docNo, string docType)
         {
-            string cacheKey = IssuanceInfoCacheKeys.GetKeyDOCNo(docno);
-            var issuanceInfo = await _distributedCache.GetAsync<IssuanceInfo>(cacheKey);
+            string cacheKey = IssuanceInfoCacheKeys.GetKeyDOCNo(docNo);
+            var issuanceInfo = await _distributedCache.GetAsync<List<IssuanceInfo>>(cacheKey);
             if (issuanceInfo == null)
             {
-                issuanceInfo = await _issuanceInfoRepository.GetByDOCNoAsync(docno);
+                issuanceInfo = await _issuanceInfoRepository.GetByDOCNoAsync(docNo, docType);
                 Throw.Exception.IfNull(issuanceInfo, "IssuanceInfo", "No IssuanceInfo Found");
                 await _distributedCache.SetAsync(cacheKey, issuanceInfo);
             }

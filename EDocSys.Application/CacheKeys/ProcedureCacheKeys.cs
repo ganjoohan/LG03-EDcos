@@ -6,8 +6,10 @@
 
         public static string SelectListKey => "ProcedureSelectList";
 
-        public static string GetKey(int productId) => $"Procedure-{productId}";
+        public static string GetKey(int procedureId) => $"Procedure-{procedureId}";
 
-        public static string GetDetailsKey(int productId) => $"ProcedureDetails-{productId}";
+        public static string GetKeyParameter(int companyId, int departmentId) => $"Procedure-Comp{companyId}-Dept{departmentId}";
+
+        public static string GetDetailsKey(int procedureId) => $"ProcedureDetails-{procedureId}";
     }
 }

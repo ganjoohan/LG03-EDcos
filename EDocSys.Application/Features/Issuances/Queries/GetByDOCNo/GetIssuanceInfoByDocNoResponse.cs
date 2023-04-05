@@ -18,8 +18,7 @@ namespace EDocSys.Application.Features.Issuances.Queries.GetByDOCPNo
         public string Purpose { get; set; }
         public string Amendment { get; set; }
         public bool IsActive { get; set; }
-
-        public string DocUrl { get; set; }
+        public bool IsAmend { get; set; }
     }
 }
 

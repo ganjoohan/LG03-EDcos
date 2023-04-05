@@ -185,7 +185,7 @@
                             <tr>
                                 <td width="50%">CONTROLLED COPY</td>
                                 <td>ELECTRONIC - @Model.PrintCount
-                                    @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                   @* @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
                                         {
                                             <div class="no-print">
                                                 <form method="get" asp-area="documentation" asp-controller="Procedure" asp-action="Preview" asp-route-id="@Model.Id">
@@ -193,7 +193,7 @@
                                                     <button type="submit" class="btn btn-success">Update Electronic</button>
                                                 </form>
                                             </div>
-                                        }
+                                        }*@
                                 </td>
                             </tr>
                         </tbody>

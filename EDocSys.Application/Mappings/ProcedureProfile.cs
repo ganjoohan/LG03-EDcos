@@ -4,6 +4,7 @@ using EDocSys.Application.Features.Procedures.Queries.GetAllPaged;
 using EDocSys.Application.Features.Procedures.Queries.GetById;
 using EDocSys.Domain.Entities.Documentation;
 using AutoMapper;
+using EDocSys.Application.Features.Procedures.Queries.GetByParameter;
 
 namespace EDocSys.Application.Mappings
 {
@@ -16,6 +17,8 @@ namespace EDocSys.Application.Mappings
 
             CreateMap<GetAllProceduresCachedResponse, Procedure>().ReverseMap();
             CreateMap<GetAllProceduresResponse, Procedure>().ReverseMap();
+
+            CreateMap<GetProceduresByParameterResponse, Procedure>().ReverseMap();
         }
     }
 }

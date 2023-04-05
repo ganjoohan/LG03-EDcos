@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = localizer["Print Issuances"];
+    ViewData["Caption"] = localizer["Manage Print Issuances here"];   
+}
+@using EDocSys.Web.Areas.Documentation.Models
+@model IssuanceInfoPrintViewModel
+
+<p>@ViewBag.WebRootPath</p>
+<div class="card">
+    <div class="col-sm-12" style="padding:20px">
+        <a id="reload" class="btn btn-primary text-white">
+            <i class="fa fas fa-bolt"></i>
+            Reload
+        </a>
+    </div>
+    <div id="viewAll" class="card-body table-responsive">
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+                        $("#newPrintTable").DataTable();
+                        loadData();
+                        $('#reload').on('click', function () {
+                            loadData();
+                        });
+                    });
+                     function loadData() {
+                        $('#viewAll').load('/documentation/issuance/LoadAllPrint');
+                    }
+    </script>    
+    }
+
+         

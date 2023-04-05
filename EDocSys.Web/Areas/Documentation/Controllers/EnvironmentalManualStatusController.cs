@@ -165,7 +165,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     // locate company admin email and send to [TO] sender
 
 
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetEnvironmentalManualById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetEnvironmentalManualById.Data.CompanyId && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -283,7 +283,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "Environmental Manual " + responseGetEnvironmentalManualById.Data.DOCNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
                         // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/EnvironmentalManual/preview/" + EnvironmentalManualStatus.EnvironmentalManualId)}'>clicking here</a> to open the document."
@@ -301,9 +301,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (EnvironmentalManualStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetEnvironmentalManualById.Data.EffectiveDate = DateTime.Now;
-                    var updateEnvironmentalManualCommand = _mapper.Map<UpdateEnvironmentalManualCommand>(responseGetEnvironmentalManualById.Data);
+                    var environmentalManualViewModel = _mapper.Map<EnvironmentalManualViewModel>(responseGetEnvironmentalManualById.Data);
+                    environmentalManualViewModel.EffectiveDate = DateTime.Now;
+                    var updateEnvironmentalManualCommand = _mapper.Map<UpdateEnvironmentalManualCommand>(environmentalManualViewModel);
                     var result1 = await _mediator.Send(updateEnvironmentalManualCommand);
+                    if (environmentalManualViewModel.ArchiveId != 0)
+                    {
+                        var responseGetEnvironmentalManualByIdOld = await _mediator.Send(new GetEnvironmentalManualByIdQuery() { Id = environmentalManualViewModel.ArchiveId });
+                        var environmentalManualViewModelOld = _mapper.Map<EnvironmentalManualViewModel>(responseGetEnvironmentalManualByIdOld.Data);
+                        environmentalManualViewModelOld.ArchiveDate = DateTime.Now;
+                        var updateEnvironmentalManualCommandOld = _mapper.Map<UpdateEnvironmentalManualCommand>(environmentalManualViewModelOld);
+                        var result1Old = await _mediator.Send(updateEnvironmentalManualCommandOld);
+                    }
                 }
 
                 if (result.Succeeded)

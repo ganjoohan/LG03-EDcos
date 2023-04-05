@@ -1,0 +1,201 @@
+﻿@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<IssuanceInfoPrintViewModel>
+@{
+    var newPrintList = new List<IssuanceInfoPrintViewModel>();
+    var newPrintList2 = new List<IssuanceInfoPrintViewModel>();
+    var printedList = new List<IssuanceInfoPrintViewModel>();
+    var returnedList = new List<IssuanceInfoPrintViewModel>();
+
+    newPrintList = Model.Where(w => w.IsPrinted == false).ToList();
+    newPrintList2 = Model.Where(w => w.IsPrinted == true && w.PrintedDate == null).ToList();
+    if(newPrintList2.Count > 0)
+    {
+        newPrintList.AddRange(newPrintList2);
+    }
+    printedList = Model.Where(w => (w.IsPrinted && w.PrintedDate != null) && w.IsReturned == false).ToList();
+    returnedList = Model.Where(w => w.IsPrinted && w.IsReturned).ToList();
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<style>
+  .tabs {
+    height: auto;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .tab-nav-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    position: relative !important;
+    z-index: 999 !important;
+    top: 3px;
+  }
+  
+  .tabs ul {
+    display: block;
+    /*width: max-content;*/
+    overflow-y: hidden;
+    margin: 0px;
+    padding-inline-start: 5px;
+  }
+  
+  .tabs ul li {
+    display: inline-block;
+    border: 1px solid grey;
+    border-bottom: 1px solid black;
+    background-color: white;
+  }
+  
+  .tabs ul li.active {
+    border: 1px solid black;
+    border-bottom: 1px solid white;
+  }
+  
+  .tabs ul li a {
+    text-decoration: none;
+    color: black;
+    padding: 10px;
+    line-height: 25px;
+    position: relative;
+    font-weight: bold;
+  }
+  
+  .tab-content-wrapper {
+    position: relative !important;
+    z-index: 1 !important;
+    border: 1px solid black;
+    padding: 20px;
+    min-height: 40px;
+  }
+</style>
+<div class="tabs">
+ 
+    <div class="tab-nav-wrapper">
+        <ul>
+             <li class="active"><a href="#tab1">To Be Printed</a></li>
+             <li><a href="#tab2">Printed</a></li>   
+             <li><a href="#tab3">Returned</a></li>  
+         </ul>        
+    </div>
+
+  <div class="tab-content-wrapper">
+    <div id="tab1" class="tab-content" style="display:none;">
+<table id="newPrintTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>DOC No</th>
+            <th>Recipient Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var newp in newPrintList)
+        {
+            <tr>
+                <td> @newp.DocNo</td>
+                <td> @newp.RecipientName</td>
+                  <td> <a href="/documentation/Issuance/Preview?id=@newp.IssId" class="btn btn-success btn-xs"><i class="fas fa-eye"></i>  View Issuance</a>
+                      <div class="btn-group">
+                            <form id="form_print_@newp.Id" asp-area="Documentation" asp-controller="Issuance" method="post" asp-action="OnPostPrint" asp-route-id="@newp.Id">
+                                        <a href="javascript:$('#form_print_@newp.Id').submit();" class="btn btn-success btn-xs"><i class="fas fa-print"></i>  Print</a>
+                                    </form>
+                            </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+  </div>
+    <div id="tab2" class="tab-content" style="display:none;"> 
+        <table id="printedTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>DOC No</th>
+            <th>Recipient Name</th>
+            <th>Printed Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var print in printedList)
+        {
+            <tr>
+                <td> @print.DocNo</td>
+                <td> @print.RecipientName</td>
+                <td> @print.PrintedDate</td>
+                <td> <a href="/documentation/Issuance/Preview?id=@print.IssId" class="btn btn-success btn-xs"><i class="fas fa-eye"></i>  View Issuance</a>
+                <div class="btn-group">
+                            <form id="form_print_@print.Id" asp-area="Documentation" asp-controller="Issuance" method="post" asp-action="OnPostReturn" asp-route-id="@print.Id">
+                                        <a href="javascript:$('#form_print_@print.Id').submit();" class="btn btn-success btn-xs">  Return</a>
+                                    </form>
+                            </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+ </div>
+ <div id="tab3" class="tab-content" style="display:none;">
+       <table id="returnedTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+           <thead>
+        <tr>
+           <th>DOC No</th>
+           <th>Recipient Name</th>
+           <th>Printed Date</th>
+           <th>Returned Date</th>
+           <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var returnp in returnedList)
+        {
+            <tr>
+                <td> @returnp.DocNo</td>
+                <td> @returnp.RecipientName</td>
+                <td> @returnp.PrintedDate</td>
+                <td> @returnp.ReturnedDate</td>
+                <td> <a href="/documentation/Issuance/Preview?id=@returnp.IssId" class="btn btn-success btn-xs"><i class="fas fa-eye"></i>  View Issuance</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+ </div>
+  </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#newPrintTable').DataTable( {
+       order: [[0, 'asc'], [1, 'asc']]
+    } );
+    });
+     $(document).ready(function () {
+        $('#printedTable').DataTable( {
+      order: [[0, 'asc'], [1, 'asc']]
+    } );
+    });
+     $(document).ready(function () {
+        $('#returnedTable').DataTable( {
+       order: [[0, 'asc'], [1, 'asc']]
+    } );
+    });
+     $(document).ready(function() {
+  $(".tab-nav-wrapper li.active").click();
+  $($(".tab-nav-wrapper li.active a").attr("href")).show();
+
+  $(".tab-nav-wrapper li").click(function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    $(".tab-nav-wrapper li").removeClass("active");
+    $(this).addClass("active");
+
+    var target = $(this).find("a").attr("href");
+    $(".tab-content-wrapper").find(".tab-content").hide();
+    $(".tab-content-wrapper").find(target).show();
+  })
+});
+</script>

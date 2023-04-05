@@ -34,6 +34,18 @@ namespace EDocSys.Infrastructure.CacheRepositories
             return procedure;
         }
 
+        public async Task<List<Procedure>> GetByParameterAsync(int companyId, int departmentId)
+        {
+            string cacheKey = ProcedureCacheKeys.GetKeyParameter(companyId, departmentId);
+            var procedureList = await _distributedCache.GetAsync<List<Procedure>>(cacheKey);
+            if (procedureList == null)
+            {
+                procedureList = await _procedureRepository.GetByParameterAsync(companyId, departmentId);
+                await _distributedCache.SetAsync(cacheKey, procedureList);
+            }
+            return procedureList;
+        }
+
         public async Task<List<Procedure>> GetCachedListAsync()
         {
             string cacheKey = ProcedureCacheKeys.ListKey;

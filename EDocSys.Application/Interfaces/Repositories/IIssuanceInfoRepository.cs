@@ -13,7 +13,7 @@ namespace EDocSys.Application.Interfaces.Repositories
 
         Task<IssuanceInfo> GetByIdAsync(int issuanceInfoId);
         Task<List<IssuanceInfo>> GetByHIdAsync(int HId);
-        Task<IssuanceInfo> GetByDOCNoAsync(string docno);
+        Task<List<IssuanceInfo>> GetByDOCNoAsync(string docNo, string docType);
 
         Task<int> InsertAsync(IssuanceInfo issuanceInfo);
 

@@ -10,5 +10,6 @@ namespace EDocSys.Application.Interfaces.CacheRepositories
 
         Task<Procedure> GetByIdAsync(int departmentId);
         Task<Procedure> GetByWSCPNoAsync(string wscpno);
+        Task<List<Procedure>> GetByParameterAsync(int companyId,int departmentId);
     }
 }

@@ -4,6 +4,7 @@ using EDocSys.Application.Features.WIs.Queries.GetAllPaged;
 using EDocSys.Application.Features.WIs.Queries.GetById;
 using EDocSys.Domain.Entities.Documentation;
 using AutoMapper;
+using EDocSys.Application.Features.WIs.Queries.GetByParameter;
 
 namespace EDocSys.Application.Mappings
 {
@@ -15,6 +16,8 @@ namespace EDocSys.Application.Mappings
             CreateMap<GetWIByIdResponse, WI>().ReverseMap();
             CreateMap<GetAllWIsCachedResponse, WI>().ReverseMap();
             CreateMap<GetAllWIsResponse, WI>().ReverseMap();
+
+            CreateMap<GetWIsByParameterResponse, WI>().ReverseMap();
         }
     }
 }

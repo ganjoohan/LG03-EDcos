@@ -39,10 +39,10 @@ namespace EDocSys.Infrastructure.Repositories
             return  _repository.Entities.Where(p => p.HId == HId)
                 .ToList();
         }
-        public async Task<IssuanceInfo> GetByDOCNoAsync(string docno)
+        public async Task<List<IssuanceInfo>> GetByDOCNoAsync(string docNo, string docType)
         {
-            return await _repository.Entities.Where(p => p.DOCNo == docno)
-                .FirstOrDefaultAsync();
+            return _repository.Entities.Where(p => p.DOCId == docNo && p.DocType == docType)
+                .ToList();
         }
 
 

@@ -13,6 +13,8 @@ namespace EDocSys.Application.Interfaces.Repositories
 
         Task<WI> GetByIdAsync(int wiId);
 
+        Task<List<WI>> GetByParameterAsync(int companyId, int departmentId);
+
         Task<int> InsertAsync(WI wi);
 
         Task UpdateAsync(WI wi);

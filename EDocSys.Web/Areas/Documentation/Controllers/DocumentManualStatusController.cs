@@ -165,7 +165,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     // locate company admin email and send to [TO] sender
 
 
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetDocumentManualById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetDocumentManualById.Data.CompanyId && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -283,7 +283,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "Document Manual " + responseGetDocumentManualById.Data.DOCNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
                         // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/documentmanual/preview/" + documentManualStatus.DocumentManualId)}'>clicking here</a> to open the document."
@@ -301,9 +301,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (documentManualStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetDocumentManualById.Data.EffectiveDate = DateTime.Now;
-                    var updateDocManualCommand = _mapper.Map<UpdateDocumentManualCommand>(responseGetDocumentManualById.Data);
+                    var documentManualViewModel = _mapper.Map<DocumentManualViewModel>(responseGetDocumentManualById.Data);
+                    documentManualViewModel.EffectiveDate = DateTime.Now;
+                    var updateDocManualCommand = _mapper.Map<UpdateDocumentManualCommand>(documentManualViewModel);
                     var result1 = await _mediator.Send(updateDocManualCommand);
+                    if (documentManualViewModel.ArchiveId != 0)
+                    {
+                        var responseGetDocumentManualByIdOld = await _mediator.Send(new GetDocumentManualByIdQuery() { Id = documentManualViewModel.ArchiveId });
+                        var documentManualViewModelOld = _mapper.Map<DocumentManualViewModel>(responseGetDocumentManualByIdOld.Data);
+                        documentManualViewModelOld.ArchiveDate = DateTime.Now;
+                        var updateDocManualCommandOld = _mapper.Map<UpdateDocumentManualCommand>(documentManualViewModelOld);
+                        var result1Old = await _mediator.Send(updateDocManualCommandOld);
+                    }
                 }
                 if (result.Succeeded)
                     {

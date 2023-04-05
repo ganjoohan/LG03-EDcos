@@ -13,6 +13,8 @@ namespace EDocSys.Application.Interfaces.Repositories
 
         Task<SOP> GetByIdAsync(int sopId);
 
+        Task<List<SOP>> GetByParameterAsync(int companyId, int departmentId);
+
         Task<int> InsertAsync(SOP sop);
 
         Task UpdateAsync(SOP sop);

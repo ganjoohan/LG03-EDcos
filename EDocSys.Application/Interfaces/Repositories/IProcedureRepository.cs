@@ -13,6 +13,7 @@ namespace EDocSys.Application.Interfaces.Repositories
 
         Task<Procedure> GetByIdAsync(int procedureId);
         Task<Procedure> GetByWSCPNoAsync(string wscpno);
+        Task<List<Procedure>> GetByParameterAsync(int companyId, int departmentId);
 
         Task<int> InsertAsync(Procedure procedure);
 

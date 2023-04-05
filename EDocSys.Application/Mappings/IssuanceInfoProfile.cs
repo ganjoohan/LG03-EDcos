@@ -12,7 +12,7 @@ namespace EDocSys.Application.Mappings
         public IssuanceInfoProfile()
         {
             CreateMap<CreateIssuanceInfoCommand, IssuanceInfo>().ReverseMap();
-            CreateMap<GetIssuanceInfoByIHdResponse, IssuanceInfo>().ReverseMap();
+            CreateMap<GetIssuanceInfoByHIdResponse, IssuanceInfo>().ReverseMap();
 
             CreateMap<GetAllIssuancesInfoCachedResponse, IssuanceInfo>().ReverseMap();
             CreateMap<GetAllIssuancesInfoResponse, IssuanceInfo>().ReverseMap();

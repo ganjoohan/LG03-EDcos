@@ -153,21 +153,29 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                         rolesListComp.AddRange(roles);
                     }
                 }
+                var userChkE = users.Select(s => s.UserCompanyId).Contains(lionSteelViewModel.CompanyId);
+                var userChk = users.Select(s => s.UserCompanyId).Contains(lionSteelViewModel.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(lionSteelViewModel.DepartmentId);
+                var validUser = false;
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;
                 }
-                if (rolesListComp.Contains("E"))
+                if (rolesListComp.Contains("E") && userChkE)
                 {
                     ViewBag.RoleE = true;
                 }
-                if (rolesListComp.Contains("D"))
+                if (rolesListComp.Contains("D") && userChk)
                 {
                     ViewBag.RoleD = true;
                 }
                 if (rolesList.Contains("SuperAdmin"))
                 {
                     ViewBag.RoleSA = true;
+                }
+                if (!validUser)
+                {
+                    _notify.Error("Access Denied");
+                    return View(nameof(Index));
                 }
                 // documentManualViewModel.pro String.Format("{0:y yy yyy yyyy}", dt);  // "8 08 008 2008"   year
 

@@ -30,6 +30,7 @@ using EDocSys.Application.Features.Issuances.Queries.GetById;
 using Microsoft.AspNetCore.Identity;
 using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Application.Features.Issuances.Commands.Update;
+using EDocSys.Application.Features.Issuances.Commands.Create;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -37,6 +38,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
     public class IssuanceStatusController : BaseController<IssuanceStatusController>
     {
         private readonly IMailService _mailService;
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IdentityContext _identityContext;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -47,12 +49,13 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         public string emailTo { get; private set; }
         
 
-        public IssuanceStatusController(IMailService mailService, UserManager<ApplicationUser> userManager, IdentityContext identityContext, RoleManager<IdentityRole> roleManager)
+        public IssuanceStatusController(ApplicationDbContext context, IMailService mailService, UserManager<ApplicationUser> userManager, IdentityContext identityContext, RoleManager<IdentityRole> roleManager)
         {
             _mailService = mailService;
             _userManager = userManager;
             _identityContext = identityContext;
             _roleManager = roleManager;
+            _context = context;
         }
 
         public async Task<IActionResult> Index(int Id)
@@ -138,10 +141,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         [HttpPost]
         public async Task<JsonResult> OnPostSubmit(int id, IssuanceStatusViewModel issuanceStatus)
         {
-
-
-
-
             if (ModelState.IsValid)
             {
                 var responseGetIssuanceById = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceStatus.IssuanceId });
@@ -159,13 +158,14 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                 var createIssuanceStatusCommand = _mapper.Map<CreateIssuanceStatusCommand>(issuanceStatus);
                 var result = await _mediator.Send(createIssuanceStatusCommand);
-
-                if (issuanceStatus.DocumentStatusId == 5) // REJECTED: send email to company admin
+                if (issuanceStatus.DocumentStatusId == 5) // REJECTED: send email to dept admin
                 {
                     // locate company admin email and send to [TO] sender
 
 
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetIssuanceById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetIssuanceById.Data.CompanyId
+                                                                        && a.UserDepartmentId == responseGetIssuanceById.Data.DepartmentId
+                                                                        && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -277,7 +277,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
                         // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview/" + isssuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
@@ -295,17 +295,122 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (issuanceStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    //responseGetIssuanceById.Data.EffectiveDate = DateTime.Now;
-                    responseGetIssuanceById.Data.IssuanceStatusView = "";
-                    var updateIssuancelCommand = _mapper.Map<UpdateIssuanceCommand>(responseGetIssuanceById.Data);
-                    var result1 = await _mediator.Send(updateIssuancelCommand);
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetIssuanceById.Data.CompanyId && a.IsActive == true).ToList();
+
+                    var companyAdmin = (from a1 in allUsersByCompany
+                                        join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+                                        join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+                                        select new UserViewModel
+                                        {
+                                            Email = a1.Email,
+                                            RoleName = a3.Name
+                                        }).ToList();
+                    string companyAdminEmail = companyAdmin.Where(a => a.RoleName == "E").Select(a => a.Email).FirstOrDefault();
+
+
+                    MailRequest mail = new MailRequest()
+                    {
+                        //To = userModel.Email,
+                        //To = "lgcompadmin@lion.com.my",
+                        To = companyAdminEmail,
+                        Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need approval.",
+                        // 
+                        //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+                        // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview/" + isssuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+                        Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+                    };
+
+                    try
+                    {
+                        await _mailService.SendAsync(mail);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
                 }
-                if (result.Succeeded)
+                else if(issuanceStatus.DocumentStatusId == 7) //ACKNOWLEDGED
                 {
-                    id = result.Data;
-                    _notify.Success($"Issuance with ID {result.Data} Submitted. ");
+                    if (responseGetIssuanceById.Data.DOCStatus == "New")
+                    {
+                        var responseInfo = await _mediator.Send(new GetIssuanceInfoByHIdQuery() { HId = responseGetIssuanceById.Data.Id });
+                        var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == responseGetIssuanceById.Data.Id).OrderBy(a => a.CreatedOn)
+                            .Include(a => a.DocumentStatus)
+                            .Last();
+                        var ivm = _mapper.Map<IssuanceViewModel>(responseGetIssuanceById.Data);
+                        if (StatusId.DocumentStatus.Name == "Acknowledged")
+                            ivm.AcknowledgedBy = StatusId.CreatedBy;
+                        var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(ivm);
+                        var result0 = await _mediator.Send(updateIssuanceCommand);
+                        if (responseInfo.Succeeded)
+                        {
+                            var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);
+                            foreach (var info in issuanceInfoViewModel)
+                            {
+                                if (info.RecipientName1 != "" && info.RecipientName1 != null)
+                                {
+                                    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                    iiprint.IssInfoId = info.Id;
+                                    iiprint.RecipientName = info.RecipientName1;
+                                    iiprint.IsActive = true;
+                                    var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                    var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                }
+                                if (info.RecipientName2 != "" && info.RecipientName2 != null)
+                                {
+                                    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                    iiprint.IssInfoId = info.Id;
+                                    iiprint.RecipientName = info.RecipientName2;
+                                    iiprint.IsActive = true;
+                                    var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                    var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                }
+                                if (info.RecipientName3 != "" && info.RecipientName3 != null)
+                                {
+                                    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                    iiprint.IssInfoId = info.Id;
+                                    iiprint.RecipientName = info.RecipientName3;
+                                    iiprint.IsActive = true;
+                                    var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                    var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                }
+                                if (info.RecipientName4 != "" && info.RecipientName4 != null)
+                                {
+                                    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                    iiprint.IssInfoId = info.Id;
+                                    iiprint.RecipientName = info.RecipientName4;
+                                    iiprint.IsActive = true;
+                                    var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                    var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                }
+                                if (info.RecipientName5 != "" && info.RecipientName5 != null)
+                                {
+                                    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                    iiprint.IssInfoId = info.Id;
+                                    iiprint.RecipientName = info.RecipientName5;
+                                    iiprint.IsActive = true;
+                                    var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                    var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                }
+                                if (info.RecipientName6 != "" && info.RecipientName6 != null)
+                                {
+                                    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                    iiprint.IssInfoId = info.Id;
+                                    iiprint.RecipientName = info.RecipientName6;
+                                    iiprint.IsActive = true;
+                                    var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                    var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                }
+                            }
+                        }
+                    }
                 }
-                else _notify.Error(result.Message);
+                ////if (result.Succeeded)
+                ////{
+                ////    id = result.Data;
+                ////    _notify.Success($"Issuance with ID {result.Data} Submitted. ");
+                ////}
+                ////else _notify.Error(result.Message);
                 //}
 
                 //else

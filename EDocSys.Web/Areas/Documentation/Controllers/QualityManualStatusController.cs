@@ -165,7 +165,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     // locate company admin email and send to [TO] sender
 
 
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetQualityManualById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetQualityManualById.Data.CompanyId && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -283,7 +283,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "Quality Manual " + responseGetQualityManualById.Data.DOCNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
                         // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/QualityManual/preview/" + QualityManualStatus.QualityManualId)}'>clicking here</a> to open the document."
@@ -301,9 +301,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (QualityManualStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetQualityManualById.Data.EffectiveDate = DateTime.Now;
-                    var updateQualityManualCommand = _mapper.Map<UpdateQualityManualCommand>(responseGetQualityManualById.Data);
+                    var qualityManualViewModel = _mapper.Map<QualityManualViewModel>(responseGetQualityManualById.Data);
+                    qualityManualViewModel.EffectiveDate = DateTime.Now;
+                    var updateQualityManualCommand = _mapper.Map<UpdateQualityManualCommand>(qualityManualViewModel);
                     var result1 = await _mediator.Send(updateQualityManualCommand);
+                    if (qualityManualViewModel.ArchiveId != 0)
+                    {
+                        var responseGetQualityManualByIdOld = await _mediator.Send(new GetQualityManualByIdQuery() { Id = qualityManualViewModel.ArchiveId });
+                        var qualityManualViewModelOld = _mapper.Map<QualityManualViewModel>(responseGetQualityManualByIdOld.Data);
+                        qualityManualViewModelOld.ArchiveDate = DateTime.Now;
+                        var updateQualityManualCommandOld = _mapper.Map<UpdateQualityManualCommand>(qualityManualViewModelOld);
+                        var result1Old = await _mediator.Send(updateQualityManualCommandOld);
+                    }
                 }
                 if (result.Succeeded)
                     {

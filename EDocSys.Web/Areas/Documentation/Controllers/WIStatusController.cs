@@ -32,6 +32,10 @@ using System.Text.Encodings.Web;
 using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Application.Features.WIs.Queries.GetById;
 using EDocSys.Application.Features.WIs.Commands.Update;
+using EDocSys.Application.Features.Issuances.Queries.GetByDOCPNo;
+using EDocSys.Application.Features.Issuances.Commands.Update;
+using EDocSys.Application.Features.Issuances.Queries.GetById;
+using EDocSys.Application.Features.Issuances.Commands.Create;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -158,7 +162,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 if (wiStatus.DocumentStatusId == 1) // SUBMITTED: send email to company admin
                 {
                     // locate company admin email and send to [TO] sender                    
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetWIById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetWIById.Data.CompanyId && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -198,6 +202,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetWIById.Data.CompanyId
                                                                        && a.UserDepartmentId == responseGetWIById.Data.DepartmentId
+                                                                        && a.IsActive == true
                                                                        ).ToList();
 
                     var deptAdmin = (from a1 in allUsersByCompany
@@ -332,9 +337,96 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (wiStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetWIById.Data.EffectiveDate = DateTime.Now;
-                    var updateWiCommand = _mapper.Map<UpdateWICommand>(responseGetWIById.Data);
+                    var wiViewModel = _mapper.Map<WIViewModel>(responseGetWIById.Data);
+                    wiViewModel.EffectiveDate = DateTime.Now;
+                    var updateWiCommand = _mapper.Map<UpdateWICommand>(wiViewModel);
                     var result1 = await _mediator.Send(updateWiCommand);
+                    if (wiViewModel.ArchiveId != 0)
+                    {
+                        var responseGetWIByIdOld = await _mediator.Send(new GetWIByIdQuery() { Id = wiViewModel.ArchiveId });
+                        var wiViewModelOld = _mapper.Map<SOPViewModel>(responseGetWIByIdOld.Data);
+                        wiViewModelOld.ArchiveDate = DateTime.Now;
+                        var updateWICommandOld = _mapper.Map<UpdateWICommand>(wiViewModelOld);
+                        var result1Old = await _mediator.Send(updateWICommandOld);
+                        var responseGetIssuanceInfoByDocNo = await _mediator.Send(new GetIssuanceInfoByDOCNoQuery() { docNo = wiViewModel.Id.ToString(), docType = "WI" });
+                        var issInfoViewModelOld = _mapper.Map<List<IssuanceInfoViewModel>>(responseGetIssuanceInfoByDocNo.Data);
+                        issInfoViewModelOld = issInfoViewModelOld.Where(w => w.DOCId == wiViewModelOld.Id.ToString()).ToList();
+                        var listHID = issInfoViewModelOld.Select(s => s.HId).Distinct().ToList();
+                        foreach (var Hid in listHID)
+                        {
+                            var response2 = await _mediator.Send(new GetIssuanceByIdQuery() { Id = Hid });
+                            if (response2.Succeeded)
+                            {
+                                var issuanceVM = _mapper.Map<IssuanceViewModel>(response2.Data);
+                                if (issuanceVM.DOCStatus == "Amend")
+                                {
+                                    var issInfoVM = issInfoViewModelOld.Where(w => w.HId == Hid).ToList();
+                                    foreach (var info in issInfoVM)
+                                    {
+                                        info.DOCId = wiViewModel.Id.ToString();
+                                        info.IsAmend = true;
+                                        var updateIivmCommandOld = _mapper.Map<UpdateIssuanceInfoCommand>(info);
+                                        var resultIssInfo = await _mediator.Send(updateIivmCommandOld);
+
+                                        if (info.RecipientName1 != "" && info.RecipientName1 != null)
+                                        {
+                                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                            iiprint.IssInfoId = info.Id;
+                                            iiprint.RecipientName = info.RecipientName1;
+                                            iiprint.IsActive = true;
+                                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                        }
+                                        if (info.RecipientName2 != "" && info.RecipientName2 != null)
+                                        {
+                                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                            iiprint.IssInfoId = info.Id;
+                                            iiprint.RecipientName = info.RecipientName2;
+                                            iiprint.IsActive = true;
+                                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                        }
+                                        if (info.RecipientName3 != "" && info.RecipientName3 != null)
+                                        {
+                                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                            iiprint.IssInfoId = info.Id;
+                                            iiprint.RecipientName = info.RecipientName3;
+                                            iiprint.IsActive = true;
+                                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                        }
+                                        if (info.RecipientName4 != "" && info.RecipientName4 != null)
+                                        {
+                                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                            iiprint.IssInfoId = info.Id;
+                                            iiprint.RecipientName = info.RecipientName4;
+                                            iiprint.IsActive = true;
+                                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                        }
+                                        if (info.RecipientName5 != "" && info.RecipientName5 != null)
+                                        {
+                                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                            iiprint.IssInfoId = info.Id;
+                                            iiprint.RecipientName = info.RecipientName5;
+                                            iiprint.IsActive = true;
+                                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                        }
+                                        if (info.RecipientName6 != "" && info.RecipientName6 != null)
+                                        {
+                                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+                                            iiprint.IssInfoId = info.Id;
+                                            iiprint.RecipientName = info.RecipientName6;
+                                            iiprint.IsActive = true;
+                                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+                                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (result.Succeeded)

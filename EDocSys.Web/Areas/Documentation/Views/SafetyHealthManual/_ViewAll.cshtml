@@ -4,6 +4,8 @@
     var archiveList = new List<SafetyHealthManualViewModel>();
     archiveList = Model.Where(w => w.ArchiveDate <= DateTime.Now && w.ArchiveDate != default(DateTime)).ToList();
     var nonAL = Model.Where(w=> !archiveList.Contains(w)).ToList();
+    var subAL = nonAL.Where(w => w.ArchiveId != 0).ToList();
+    var preAL = archiveList.Where(w => !subAL.Select(s => s.ArchiveId).Contains(w.Id)).ToList();
     var pendApp = new List<SafetyHealthManualViewModel>();
     if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
     {
@@ -372,6 +374,10 @@
                                         <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
                                     </form>
                                 }
+                                @if (preAL.Select(s => s.Id).Contains(docManual.Id))
+                                 {
+                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id&revert=true" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Revert Safety and Health Manual</a>
+                                 }
                             </div>
                             </div>
                         </td>

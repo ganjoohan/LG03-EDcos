@@ -47,6 +47,7 @@ namespace EDocSys.Infrastructure.DbContexts
         public DbSet<SafetyHealthManualStatus> SafetyHealthManualStatus { get; set; }
         public DbSet<Issuance> Issuances { get; set; }
         public DbSet<IssuanceInfo> IssuancesInfo { get; set; }
+        public DbSet<IssuanceInfoPrint> IssuancesInfoPrint { get; set; }
         public DbSet<IssuanceStatus> IssuanceStatus { get; set; }
         public IDbConnection Connection => Database.GetDbConnection();
 

@@ -41,7 +41,11 @@ namespace EDocSys.Infrastructure.Repositories
             return await _repository.Entities.Where(p => p.WSCPNo == wscpno)
                 .FirstOrDefaultAsync();
         }
-
+        public async Task<List<Procedure>> GetByParameterAsync(int companyId, int departmentId)
+        {
+            return _repository.Entities.Where(p => p.CompanyId == companyId && p.DepartmentId == departmentId && p.IsActive == true)
+               .ToList();
+        }
 
         public async Task<List<Procedure>> GetListAsync()
         {

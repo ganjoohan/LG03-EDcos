@@ -33,7 +33,17 @@ namespace EDocSys.Infrastructure.CacheRepositories
             }
             return sop;
         }
-
+        public async Task<List<SOP>> GetByParameterAsync(int companyId, int departmentId)
+        {
+            string cacheKey = SOPCacheKeys.GetKeyParameter(companyId, departmentId);
+            var sopList = await _distributedCache.GetAsync<List<SOP>>(cacheKey);
+            if (sopList == null)
+            {
+                sopList = await _sopRepository.GetByParameterAsync(companyId, departmentId);
+                await _distributedCache.SetAsync(cacheKey, sopList);
+            }
+            return sopList;
+        }
         public async Task<List<SOP>> GetCachedListAsync()
         {
             string cacheKey = SOPCacheKeys.ListKey;

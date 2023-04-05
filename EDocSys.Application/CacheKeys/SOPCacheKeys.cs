@@ -8,6 +8,8 @@
 
         public static string GetKey(int sopId) => $"SOP-{sopId}";
 
+        public static string GetKeyParameter(int companyId, int departmentId) => $"SOP-Comp{companyId}-Dept{departmentId}";
+
         public static string GetDetailsKey(int sopId) => $"SOPDetails-{sopId}";
     }
 }

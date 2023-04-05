@@ -119,6 +119,9 @@ namespace EDocSys.Infrastructure.Extensions
             services.AddTransient<IIssuanceStatusRepository, IssuanceStatusRepository>();
             services.AddTransient<IIssuanceStatusCacheRepository, IssuanceStatusCacheRepository>();
 
+            services.AddTransient<IIssuanceInfoPrintRepository, IssuanceInfoPrintRepository>();
+            services.AddTransient<IIssuanceInfoPrintCacheRepository, IssuanceInfoPrintCacheRepository>();
+
             #endregion Repositories
         }
     }

@@ -17,10 +17,12 @@
                     <div class="form-group row">
                         <input type="text" asp-for="Id" name="Id"  data-mask class="form-control" hidden="hidden">
                          <input type="text" asp-for="DOCNo" name="DOCNo"  data-mask class="form-control" hidden="hidden">
+                           <input type="text" asp-for="DOCStatus" name="DOCStatus"  data-mask class="form-control" hidden="hidden">
                         <label class="col-md-4 col-form-label">Company</label>
                         <div class="col-md-8">
                             <div class="input-group">
-                                <select name="CompanyId" class="form-control select2bs4" id="CompanyId" asp-for="CompanyId" asp-items="@Model.Companies"></select>
+                                <select name="CompanyId" class="form-control select2bs4" id="CompanyId" asp-for="CompanyId" asp-items="@Model.Companies" onchange="document.getElementById('refreshInfo').click();" ></select>
+                                @*onchange="getComboA(this)"*@
                             </div>
                             <span asp-validation-for="CompanyId" class="text-danger"></span>
                         </div>                       
@@ -29,7 +31,7 @@
                         <label class="col-md-4 col-form-label">Process</label>
                         <div class="col-md-8">
                             <div class="input-group">
-                                <select name="DepartmentId" class="form-control select2bs4" id="DepartmentId" asp-for="DepartmentId" asp-items="@Model.Departments"></select>
+                                <select name="DepartmentId" class="form-control select2bs4" id="DepartmentId" asp-for="DepartmentId" asp-items="@Model.Departments" onchange="document.getElementById('refreshInfo').click();"></select>
                             </div>
                             <span asp-validation-for="DepartmentId" class="text-danger"></span>
                         </div>
@@ -53,14 +55,9 @@
                 <div class="col-md-12">
                     <div class="form-group row">
                         <div class="col">
-                          @*      <a asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-addinfo="true" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
-                <i class="fa fa-plus-square"></i> Create
-            </a>*@
-
-                          @*  <a  asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-addInfo="true" class="btn btn-default" >Add Info</a>
-                             <button type="button" class="btn btn-success" formaction="CreateOrEdit" formmethod="get" value="" >Add Info</button>*@
-                              <button type="submit" class="btn btn-success" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-addInfo="true" asp-route-docStatus="@Model.DOCStatus">Add Info</button>
-                             <br />
+                            <button id="addInfo" type="submit" class="btn btn-success" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-refresh="false" asp-route-addInfo="true" asp-route-docStatus="@Model.DOCStatus">Add Info</button>
+                            <button id="refreshInfo" type="submit" class="btn btn-success" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" asp-route-refresh="true" asp-route-addInfo="false" asp-route-docStatus="@Model.DOCStatus" hidden="hidden">Refresh Info</button>                            
+                            <br />
                              <table class="table table-bordered table-sm">
                         <tbody>
                             <tr>
@@ -73,31 +70,27 @@
                                    @for(int x=0; x<(Model.IssuanceInfo.Count); x++)
                                     {
                                             <tr>  
+                                                <input type="text" asp-for="@Model.IssuanceInfo[x].Id" class="form-control" hidden="hidden">  
+                                                <input type="text" asp-for="@Model.IssuanceInfo[x].HId" class="form-control" hidden="hidden">  
+                                                <input type="text" asp-for="@Model.IssuanceInfo[x].No" class="form-control" hidden="hidden">   
+                                                <input type="text" asp-for="@Model.IssuanceInfo[x].IsActive" class="form-control" hidden="hidden">
                                                 @if(@Model.DOCStatus != "New")
                                                 {
-                                                     <td rowspan="3">
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].Id" class="form-control" hidden="hidden">  
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].HId" class="form-control" hidden="hidden">  
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].No" class="form-control" hidden="hidden">   
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].IsActive" class="form-control" hidden="hidden">
+                                                     <td rowspan="3">  
                                                          @Model.IssuanceInfo[x].No
                                                     </td>
                                                 }
                                                 else
                                                 {
                                                     <td rowspan="2">
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].Id" class="form-control" hidden="hidden">  
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].HId" class="form-control" hidden="hidden">  
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].No" class="form-control" hidden="hidden">   
-                                                         <input type="text" asp-for="@Model.IssuanceInfo[x].IsActive" class="form-control" hidden="hidden">
                                                          @Model.IssuanceInfo[x].No
                                                     </td>
                                                 }
                                             
                                             <td>
                                                         <div class="input-group">
-                                                            <input type="text" asp-for="@Model.IssuanceInfo[x].DocTypes" class="form-control" value="test" hidden="hidden">
-                                                            <select class="form-control select2bs4" asp-for="@Model.IssuanceInfo[x].DocType" asp-items="@Model.IssuanceInfo[x].DocTypes" ></select>
+                                                            <input type="text" asp-for="@Model.IssuanceInfo[x].DocTypes" class="form-control" value="test" hidden="hidden">                 
+                                                            <select class="form-control select2bs4" asp-for="@Model.IssuanceInfo[x].DocType" asp-items="@Model.IssuanceInfo[x].DocTypes" onchange="document.getElementById('refreshInfo').click();" ></select>
                                                         </div>
                                              </td>
                                         <td>
@@ -106,8 +99,9 @@
                                                     
                                                     <td>
                                                         <table class="table table-sm" style="border:hidden">
-                                                            <tr>FormNo<input type="text" asp-for="@Model.IssuanceInfo[x].DOCNo" class="form-control"></tr>
-                                                            <tr>Url<input type="text" asp-for="@Model.IssuanceInfo[x].DocUrl" class="form-control"></tr>
+                                                            <tr>FormNo
+                                                                <input type="text" asp-for="@Model.IssuanceInfo[x].DOCNos" class="form-control" value="test" hidden="hidden">
+                                                                <select class="form-control select2bs4" asp-for="@Model.IssuanceInfo[x].DOCId" asp-items="@Model.IssuanceInfo[x].DOCNos"></select></tr>
                                                             <tr>Enter Recipient's Name (max 6 recipeints)</tr>                                        
                                                             <tr>
                                                                  <td>1. <input type="text" asp-for="@Model.IssuanceInfo[x].RecipientName1" class="form-control"></td>
@@ -170,7 +164,7 @@
                                 <td><b>Requested By</b></td>
                                 <td><b>To Be Verify By</b></td>
                                 <td><b>To Be Approve By</b></td>
-                                <td><b>To Be Acknowledge By</b></td>
+                            @*    <td><b>To Be Acknowledge By</b></td>*@
                             </tr>
                             <tr>
                                 <td><b>Name</b></td>
@@ -183,7 +177,7 @@
                                 <td>
                                     <div>
                                         
-                                            <select name="Concurred1" class="form-control select2bs4" id="VerifiedBy" asp-for="VerifiedBy" asp-items="@Model.UserListVer">
+                                            <select name="VerifiedBy" class="form-control select2bs4" id="VerifiedBy" asp-for="VerifiedBy" asp-items="@Model.UserListVer">
                                             <option value="">Select </option>
                                             </select>
                                         
@@ -193,23 +187,23 @@
                                 <td>
                                     <div>
                                         
-                                            <select name="Concurred2" class="form-control select2bs4" id="ApprovedBy" asp-for="ApprovedBy" asp-items="@Model.UserListApp">
+                                            <select name="ApprovedBy" class="form-control select2bs4" id="ApprovedBy" asp-for="ApprovedBy" asp-items="@Model.UserListApp">
                                             <option value="">Select </option>
                                             </select>
                                         
                                         <span asp-validation-for="ApprovedBy" class="text-danger"></span>
                                     </div>
                                 </td>
-                                <td>
+                           @*     <td>
                                     <div>
                                         
-                                            <select name="ApprovedBy" class="form-control select2bs4" id="AcknowledgedBy" asp-for="AcknowledgedBy" asp-items="@Model.UserListAck">
+                                            <select name="AcknowledgedBy" class="form-control select2bs4" id="AcknowledgedBy" asp-for="AcknowledgedBy" asp-items="@Model.UserListAck">
                                             <option value="">Select </option>
                                             </select>
                                         
                                         <span asp-validation-for="AcknowledgedBy" class="text-danger"></span>
                                     </div>
-                                </td>
+                                </td>*@
                             </tr>
                             <tr>
                                 <td><b>Position</b></td>
@@ -221,7 +215,7 @@
                                 </td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
+                          @*      <td></td>*@
                             </tr>
                             <tr>
                                 <td><b>Date</b></td>
@@ -236,7 +230,7 @@
                                 </td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
+                                @*<td></td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -246,9 +240,18 @@
 
             <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
                 <button type="submit" class="btn btn-success">Save and Preview</button>
-                <a asp-area="Documentation" asp-controller="Issuance" asp-action="Index" class="btn btn-default">
+                @if(@Model.DOCStatus == "New")
+                {
+                <a asp-area="Documentation" asp-controller="Issuance" asp-action="Index"  asp-route-docType="new" class="btn btn-default">
                     Cancel
-                </a>
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="Documentation" asp-controller="Issuance" asp-action="Index"  asp-route-docType="edit" class="btn btn-default">
+                    Cancel
+                    </a>
+                }
             </div>
         </form>
     </div>

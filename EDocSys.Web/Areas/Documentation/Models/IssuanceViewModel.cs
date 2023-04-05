@@ -43,6 +43,8 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public string PositionApp { get; set; }
         public string PositionAck { get; set; }
 
+        public int PrintCountAct { get; set; }
+
         public int PrintCount { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsArchive { get; set; }

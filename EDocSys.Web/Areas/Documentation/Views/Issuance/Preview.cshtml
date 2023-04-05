@@ -19,11 +19,11 @@
                     </h1>
                 </div>
                 <div class="col-sm-3 documentation-col">
-                    @if (@Model.IssuanceStatusView != "Approved")
+                    @if (@Model.IssuanceStatusView != "Acknowledged")
                     {
                         <h3 class="float-right">@Model.IssuanceStatusView</h3><br>
                     }
-                    else if (@Model.IssuanceStatusView == "Approved")
+                    else if (@Model.IssuanceStatusView == "Acknowledged")
                     {
                         <h3 class="float-right">@Model.IssuanceStatusView</h3><br>
                     }
@@ -80,24 +80,28 @@
                                                 {
                                                     <td rowspan="2">@Model.IssuanceInfo[x].No</td>
                                                 }
-                                        <td>@Model.IssuanceInfo[x].DocType</td>
+                                        <td>@Model.IssuanceInfo[x].DocType
+                                                        @if (@Model.DOCStatus != "New" && ViewBag.Amend && @Model.IssuanceStatusView == "Acknowledged" && @Model.IssuanceInfo[x].IsAmend == false)
+                                                        {
+                                                            <div class="no-print">
+                                                                <form class="float-right" id="form_print_@Model.IssuanceInfo[x].Id" asp-area="Documentation" asp-controller="Issuance" method="post" asp-action="OnPostPrint" asp-route-id="@Model.IssuanceInfo[x].Id" asp-route-amend="true">
+                                                                    <a href="javascript:$('#form_print_@Model.IssuanceInfo[x].Id').submit();" class="btn btn-success btn-xs"><i class="fas fa-pencil-alt"></i>  Amend</a>
+                                                                </form>
+                                                            </div>
+                                                        }
+                                                    </td>
                                         <td>
                                             <table style="width:100%; border:hidden;">
                                                 <tr>
                                                     <td>
                                                         <table style="width:100%; border:hidden;">
                                                             <tr>
-                                                                <td colspan="2">@Model.IssuanceInfo[x].DOCNo 
-                                                                    @{var iprint = @Model.IssuanceInfo[x].DocUrl + "?IPrint=" + Model.IssuanceInfo[x].Id;}
-                                                                    @if (@Model.IssuanceStatusView == "Approved")
-                                                                                {                                                                                    
-                                                                                    <a class="float-right" href=@iprint>View</a>
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <a class="float-right" href="@Model.IssuanceInfo[x].DocUrl">View</a>
-                                                                                }
-                                                                                
+                                                                <td colspan="2">
+                                                                    @Model.IssuanceInfo[x].DOCNo 
+                                                                    @if(@Model.IssuanceInfo[x].DOCUrl != "")
+                                                                    {
+                                                                        <a class="float-right" href=@Model.IssuanceInfo[x].DOCUrl>View</a> 
+                                                                    }
                                                                 </td>
                                                             </tr>
                                                             <tr><td colspan="2"><b>Enter Recipient's Name</b> (max 6 recipeints)</td></tr>                                        
@@ -239,9 +243,9 @@
             <div class="row no-print">
                 <div class="col-12">
                     <a onclick="copyPageUrl()" class="btn btn-default float-right"><i class="fas fa-copy"></i> Copy Doc URL</a>
-                     @if (@Model.IssuanceStatusView == "Approved" && @Model.IsArchive == false  && !ViewBag.IAmend)
+                     @if (@Model.IssuanceStatusView == "Acknowledged" && @Model.IsArchive == false)
                     {
-                            <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&rev=true&docStatus=@Model.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" ,"New Revision Issuance")" class="btn btn-default float-right">
+                            <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&rev=true&docStatus=@Model.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn btn-default float-right">
                             <i class="fas fa-copy"></i>
                             New Revision Issuance
                         </a>
@@ -266,7 +270,7 @@
                         }
                     }*@
 
-                    @if ((Model.IssuanceStatusView == "New" || Model.IssuanceStatusView == "Rejected") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA) )
+                    @if ((Model.IssuanceStatusView == "New" || Model.IssuanceStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA) )
                     {
                                              @if (Model.VerifiedBy != null && Model.ApprovedBy != null)
             {
@@ -275,7 +279,7 @@
                                     Edit Issuance
                                 </a>
             
-                                <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'
+                                <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'
                                     + '&&status=1', 'Submit for Approval')"
                                    class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Approval</a>
             }
@@ -283,13 +287,13 @@
             {
                   <a href="/documentation/issuance/CreateOrEdit?id=@Model.Id&docStatus=@Model.DOCStatus&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
                                     <i class="fas fa-pencil-alt"></i>
-                                    Edit Issuance (Unable to submit without concurred1 and approver)
+                                    Edit Issuance (Unable to submit without verifier and approver)
                                 </a>
             }
                     }
 
 
-                    @if (Model.IssuanceStatusView == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
+                    @if (Model.IssuanceStatusView == "Rejected" && (User.IsInRole("D") || ViewBag.RoleD))
                     {
 
                     }
@@ -298,26 +302,28 @@
                     {
                         if(Model.VerifiedBy != null && ViewBag.IsVerified == true)
                         {
-                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=2','Concurred 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
-                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                        }
-                        else if (Model.ApprovedBy != null && ViewBag.IsApp == true)
-                        {
-                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve</a>
-                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=2','Verify')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Verify</a>
+                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                         
                     }
                     
                     @if (Model.IssuanceStatusView == "Verified" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsApp == true)
                     {
-                        <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
-                        <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        if (Model.ApprovedBy != null && ViewBag.IsApp == true) // 
+                        {
+                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=4','Approve')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve</a>
+                            <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        }
+                        @*  else if (Model.ApprovedBy == null && Model.VerifiedBy != null && ViewBag.IsAck == true) { // if Concurred 1 To Approver
+                                    <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                                    <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?proceissuanceIddureId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                                }*@
                     }
-                     @if (Model.IssuanceStatusView == "Approved" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsAck == true)
+            @if (Model.IssuanceStatusView == "Approved" && (User.IsInRole("E") || ViewBag.RoleE))
                     {
-                        <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=4','Acknowledge')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Acknowledge</a>
-                        <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuancelId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                        <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=7','Acknowledge')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Acknowledge</a>
+                        <a onclick="jQueryModalGet('/documentation/issuancestatus/OnGetSubmit?issuanceId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                     }
 
                 </div>

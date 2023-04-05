@@ -5,6 +5,7 @@ using EDocSys.Application.Features.WIs.Queries.GetById;
 using EDocSys.Web.Areas.Documentation.Models;
 using AutoMapper;
 using EDocSys.Domain.Entities.Documentation;
+using EDocSys.Application.Features.WIs.Queries.GetByParameter;
 
 namespace EDocSys.Web.Areas.Catalog.Mappings
 {
@@ -27,8 +28,13 @@ namespace EDocSys.Web.Areas.Catalog.Mappings
 
             CreateMap<GetAllWIsCachedResponse, WIViewModel>().ReverseMap();
 
+            CreateMap<WI, GetWIsByParameterResponse>()
+                .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
+                .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
 
-            
+
+            CreateMap<GetWIsByParameterResponse, WIViewModel>().ReverseMap();
+
 
 
             CreateMap<GetWIByIdResponse, WIViewModel>().ReverseMap();

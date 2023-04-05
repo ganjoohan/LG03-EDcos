@@ -4,7 +4,7 @@
         ViewData["Title"] = localizer["New Issuances"];
         ViewData["Caption"] = localizer["Manage New Issuances here"];
     }
-    else
+    else if(ViewBag.docStatus == "Amend")
     {
         ViewData["Title"] = localizer["Amendment Issuances"];
         ViewData["Caption"] = localizer["Manage Amendment Issuances here"];
@@ -18,7 +18,7 @@
     <div class="col-sm-12" style="padding:20px">
         @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.Issuances.Create)).Result.Succeeded)
         {*@
-             @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
+             @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD)
              {
                    @if(ViewBag.docStatus == "New")
                  {
@@ -26,12 +26,12 @@
                         <i class="fa fa-plus-square"></i> Create
                     </a>
                 }
-                else
+                else if(ViewBag.docStatus == "Amend")
                 {
                     <a asp-area="Documentation" asp-controller="Issuance" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"  asp-route-docStatus="Amend" class="btn bg-success">
                         <i class="fa fa-plus-square"></i> Create
-                    </a>
-                }
+                </a>  
+            }
              }  
         @*}*@
 
@@ -60,13 +60,13 @@
 {
     <script src="~/js/site.js"></script>
     <script>
-        $(document).ready(function () {
-            $("#issuanceTable").DataTable();
-            loadData();
-            $('#reload').on('click', function () {
-                loadData();
-            });
-        });
+        //$(document).ready(function () {
+        //    $("#issuanceTable").DataTable();
+        //    loadData();
+        //    $('#reload').on('click', function () {
+        //        loadData();
+        //    });
+        //});
         //function loadData() {
         //    if (ViewBag.docStatus == "New") {
         //        $('#viewAll').load('/documentation/issuance/LoadAllNew');
@@ -76,17 +76,32 @@
         //    }
         //}
     </script>
-    @{if(ViewBag.docStatus == "New")
+    @{
+        if(ViewBag.docStatus == "New")
         {
             <script>
+                $(document).ready(function () {
+                    $("#issuanceTable").DataTable();
+                    loadData();
+                    $('#reload').on('click', function () {
+                        loadData();
+                    });
+                });
                  function loadData() {
                     $('#viewAll').load('/documentation/issuance/LoadAllNew');
                  }
             </script>
         }
-        else
+        else if(ViewBag.docStatus == "Amend")
         {
             <script>
+                $(document).ready(function () {
+                    $("#issuanceTable").DataTable();
+                    loadData();
+                    $('#reload').on('click', function () {
+                        loadData();
+                    });
+                });
                  function loadData() {
                     $('#viewAll').load('/documentation/issuance/LoadAllAmend');
                 }

@@ -113,44 +113,25 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         //}
 
         [Authorize(Policy = "CanViewLabAccreditationManual")]
-        public async Task<IActionResult> Preview(int id, bool print = false, LabAccreditationManualViewModel labAManual = null, int IPrint = 0)
+        public async Task<IActionResult> Preview(int id, bool print = false, LabAccreditationManualViewModel labAManual = null, bool revert = false)
         {
-            ViewBag.IPrint = false;
-            ViewBag.IAmend = false;
             ViewBag.RoleA = false;
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
-            if (IPrint != 0)
-            {
-                var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
-                if (responseInfo.Succeeded)
-                {
-                    var issuanceInfoViewModel = _mapper.Map<IssuanceInfoViewModel>(responseInfo.Data);
-                    var urlText = "https://edocs.lion.com.my/documentation/procedure/preview?id=" + id.ToString();
-                    if (urlText == issuanceInfoViewModel.DocUrl)
-                    {
-                        var responseInfoH = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceInfoViewModel.HId });
-                        if (responseInfoH.Succeeded)
-                        {
-                            var issuanceViewModel = _mapper.Map<IssuanceViewModel>(responseInfoH.Data);
-                            if (issuanceViewModel.IssuanceStatusView == "Approved")
-                            {
-                                ViewBag.IPrint = true;
-                                if (issuanceViewModel.DOCStatus != "New")
-                                {
-                                    ViewBag.IAmend = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
-           
+            if (revert)
+            {
+                var response2 = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = id });
+                var labAccreditationManualViewModelOld = _mapper.Map<LabAccreditationManualViewModel>(response2.Data);
+                labAccreditationManualViewModelOld.IsArchive = false;
+                labAccreditationManualViewModelOld.ArchiveDate = null;
+                var updateLabAccreditationManualCommandOld = _mapper.Map<UpdateLabAccreditationManualCommand>(labAccreditationManualViewModelOld);
+                var result2 = await _mediator.Send(updateLabAccreditationManualCommandOld);
+            }
             var response = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = id });
             var adg = _context.LabAccreditationManualStatus;
             var statusById = _context.LabAccreditationManualStatus.Where(a => a.LabAccreditationManualId == id).ToList();
@@ -177,21 +158,32 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         rolesListComp.AddRange(roles);
                     }
                 }
+                var userChk = users.Select(s => s.UserCompanyId).Contains(labAccreditationManualViewModel.CompanyId);
+                var validUser = false;
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;
+                    validUser = true;
                 }
-                if (rolesListComp.Contains("E"))
+                if (rolesListComp.Contains("E") && userChk)
                 {
                     ViewBag.RoleE = true;
+                    validUser = true;
                 }
-                if (rolesListComp.Contains("D"))
+                if (rolesListComp.Contains("D") && userChk)
                 {
                     ViewBag.RoleD = true;
+                    validUser = true;
                 }
                 if (rolesList.Contains("SuperAdmin"))
                 {
                     ViewBag.RoleSA = true;
+                    validUser = true;
+                }
+                if (!validUser)
+                {
+                    _notify.Error("Access Denied");
+                    return View(nameof(Index));
                 }
                 // labAccreditationManualViewModel.pro String.Format("{0:y yy yyy yyyy}", dt);  // "8 08 008 2008"   year
 

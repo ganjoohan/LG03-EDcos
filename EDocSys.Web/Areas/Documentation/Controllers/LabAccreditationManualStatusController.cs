@@ -165,7 +165,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     // locate company admin email and send to [TO] sender
 
 
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetLabAccreditationManualById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetLabAccreditationManualById.Data.CompanyId && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -283,7 +283,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "Lab Accreditation Manual " + responseGetLabAccreditationManualById.Data.DOCNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
                         // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/LabAccreditationManual/preview/" + LabAccreditationManualStatus.LabAccreditationManualId)}'>clicking here</a> to open the document."
@@ -301,9 +301,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (LabAccreditationManualStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetLabAccreditationManualById.Data.EffectiveDate = DateTime.Now;
-                    var updateLabAccreditationManualCommand = _mapper.Map<UpdateLabAccreditationManualCommand>(responseGetLabAccreditationManualById.Data);
+                    var labAccreditationManualViewModel = _mapper.Map<LabAccreditationManualViewModel>(responseGetLabAccreditationManualById.Data);
+                    labAccreditationManualViewModel.EffectiveDate = DateTime.Now;
+                    var updateLabAccreditationManualCommand = _mapper.Map<UpdateLabAccreditationManualCommand>(labAccreditationManualViewModel);
                     var result1 = await _mediator.Send(updateLabAccreditationManualCommand);
+                    if (labAccreditationManualViewModel.ArchiveId != 0)
+                    {
+                        var responseGetLabAccreditationManualByIdOld = await _mediator.Send(new GetLabAccreditationManualByIdQuery() { Id = labAccreditationManualViewModel.ArchiveId });
+                        var labAccreditationManualViewModelOld = _mapper.Map<LabAccreditationManualViewModel>(responseGetLabAccreditationManualByIdOld.Data);
+                        labAccreditationManualViewModelOld.ArchiveDate = DateTime.Now;
+                        var updateLabAccreditationManualCommandOld = _mapper.Map<UpdateLabAccreditationManualCommand>(labAccreditationManualViewModelOld);
+                        var result1Old = await _mediator.Send(updateLabAccreditationManualCommandOld);
+                    }
                 }
 
                 if (result.Succeeded)

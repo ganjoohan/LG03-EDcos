@@ -31,5 +31,6 @@ namespace EDocSys.Application.Interfaces.Contexts
         DbSet<UserApprover> UserApprovers { get; set; }
         DbSet<Issuance> Issuances { get; set; }
         DbSet<IssuanceInfo> IssuancesInfo { get; set; }
+        DbSet<IssuanceInfoPrint> IssuancesInfoPrint { get; set; }
     }
 }

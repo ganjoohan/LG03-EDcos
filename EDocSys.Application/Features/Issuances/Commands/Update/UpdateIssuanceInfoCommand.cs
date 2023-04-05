@@ -12,7 +12,7 @@ namespace EDocSys.Application.Features.Issuances.Commands.Update
         public int Id { get; set; }
         public int HId { get; set; }
         public int No { get; set; }
-        public string DOCNo { get; set; }
+        public string DOCId { get; set; }
         public string DocType { get; set; }
         public string RecipientName1 { get; set; }
         public string RecipientName2 { get; set; }
@@ -23,8 +23,7 @@ namespace EDocSys.Application.Features.Issuances.Commands.Update
         public string Purpose { get; set; }
         public string Amendment { get; set; }
         public bool IsActive { get; set; }
-
-        public string DocUrl { get; set; }
+        public bool IsAmend { get; set; }
 
         public class UpdateIssuanceInfoCommandHandler : IRequestHandler<UpdateIssuanceInfoCommand, Result<int>>
         {
@@ -47,7 +46,7 @@ namespace EDocSys.Application.Features.Issuances.Commands.Update
                 }
                 else
                 {
-                    issuanceInfo.DOCNo = command.DOCNo ?? issuanceInfo.DOCNo;
+                    issuanceInfo.DOCId = command.DOCId ?? issuanceInfo.DOCId;
                     issuanceInfo.DocType = command.DocType ?? issuanceInfo.DocType;
                     issuanceInfo.RecipientName1 = command.RecipientName1 ?? issuanceInfo.RecipientName1;
                     issuanceInfo.RecipientName2 = command.RecipientName2 ?? issuanceInfo.RecipientName2;
@@ -57,8 +56,8 @@ namespace EDocSys.Application.Features.Issuances.Commands.Update
                     issuanceInfo.RecipientName6 = command.RecipientName6 ?? issuanceInfo.RecipientName6;
                     issuanceInfo.Purpose = command.Purpose ?? issuanceInfo.Purpose;
                     issuanceInfo.Amendment = command.Amendment ?? issuanceInfo.Amendment;
-                    issuanceInfo.DocUrl = command.DocUrl ?? issuanceInfo.DocUrl;
                     issuanceInfo.IsActive = command.IsActive;
+                    issuanceInfo.IsAmend = command.IsAmend;
                     await _issuanceInfoRepository.UpdateAsync(issuanceInfo);
                     await _unitOfWork.Commit(cancellationToken);
                     return Result<int>.Success(issuanceInfo.Id);

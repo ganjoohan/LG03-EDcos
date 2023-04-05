@@ -165,7 +165,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     // locate company admin email and send to [TO] sender
 
 
-                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetSafetyHealthManualById.Data.CompanyId).ToList();
+                    var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetSafetyHealthManualById.Data.CompanyId && a.IsActive == true).ToList();
 
                     var companyAdmin = (from a1 in allUsersByCompany
                                         join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
@@ -283,7 +283,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         //To = userModel.Email,
                         //To = "lgcompadmin@lion.com.my",
                         To = emailTo,
-                        Subject = "Thank you for registering",
+                        Subject = "Safety and Health Manual " + responseGetSafetyHealthManualById.Data.DOCNo + " need approval.",
                         // 
                         //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
                         // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/SafetyHealthManual/preview/" + SafetyHealthManualStatus.SafetyHealthManualId)}'>clicking here</a> to open the document."
@@ -301,9 +301,18 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 else if (SafetyHealthManualStatus.DocumentStatusId == 4) //APPROVED
                 {
-                    responseGetSafetyHealthManualById.Data.EffectiveDate = DateTime.Now;
-                    var updateQualityManualCommand = _mapper.Map<UpdateSafetyHealthManualCommand>(responseGetSafetyHealthManualById.Data);
+                    var safetyHealthViewModel = _mapper.Map<SafetyHealthManualViewModel>(responseGetSafetyHealthManualById.Data);
+                    safetyHealthViewModel.EffectiveDate = DateTime.Now;
+                    var updateQualityManualCommand = _mapper.Map<UpdateSafetyHealthManualCommand>(safetyHealthViewModel);
                     var result1 = await _mediator.Send(updateQualityManualCommand);
+                    if (safetyHealthViewModel.ArchiveId != 0)
+                    {
+                        var responseGetSafetyHealthManualByIdOld = await _mediator.Send(new GetSafetyHealthManualByIdQuery() { Id = safetyHealthViewModel.ArchiveId });
+                        var safetyHealthManualViewModelOld = _mapper.Map<SafetyHealthManualViewModel>(responseGetSafetyHealthManualByIdOld.Data);
+                        safetyHealthManualViewModelOld.ArchiveDate = DateTime.Now;
+                        var updateSafetyHealthManualCommandOld = _mapper.Map<UpdateSafetyHealthManualCommand>(safetyHealthManualViewModelOld);
+                        var result1Old = await _mediator.Send(updateSafetyHealthManualCommandOld);
+                    }
                 }
                 if (result.Succeeded)
                     {

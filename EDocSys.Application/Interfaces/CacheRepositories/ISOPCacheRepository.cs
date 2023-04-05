@@ -9,5 +9,7 @@ namespace EDocSys.Application.Interfaces.CacheRepositories
         Task<List<SOP>> GetCachedListAsync();
 
         Task<SOP> GetByIdAsync(int departmentId);
+
+        Task<List<SOP>> GetByParameterAsync(int companyId, int departmentId);
     }
 }
