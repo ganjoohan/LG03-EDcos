@@ -27,7 +27,7 @@ namespace EDocSys.Application.Features.Procedures.Queries.GetByParameter
             public async Task<Result<List<GetProceduresByParameterResponse>>> Handle(GetProceduresByParameterQuery query, CancellationToken cancellationToken)
             {
                 var procedureList = await _procedureCache.GetByParameterAsync(query.CompId, query.DeptId);
-                var mappedProcedures = _mapper.Map< List<GetProceduresByParameterResponse>>(procedureList);
+                var mappedProcedures = _mapper.Map<List<GetProceduresByParameterResponse>>(procedureList);
                 return Result< List<GetProceduresByParameterResponse>>.Success(mappedProcedures);
             }
         }

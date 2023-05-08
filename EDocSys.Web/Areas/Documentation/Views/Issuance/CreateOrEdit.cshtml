@@ -64,6 +64,7 @@
                                 <td>No</td>
                                 <td>Type of Document</td>
                                 <td>Document No. / Issue to (max 6 recipients)</td>
+                                <td>To Be Deleted</td>
                             </tr>
                                @if(Model.IssuanceInfo.Count > 0)
                                 {
@@ -124,6 +125,11 @@
                                             </table>
                                        
                                         </td>
+                                         <td>
+                                                        <input type="text" id="chkdeleteid" asp-for="@Model.IssuanceInfo[x].Id" hidden >
+                                                        <input type="checkbox" id="chkdelete" asp-for="@Model.IssuanceInfo[x].Deleted" >
+
+                                                    </td>
                                     </tr>
                                          @if (@Model.DOCStatus != "New")
                                          {

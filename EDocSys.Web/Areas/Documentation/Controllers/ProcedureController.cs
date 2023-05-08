@@ -136,6 +136,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
             List<string> rolesListDept = new List<string>();
+            // Note: for archived doc without new rev
             if (revert)
             {
                 var response2 = await _mediator.Send(new GetProcedureByIdQuery() { Id = id });
@@ -163,6 +164,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                             rolesListDept.AddRange(roles);
                     }
                 }
+                //Note: issuance print
                 if (IPrint != 0 && !print)
                 {
                     var responseInfo = await _mediator.Send(new GetIssuanceInfoByIdQuery() { Id = IPrint });
@@ -218,7 +220,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         }
                     }
                 }
-
+                //Note: after print, update print count and issuance print
                 if (print)
                 {
                     procedureViewModel.PrintCount = procedureViewModel.PrintCount + 1;
@@ -237,6 +239,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     return RedirectToAction("Preview", new { Id = id });
                 }
 
+                //Note: if user's access is valid
                 var userChkE = users.Select(s => s.UserCompanyId).Contains(procedureViewModel.CompanyId);
                 var userChk = users.Select(s => s.UserCompanyId).Contains(procedureViewModel.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(procedureViewModel.DepartmentId);
                 var validUser = false;
@@ -298,6 +301,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 {
                     procedureViewModel.ProcedureStatusView = "New";
                 }
+                //Note: get approver details from user
                 if (procedureViewModel.Concurred1 != null)
                 {
                     var concurred1User = _userManager.Users.Where(a => a.Id == procedureViewModel.Concurred1).SingleOrDefault();
@@ -829,6 +833,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var result = await _mediator.Send(updateProcedureCommand);
                     if (result.Succeeded) _notify.Information($"Procedure with ID {result.Data} Updated.");
                 }
+                //Note: if new rev doc, create related sop and wi, that linked to the new rev
                 if(procedure.ArchiveId != 0)
                 {
                     var response2 = await _mediator.Send(new GetProcedureByIdQuery() { Id = procedure.ArchiveId });
@@ -954,6 +959,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var result = await _mediator.Send(updateProcedureCommand);
                     if (result.Succeeded)
                         _notify.Information($"Procedure with ID {result.Data} Deleted.");
+                    //Note: deactive related sop and wi as well
                     var response2 = await _mediator.Send(new GetAllProceduresCachedQuery());
                     if (response2.Succeeded)
                     {

@@ -1527,10 +1527,10 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         {
             if (ModelState.IsValid)
                 {
-                    if (id == 0)
-                    {
-                        var createIssuanceCommand = _mapper.Map<CreateIssuanceCommand>(issuance);
-                        var result = await _mediator.Send(createIssuanceCommand);
+                if (id == 0)
+                {
+                    var createIssuanceCommand = _mapper.Map<CreateIssuanceCommand>(issuance);
+                    var result = await _mediator.Send(createIssuanceCommand);
                     if (result.Succeeded)
                     {
                         id = result.Data;
@@ -1538,9 +1538,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         foreach (var info in issuance.IssuanceInfo)
                         {
                             info.HId = id;
-                            var createIssuanceInfoCommand = _mapper.Map<CreateIssuanceInfoCommand>(info);
-                            var resultInfo = await _mediator.Send(createIssuanceInfoCommand);
-                            var issInfoId = resultInfo.Data;
+                            if (!info.Deleted)
+                            {
+                                var createIssuanceInfoCommand = _mapper.Map<CreateIssuanceInfoCommand>(info);
+                                var resultInfo = await _mediator.Send(createIssuanceInfoCommand);
+                                var issInfoId = resultInfo.Data;
+                            }
                             //if(info.RecipientName1 != "" && info.RecipientName1 != null)
                             //{
                             //    IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
@@ -1592,27 +1595,32 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         }
                     }
                     else _notify.Error(result.Message);
-                    }
-                    else
+                }
+                else
+                {
+                    var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(issuance);
+                    var result = await _mediator.Send(updateIssuanceCommand);
+                    if (result.Succeeded) _notify.Information($"Issuance with ID {result.Data} Updated.");
+                    foreach (var info in issuance.IssuanceInfo)
                     {
-                        var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(issuance);
-                        var result = await _mediator.Send(updateIssuanceCommand);
-                        if (result.Succeeded) _notify.Information($"Issuance with ID {result.Data} Updated.");
-                        foreach (var info in issuance.IssuanceInfo)
+                        if (info.Id == 0)
                         {
-                            if (info.Id == 0)
+                            info.HId = id;
+                            if (!info.Deleted)
                             {
-                                info.HId = id;
                                 var createIssuanceInfoCommand = _mapper.Map<CreateIssuanceInfoCommand>(info);
                                 var resultInfo = await _mediator.Send(createIssuanceInfoCommand);
                             }
-                            else
-                            {
-                                var updateIssuanceInfoCommand = _mapper.Map<UpdateIssuanceInfoCommand>(info);
-                                var resultInfo = await _mediator.Send(updateIssuanceInfoCommand);
-                            }
+                        }
+                        else
+                        {
+                            if (info.Deleted)
+                                info.IsActive = false;
+                            var updateIssuanceInfoCommand = _mapper.Map<UpdateIssuanceInfoCommand>(info);
+                            var resultInfo = await _mediator.Send(updateIssuanceInfoCommand);
                         }
                     }
+                }
                     if (issuance.ArchiveId != 0)
                     {
                         var response2 = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuance.ArchiveId });

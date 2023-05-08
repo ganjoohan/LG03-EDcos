@@ -345,6 +345,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         if (responseInfo.Succeeded)
                         {
                             var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);
+                            issuanceInfoViewModel = issuanceInfoViewModel.Where(w => w.IsActive = true).ToList();
                             foreach (var info in issuanceInfoViewModel)
                             {
                                 if (info.RecipientName1 != "" && info.RecipientName1 != null)

@@ -31,6 +31,8 @@ namespace EDocSys.Web.Areas.Documentation.Models
 
         public string DOCUrl { get; set; } //temp
 
+        public bool Deleted { get; set; } = false; //temp
+
     }
 
 }
