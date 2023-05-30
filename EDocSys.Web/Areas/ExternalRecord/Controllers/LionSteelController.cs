@@ -366,47 +366,85 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                     item.CompanyName = companyViewModel.Where(w => w.Id == item.CompanyId).Select(s => s.Name).FirstOrDefault();
                     item.ProcessName = departmentViewModel.Where(w => w.Id == item.DepartmentId).Select(s => s.Name).FirstOrDefault();
                 }
-                if (viewModel.Count == 1)
+                if (viewModel.Count > 0 && currentUser.Email == "superadmin@lion.com.my")
                 {
-                    RecurringJob.RemoveIfExists("expiredExternalLS");
-                    var manager = new RecurringJobManager();
-                    manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
-                    var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
+                    var viewModel0 = viewModel.Where(w => w.ExpiryDate != default(DateTime) && w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
                     if (viewModel0.Count > 0)
                     {
-                        RecurringJob.TriggerJob("expiredExternalLS");
-                        BackgroundJob.Enqueue(() => sendMailAsync());
-                    }
-                }
-                else
-                {
-                    List<Hangfire.Storage.RecurringJobDto> recurringJobs = new List<Hangfire.Storage.RecurringJobDto>();
-                    recurringJobs = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList();
-                    var newRJ = recurringJobs.Where(w => w.NextExecution.Value.ToString("dd/MM/yyyy") == DateTime.Now.AddDays(1).ToString("dd/MM/yyyy")).FirstOrDefault();
-                    if (newRJ == null)
-                    {
-                        var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
-                        if (viewModel0.Count > 0)
+                        List<string> informedLists = viewModel0.SelectMany(s => s.InformedList.Split(",").ToList()).Distinct().ToList();
+                        foreach (var informedList in informedLists)
                         {
-                            RecurringJob.RemoveIfExists("expiredExternalLS");
-                            var manager = new RecurringJobManager();
-                            manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
-                            RecurringJob.TriggerJob("expiredExternalLS");
-                            BackgroundJob.Enqueue(() => sendMailAsync());
+                            var viewModel1 = viewModel0.Where(w => w.InformedList.Contains(informedList)).ToList();
+                            string s_body = $"<table><tr><td colspan=\"2\">Documents are expired: </td></tr>";
+                            foreach (var vM1 in viewModel1)
+                            {
+                                s_body += $"<tr><td>" + vM1.FormNo + ", </td>";
+                                s_body += $"<td><a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/externalrecord/lionsteel/preview?id=" + vM1.Id)}'>click here</a> to open the document.</td></tr>";
+                            }
+                            s_body += $"</table>";
+                            MailRequest mail = new MailRequest()
+                            {
+                                //To = userModel.Email,
+                                // To = "lgcompadmin@lion.com.my",
+                                To = informedList,
+                                Subject = "Lion Steel External Record Expired.",
+                                // 
+
+                                Body = s_body
+                            };
+
+                            try
+                            {
+                                await _mailService.SendAsync(mail);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
                         }
                     }
-                    else
-                    {
-                        var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
-                        if (viewModel0.Count > 0)
-                        {
-                            //RecurringJob.RemoveIfExists("expiredExternalLS");
-                            //var manager = new RecurringJobManager();
-                            //manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
-                            //BackgroundJob.Enqueue(() => sendMailAsync());
-                        }
-                    }
                 }
+                //if (viewModel.Count == 1)
+                //{
+                //    RecurringJob.RemoveIfExists("expiredExternalLS");
+                //    var manager = new RecurringJobManager();
+                //    manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
+                //    var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
+                //    if (viewModel0.Count > 0)
+                //    {
+                //        RecurringJob.TriggerJob("expiredExternalLS");
+                //        BackgroundJob.Enqueue(() => sendMailAsync());
+                //    }
+                //}
+                //else
+                //{
+                //    List<Hangfire.Storage.RecurringJobDto> recurringJobs = new List<Hangfire.Storage.RecurringJobDto>();
+                //    recurringJobs = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList();
+                //    var newRJ = recurringJobs.Where(w => w.NextExecution.Value.ToString("dd/MM/yyyy") == DateTime.Now.AddDays(1).ToString("dd/MM/yyyy")).FirstOrDefault();
+                //    if (newRJ == null)
+                //    {
+                //        var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
+                //        if (viewModel0.Count > 0)
+                //        {
+                //            RecurringJob.RemoveIfExists("expiredExternalLS");
+                //            var manager = new RecurringJobManager();
+                //            manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
+                //            RecurringJob.TriggerJob("expiredExternalLS");
+                //            BackgroundJob.Enqueue(() => sendMailAsync());
+                //        }
+                //    }
+                //    else
+                //    {
+                //        var viewModel0 = viewModel.Where(w => w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
+                //        if (viewModel0.Count > 0)
+                //        {
+                //            //RecurringJob.RemoveIfExists("expiredExternalLS");
+                //            //var manager = new RecurringJobManager();
+                //            //manager.AddOrUpdate("expiredExternalLS", Job.FromExpression(() => sendMailAsync()), Cron.Daily());
+                //            //BackgroundJob.Enqueue(() => sendMailAsync());
+                //        }
+                //    }
+                //}
                 if (!rolesList.Contains("A") && !rolesList.Contains("SuperAdmin"))
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
@@ -907,13 +945,13 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<LionSteelViewModel>>(response.Data);
-                var viewModel0 = viewModel.Where(w=> w.ExpiryDate <= DateTime.Now && w.IsActive == true && w.IsArchive == false).ToList();
+                var viewModel0 = viewModel.Where(w=> w.ExpiryDate != default(DateTime) && w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
                 if (viewModel0.Count > 0)
                 {
                     List<string> informedLists = viewModel0.SelectMany(s => s.InformedList.Split(",").ToList()).Distinct().ToList();
                     foreach (var informedList in informedLists)
                     {
-                        var viewModel1 = viewModel.Where(w => w.InformedList.Contains(informedList)).ToList();
+                        var viewModel1 = viewModel0.Where(w => w.InformedList.Contains(informedList)).ToList();
                         string s_body = $"<table><tr>Documents are expired: </tr>";
                         foreach (var vM1 in viewModel1)
                         {

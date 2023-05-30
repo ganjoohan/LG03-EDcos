@@ -37,6 +37,8 @@ namespace EDocSys.Application.Features.ExternalFeatures.LionSteels.Commands.Upda
         public string FilingSystem { get; set; }
         public string Description { get; set; }
 
+        public int InformPeriod { get; set; }
+
 
         public class UpdateLionSteelCommandHandler : IRequestHandler<UpdateLionSteelCommand, Result<int>>
         {
@@ -68,6 +70,7 @@ namespace EDocSys.Application.Features.ExternalFeatures.LionSteels.Commands.Upda
 
                     lionSteel.SubType = command.SubType ?? lionSteel.SubType;
                     lionSteel.InformedList = command.InformedList ?? lionSteel.InformedList;
+                    lionSteel.InformPeriod = command.InformPeriod;
                     lionSteel.Location = command.Location ?? lionSteel.Location;
                     lionSteel.RetentionPrd = command.RetentionPrd ?? lionSteel.RetentionPrd;
                     lionSteel.PIC = command.PIC ?? lionSteel.PIC;

@@ -45,6 +45,7 @@ namespace EDocSys.Application.Features.ExternalFeatures.LionSteels.Queries.GetAl
                 Type = e.Type,
                 SubType = e.SubType,
                 InformedList = e.InformedList,
+                InformPeriod = e.InformPeriod,
                 Location = e.Location,
                 RetentionPrd = e.RetentionPrd,
                 PIC = e.PIC,

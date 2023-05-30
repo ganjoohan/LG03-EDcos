@@ -38,6 +38,8 @@ namespace EDocSys.Application.Features.ExternalFeatures.LionSteels.Commands.Crea
         public int PrintCount { get; set; } = 0;
         public string FilingSystem { get; set; }
         public string Description { get; set; }
+
+        public int InformPeriod { get; set; }
     }
 
     public class CreateLionSteelCommandHandler : IRequestHandler<CreateLionSteelCommand, Result<int>>

@@ -40,5 +40,7 @@ namespace EDocSys.Domain.Entities.ExternalRecord
         public int PrintCount { get; set; }
         public string FilingSystem { get; set; }
         public string Description { get; set; }
+
+        public int InformPeriod { get; set; }
     }
 }

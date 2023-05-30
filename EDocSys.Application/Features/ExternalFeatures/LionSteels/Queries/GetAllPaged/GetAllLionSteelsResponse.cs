@@ -30,6 +30,8 @@ namespace EDocSys.Application.Features.ExternalFeatures.LionSteels.Queries.GetAl
         public int PrintCount { get; set; }
         public string FilingSystem { get; set; }
         public string Description { get; set; }
+
+        public int InformPeriod { get; set; }
     }
 }
 
