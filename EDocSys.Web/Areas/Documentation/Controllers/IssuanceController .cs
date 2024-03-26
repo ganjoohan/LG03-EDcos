@@ -614,7 +614,15 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 {
                     if (rolesList.Contains("D"))
                     {
-                        departmentViewModel = departmentViewModel.Where(a => users.Select(s => s.UserDepartmentId).Contains(a.Id)).ToList();
+                        if (users.Select(s => s.UserDepartmentId).Contains(allDeptId))
+                        {
+                            // If user's department is "All Departments", remove it from the selection
+                            departmentViewModel = departmentViewModel.Where(d => d.Id != allDeptId).ToList();
+                        }
+                        else
+                        {
+                            departmentViewModel = departmentViewModel.Where(a => users.Select(s => s.UserDepartmentId).Contains(a.Id)).ToList();
+                        }
                     }
 
                     issuanceViewModel.Departments = new SelectList(departmentViewModel, nameof(DepartmentViewModel.Id), nameof(DepartmentViewModel.Name), null, null);

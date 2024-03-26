@@ -14,7 +14,7 @@
         pendApp = nonAL.Where(w => (userId.Contains(w.Concurred1) && w.SafetyHealthManualStatusView == "Submitted") || (userId.Contains(w.Concurred2) && w.SafetyHealthManualStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SafetyHealthManualStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SafetyHealthManualStatusView == "Concurred2")).ToList();
     }
 }
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> *@
 
 <style>
   .tabs {

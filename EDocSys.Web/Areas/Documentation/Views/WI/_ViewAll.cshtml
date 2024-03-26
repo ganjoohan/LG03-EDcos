@@ -14,7 +14,7 @@
         pendApp = (User.IsInRole("E") || ViewBag.RoleE) ? (nonAL.Where(w => w.WIStatusView == "Submitted").ToList()) :(nonAL.Where(w => (userId.Contains(w.Concurred1) && w.WIStatusView == "Format Checked") || (userId.Contains(w.Concurred2) && w.WIStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.WIStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.WIStatusView == "Concurred2")).ToList());
     }
 }
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> *@
 
 <style>
   .tabs {
