@@ -175,6 +175,16 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     ViewBag.RoleD = true;
                     validUser = true;
                 }
+                if (rolesListComp.Contains("B1") && userChk)
+                {
+                    ViewBag.RoleB1 = true;
+                    validUser = true;
+                }
+                if (rolesListComp.Contains("B2") && userChk)
+                {
+                    ViewBag.RoleB2 = true;
+                    validUser = true;
+                }
                 if (rolesList.Contains("SuperAdmin"))
                 {
                     ViewBag.RoleSA = true;
