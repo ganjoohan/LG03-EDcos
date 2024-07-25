@@ -272,7 +272,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
 
                     if (statusById.Count() != 0)
                     {
-                        var StatusId = _context.WIStatus.Where(a => a.WIId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
+                        var StatusId = _context.LabAccreditationManualStatus.Where(a => a.LabAccreditationManualId == id).OrderBy(a => a.CreatedOn).Select(a => a.DocumentStatusId).Last();
 
                         var c1Status = statusById.Where(a => a.DocumentStatusId == 4).OrderBy(a => a.CreatedOn).ToList();
                         if (c1Status.Count > 0)
