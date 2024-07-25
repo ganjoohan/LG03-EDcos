@@ -227,7 +227,7 @@
                                 <td><b>Date</b></td>
                                 <td>
                                     <div class="col-md-12 input-group date" id="RequestedByDate" name="RequestedByDate" asp-for="RequestedByDate" data-target-input="nearest">
-                                        <input type="text" asp-for="RequestedByDate" name="RequestedByDate" class="form-control datetimepicker-input" , data_inputmask_inputformat="dd/mm/yyyy" placeholder="dd/mm/yyyy">
+                                        <input type="text" asp-for="RequestedByDate" name="RequestedByDate"  class="form-control datetimepicker-input" placeholder="DD/MM/YYYY" autocomplete="off">
                                         <div class="input-group-append" data-target="#PreparedByDate" data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                         </div>
@@ -469,68 +469,39 @@
                 theme: 'bootstrap4'
             })
 
-            //Datemask dd/mm/yyyy
-            $('#datemask').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
-            //Datemask2 mm/dd/yyyy
-            $('#datemask2').inputmask('mm/dd/yyyy', { 'placeholder': 'mm/dd/yyyy' })
-            //Money Euro
-            $('[data-mask]').inputmask()
-
-            //Date picker
-            $('#EffectiveDate').datetimepicker({
-                format:'DD/MM/YYYY',
-            });
-
-            $('#RevisionDate').datetimepicker({
-                format:'DD/MM/YYYY',
-            });
-
-            $('#EstalishedDate').datetimepicker({
-                format:'DD/MM/YYYY',
-            });
-
-            $('#PreparedByDate').datetimepicker({
-                format:'DD/MM/YYYY',
-            });
-
-            
-
-            //Date and time picker
-            $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' } });
-
-            //Date range picker
-            $('#reservation').daterangepicker()
-            //Date range picker with time picker
-            $('#reservationtime').daterangepicker({
-                timePicker: true,
-                timePickerIncrement: 30,
-                locale: {
-                    format: 'MM/DD/YYYY hh:mm A'
+            // Datepicker configuration
+            var datePickerConfig = {
+                format: 'DD/MM/YYYY',
+                ignoreReadonly: true,
+                allowInputToggle: true,
+                useCurrent: false,
+                keepInvalid: false,
+                icons: {
+                    time: 'far fa-clock',
+                    date: 'far fa-calendar',
+                    up: 'fas fa-arrow-up',
+                    down: 'fas fa-arrow-down',
+                    previous: 'fas fa-chevron-left',
+                    next: 'fas fa-chevron-right',
+                    today: 'far fa-calendar-check',
+                    clear: 'far fa-trash-alt',
+                    close: 'fas fa-times'
                 }
-            })
-            //Date range as a button
-            $('#daterange-btn').daterangepicker(
-                {
-                    ranges: {
-                        'Today': [moment(), moment()],
-                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                    },
-                    startDate: moment().subtract(29, 'days'),
-                    endDate: moment()
-                },
-                function (start, end) {
-                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
-                }
-            )
+            };
 
-            //Timepicker
-            $('#timepicker').datetimepicker({
-                format: 'LT'
-            })
+            // Initialize datepickers
+            $('#EffectiveDate, #RevisionDate, #EstalishedDate, #PreparedByDate').datetimepicker(datePickerConfig);
+
+            // Enable manual input and copy-paste
+            $('#EffectiveDate input, #RevisionDate input, #EstalishedDate input, #PreparedByDate input').attr('readonly', false);
+
+            // Remove time on blur (if somehow entered)
+            $('#EffectiveDate input, #RevisionDate input, #EstalishedDate input, #PreparedByDate input').on('blur', function () {
+                var date = moment($(this).val(), 'DD/MM/YYYY');
+                if (date.isValid()) {
+                    $(this).val(date.format('DD/MM/YYYY'));
+                }
+            });
 
             //Bootstrap Duallistbox
             $('.duallistbox').bootstrapDualListbox()

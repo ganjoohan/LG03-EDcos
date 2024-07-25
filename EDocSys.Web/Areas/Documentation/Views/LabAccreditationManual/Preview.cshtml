@@ -231,7 +231,7 @@
 
                     }
 
-                    @if (Model.LabAccreditationManualStatusView == "Submitted" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
+                    @if (Model.LabAccreditationManualStatusView == "Submitted" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1 ?? false))
                     {
                         if(Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
                         {
@@ -251,7 +251,7 @@
                         
                     }
 
-                    @if (Model.LabAccreditationManualStatusView == "Concurred1" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
+                    @if (Model.LabAccreditationManualStatusView == "Concurred1" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1 ?? false))
                     {
                         if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) // 
                         {
@@ -263,8 +263,8 @@
                             <a onclick="jQueryModalGet('/documentation/LabAccreditationManualstatus/OnGetSubmit?LabAccreditationManualId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
                         }
                     }
-                    
-                    @if (Model.LabAccreditationManualStatusView == "Concurred2" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsApp == true)
+
+                    @if (Model.LabAccreditationManualStatusView == "Concurred2" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1 ?? false) && ViewBag.IsApp == true)
                     {
                         <a onclick="jQueryModalGet('/documentation/LabAccreditationManualstatus/OnGetSubmit?LabAccreditationManualId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
                         <a onclick="jQueryModalGet('/documentation/LabAccreditationManualstatus/OnGetSubmit?LabAccreditationManualId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>

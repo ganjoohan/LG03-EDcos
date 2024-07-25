@@ -36,6 +36,15 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
+                                @if (User.IsInRole("SuperAdmin"))
+                                {
+                                    <li class="nav-item">
+                                        <a is-active-route asp-area="Admin" asp-controller="superadmin" asp-action="Index" class="nav-link">
+                                            <i class="far fa-user-circle nav-icon"></i>
+                                            <p>@localizer["SuperAdmin"]</p>
+                                        </a>
+                                    </li>
+                                }
                                 <li class="nav-item">
                                     <a is-active-route asp-area="Admin" asp-controller="User" asp-action="Index" class="nav-link">
                                         <i class="far fa-user-circle nav-icon"></i>
