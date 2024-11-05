@@ -358,7 +358,7 @@
                                         Preview SOP
                                     </a>
 
-                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE )
                                     {
                                         <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
                                             <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>

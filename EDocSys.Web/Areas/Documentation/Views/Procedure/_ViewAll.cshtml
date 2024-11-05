@@ -179,7 +179,7 @@
                                         <i class="fas fa-eye"></i>
                                         Preview Procedure
                                     </a>
-                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleSA)
                                     {
                                         <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
                                             <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
@@ -324,7 +324,7 @@
                                         <i class="fas fa-eye"></i>
                                         Preview Procedure
                                     </a>
-                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
                                     {
                                         <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
                                             <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>

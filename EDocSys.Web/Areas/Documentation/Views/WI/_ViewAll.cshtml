@@ -186,7 +186,7 @@
                                         <i class="fas fa-eye"></i>
                                         Preview WI
                                     </a>
-                                       @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                       @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
                                         {
                                               <form id="form_deactivate_@wi.Id" asp-area="Documentation" asp-controller="WI" method="post" asp-action="OnPostDeactivate" asp-route-id="@wi.Id" onsubmit="return jQueryModalDelete(this)">
                                                 <a href="javascript:$('#form_deactivate_@wi.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete WI</a>

@@ -42,7 +42,7 @@ namespace EDocSys.Web.Areas.Documentation.Models
         public string CompanyName { get; set; }
 
         public int ProcedureId { get; set; }
-        public bool hasWI { get; set; }
+        public bool? hasWI { get; set; } 
 
 
         public IEnumerable<string> SOPStatus { get; set; }
@@ -88,8 +88,8 @@ namespace EDocSys.Web.Areas.Documentation.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateApprovedAPP { get; set; }
-        public bool IsActive { get; set; } = true;
-        public bool IsArchive { get; set; }
+        public bool? IsActive { get; set; } = true;
+        public bool? IsArchive { get; set; }
         public int ArchiveId { get; set; }
         public int PrintCount { get; set; }
 

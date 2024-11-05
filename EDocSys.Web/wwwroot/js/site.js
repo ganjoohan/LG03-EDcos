@@ -66,7 +66,11 @@
                     processData: false,
                     success: function (res) {
                         if (res.isValid) {
+                            location.reload();
                             $('#viewAll').html(res.html)
+                        } else {
+                            // Handle the error case
+                            alert('An error occurred while deleting the record.');
                         }
                     },
                     error: function (err) {

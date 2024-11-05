@@ -33,6 +33,7 @@ using Microsoft.AspNetCore.Identity;
 using EDocSys.Application.Features.Issuances.Queries.GetById;
 using EDocSys.Application.Features.Issuances.Queries.GetAllCached;
 using EDocSys.Application.Features.Issuances.Commands.Update;
+using Microsoft.Extensions.Logging;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -849,8 +850,21 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                                 item.SOPStatusView = "New";
                             }
                         }
-                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
-                        return new JsonResult(new { isValid = true, html = html });
+
+                        //var html = "";
+                        try
+                        {
+                            return new JsonResult(new { isValid = true });
+                            //return new JsonResult(new { isValid = true, html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel) });
+                            //html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogInformation("Error:", ex);
+                        }
+
+                        //return new JsonResult(new { isValid = true, html = html });
+                        return new JsonResult(new { isValid = true });
                     }
                 }
             }
