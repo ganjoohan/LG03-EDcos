@@ -350,7 +350,7 @@ namespace EDocSys.Web.Areas.Admin.Controllers
                 user.UserCompanyId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserCompanyId);
                 user.UserDepartmentId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserDepartmentId);
                 user.Position = userModel.Position;
-                user.IsActive = (userModel.RoleName == "SuperAdmin" ? false : true);
+                user.IsActive = (userModel.RoleName == "SuperAdmin" ? true : true);
 
                 var result = await _userManager.UpdateAsync(user);
 
@@ -408,7 +408,21 @@ namespace EDocSys.Web.Areas.Admin.Controllers
             {
                 MailAddress address = new MailAddress(userModel.Email);
                 int count = 0;
-                string userName = await GetDummyUserName(address.User, count);
+
+                string userName = address.User;
+                var oldUsers = _userManager.Users.Where(w => w.UserName == userName).ToList();
+                if (oldUsers.Count > 0)
+                {
+                    if (oldUsers.Select(s => s.Email).Where(w => w == userModel.Email).FirstOrDefault() == null)
+                    {
+                        List<string> lstEmail = userModel.Email.Split('@').ToList();
+                        List<string> lstEmail2 = lstEmail[1].Split('.').ToList();
+                        userName = (lstEmail[0] + ((lstEmail2.Count > 3 ? (lstEmail2[0] + lstEmail2[1]) : lstEmail2[0])));
+                    }
+                }
+
+                userName = await GetDummyUserName(userName, count);
+
                 var user = new ApplicationUser
                 {
                     UserName = userName,
@@ -420,7 +434,7 @@ namespace EDocSys.Web.Areas.Admin.Controllers
                     UserCompanyId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserCompanyId),
                     UserDepartmentId = (userModel.RoleName == "SuperAdmin" || userModel.RoleName == "A" ? 0 : userModel.UserDepartmentId),
                     Position = userModel.Position,
-                    IsActive = (userModel.RoleName == "SuperAdmin" ? false : true),
+                    IsActive = (userModel.RoleName == "SuperAdmin" ? true : true),
                 };
                 string tempPwd = "Urole@Pwd1";
                 userModel.Password = tempPwd;
