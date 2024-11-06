@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,8 +68,40 @@ namespace EDocSys.Web.Areas.Identity.Pages.Account
             {
                 return Page();
             }
-            MailAddress address = new MailAddress(Input.Email);
-            var user = await _userManager.FindByNameAsync(address.User);
+
+            var email = Input.Email.Trim().ToLower();
+            if (!IsValidEmail(email))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid email format.");
+                return Page();
+            }
+
+            // Check if the email exists in the database
+            var usersWithEmail = await _userManager.Users.Where(u => u.NormalizedEmail == email.ToUpper()).ToListAsync();
+
+            if (!usersWithEmail.Any())
+            {
+                ModelState.AddModelError(string.Empty, "Email not found.");
+                return Page();
+            }
+
+            // Extract the domain from the email
+            string extractedUsername = email.Split('@')[0];
+
+            // Check if the extracted username exists in the usersWithEmail list
+            var user = usersWithEmail.FirstOrDefault(u => u.UserName.Equals(extractedUsername, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                // If not found, create a new username by combining username and part of the domain
+                var emailParts = email.Split('@');
+                var domainParts = emailParts[1].Split('.');
+                string newUsername = emailParts[0] + (domainParts.Length > 3 ? (domainParts[0] + domainParts[1]) : domainParts[0]);
+
+                // Find the user with the new username
+                user = usersWithEmail.FirstOrDefault(u => u.UserName.Equals(newUsername, StringComparison.OrdinalIgnoreCase));
+            }
+
             if (user == null)
             {
                 // Don't reveal that the user does not exist
@@ -84,6 +119,20 @@ namespace EDocSys.Web.Areas.Identity.Pages.Account
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             return Page();
+        }
+
+        public bool IsValidEmail(string emailaddress)
+        {
+            try
+            {
+                MailAddress m = new MailAddress(emailaddress);
+
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
         }
     }
 }
