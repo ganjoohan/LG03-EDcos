@@ -772,7 +772,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         }
                     }
                 }
-                // Concurred 1
+                // Verify By
                 var responseC1 = _context.UserApprovers.Where(a => a.ApprovalType == "C1" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
                 var userViewModelC1 = (from a1 in responseC1
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
@@ -783,27 +783,27 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                                        }).OrderBy(a => a.Email).ToList();
                 issuanceViewModel.UserListVer = new SelectList(userViewModelC1, "UserConcurred1Id", "FullName");
 
-                // Concurred 2
-                var responseC2 = _context.UserApprovers.Where(a => a.ApprovalType == "C2" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
-                var userViewModelC2 = (from a1 in responseC2
+                // Approved By
+                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                var userViewModelAPP = (from a1 in responseAPP
                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
                                        select new UserApproverViewModel
                                        {
-                                           UserConcurred2Id = a1.UserId,
+                                           UserApproveBy = a1.UserId,
                                            FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
                                        }).OrderBy(a => a.Email).ToList();
-                issuanceViewModel.UserListApp = new SelectList(userViewModelC2, "UserConcurred2Id", "FullName");
+                issuanceViewModel.UserListApp = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
 
                 // Concurred APP
-                var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
-                var userViewModelAPP = (from a1 in responseAPP
-                                        join a2 in _userManager.Users on a1.UserId equals a2.Id
-                                        select new UserApproverViewModel
-                                        {
-                                            UserApproveBy = a1.UserId,
-                                            FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
-                                        }).OrderBy(a => a.Email).ToList();
-                issuanceViewModel.UserListAck = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
+                //var responseAPP = _context.UserApprovers.Where(a => a.ApprovalType == "APP" && (users.Select(s => s.UserCompanyId).Contains(a.CompanyId) || a.CompanyId == allCompId) && (users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) || a.DepartmentId == allDeptId)).ToList();
+                //var userViewModelAPP = (from a1 in responseAPP
+                //                        join a2 in _userManager.Users on a1.UserId equals a2.Id
+                //                        select new UserApproverViewModel
+                //                        {
+                //                            UserApproveBy = a1.UserId,
+                //                            FullName = a2.LastName + " " + a2.FirstName + " (" + a2.Email + ")"
+                //                        }).OrderBy(a => a.Email).ToList();
+                //issuanceViewModel.UserListAck = new SelectList(userViewModelAPP, "UserApproveBy", "FullName");
 
                 ViewBag.CreateEditFlag = "Create";
                 string serverMapPath = Path.Combine(_env.WebRootPath, "html_template", "DOC_Template.html");

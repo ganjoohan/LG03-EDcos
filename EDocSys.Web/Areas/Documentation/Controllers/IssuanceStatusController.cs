@@ -31,6 +31,7 @@ using Microsoft.AspNetCore.Identity;
 using EDocSys.Infrastructure.Identity.Models;
 using EDocSys.Application.Features.Issuances.Commands.Update;
 using EDocSys.Application.Features.Issuances.Commands.Create;
+using System.Threading;
 
 namespace EDocSys.Web.Areas.Documentation.Controllers
 {
@@ -43,11 +44,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
         private readonly IdentityContext _identityContext;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public string ver { get; private set; }       
+        public string ver { get; private set; }
         public string app { get; private set; }
         public string ack { get; private set; }
         public string emailTo { get; private set; }
-        
+
 
         public IssuanceStatusController(ApplicationDbContext context, IMailService mailService, UserManager<ApplicationUser> userManager, IdentityContext identityContext, RoleManager<IdentityRole> roleManager)
         {
@@ -138,26 +139,342 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
         }
 
+        //[HttpPost]
+        //public async Task<JsonResult> OnPostSubmit(int id, IssuanceStatusViewModel issuanceStatus)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var responseGetIssuanceById = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceStatus.IssuanceId });
+        //        var issuanceIdx = responseGetIssuanceById.Data.CompanyId;
+
+
+
+        //        if (responseGetIssuanceById.Succeeded)
+        //        {
+        //            ver = responseGetIssuanceById.Data.VerifiedBy;
+        //            app = responseGetIssuanceById.Data.ApprovedBy;
+        //            ack = responseGetIssuanceById.Data.AcknowledgedBy;
+        //            //emailTo = _userManager.Users.Where(a => a.Id == lTo).Select(a => a.Email).SingleOrDefault();
+        //        }
+
+        //        var createIssuanceStatusCommand = _mapper.Map<CreateIssuanceStatusCommand>(issuanceStatus);
+        //        var result = await _mediator.Send(createIssuanceStatusCommand);
+        //        if (issuanceStatus.DocumentStatusId == 5) // REJECTED: send email to dept admin
+        //        {
+        //            // locate company admin email and send to [TO] sender
+
+
+        //            var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetIssuanceById.Data.CompanyId
+        //                                                                && a.UserDepartmentId == responseGetIssuanceById.Data.DepartmentId
+        //                                                                && a.IsActive == true).ToList();
+
+        //            var companyAdmin = (from a1 in allUsersByCompany
+        //                                join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+        //                                join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+        //                                select new UserViewModel
+        //                                {
+        //                                    Email = a1.Email,
+        //                                    RoleName = a3.Name
+        //                                }).ToList();
+        //            string companyAdminEmail = companyAdmin.Where(a => a.RoleName == "E").Select(a => a.Email).FirstOrDefault();
+
+
+
+
+        //            MailRequest mail = new MailRequest()
+        //            {
+        //                //To = userModel.Email,
+        //                // To = "lgcompadmin@lion.com.my",
+        //                To = companyAdminEmail,
+        //                Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need rejected.",
+        //                // 
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //                Body = $"Document need rejected. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //            };
+
+        //            try
+        //            {
+        //                await _mailService.SendAsync(mail);
+        //            }
+        //            catch (Exception)
+        //            {
+
+        //            }
+        //        }
+        //        else if (issuanceStatus.DocumentStatusId == 1) // Submitted: check C1, C2 and APP is available
+        //        {
+        //            if (ver != null)
+        //            {
+        //                emailTo = _userManager.Users.Where(a => a.Id == ver).Select(a => a.Email).SingleOrDefault();
+        //            }
+        //            else if (app != null)
+        //            {
+        //                emailTo = _userManager.Users.Where(a => a.Id == app).Select(a => a.Email).SingleOrDefault();
+        //            }
+        //            else
+        //            {
+        //                emailTo = _userManager.Users.Where(a => a.Id == ack).Select(a => a.Email).SingleOrDefault();
+        //            }
+
+        //            MailRequest mail = new MailRequest()
+        //            {
+        //                //To = userModel.Email,
+        //                //To = "lgcompadmin@lion.com.my",
+        //                To = emailTo,
+        //                Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need approval.",
+        //                // 
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //                Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+
+
+        //            };
+
+        //            try
+        //            {
+        //                await _mailService.SendAsync(mail);
+        //            }
+        //            catch (Exception)
+        //            {
+
+        //            }
+        //        }
+
+        //        else if (issuanceStatus.DocumentStatusId == 2) // CONCURRED 1: check C2 and APP is available
+        //        {
+
+        //            emailTo = _userManager.Users.Where(a => a.Id == app).Select(a => a.Email).SingleOrDefault();
+
+        //            MailRequest mail = new MailRequest()
+        //            {
+        //                //To = userModel.Email,
+        //                //To = "lgcompadmin@lion.com.my",
+        //                To = emailTo,
+        //                Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need approval.",
+        //                // 
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+        //                // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview/" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //                Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //            };
+
+        //            try
+        //            {
+        //                await _mailService.SendAsync(mail);
+        //            }
+        //            catch (Exception)
+        //            {
+
+        //            }
+        //        }
+        //        else if (issuanceStatus.DocumentStatusId == 3) // CONCURRED 2: check C2 and APP is available
+        //        {
+
+        //            emailTo = _userManager.Users.Where(a => a.Id == app).Select(a => a.Email).SingleOrDefault();
+
+
+        //            MailRequest mail = new MailRequest()
+        //            {
+        //                //To = userModel.Email,
+        //                //To = "lgcompadmin@lion.com.my",
+        //                To = emailTo,
+        //                Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need approval.",
+        //                // 
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+        //                // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview/" + isssuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //                Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //            };
+
+        //            try
+        //            {
+        //                await _mailService.SendAsync(mail);
+        //            }
+        //            catch (Exception)
+        //            {
+
+        //            }
+        //        }
+        //        else if (issuanceStatus.DocumentStatusId == 4) //APPROVED
+        //        {
+        //            var allUsersByCompany = _userManager.Users.Where(a => a.UserCompanyId == responseGetIssuanceById.Data.CompanyId && a.IsActive == true).ToList();
+
+        //            var companyAdmin = (from a1 in allUsersByCompany
+        //                                join a2 in _identityContext.UserRoles on a1.Id equals a2.UserId
+        //                                join a3 in _roleManager.Roles on a2.RoleId equals a3.Id
+        //                                select new UserViewModel
+        //                                {
+        //                                    Email = a1.Email,
+        //                                    RoleName = a3.Name
+        //                                }).ToList();
+        //            string companyAdminEmail = companyAdmin.Where(a => a.RoleName == "E").Select(a => a.Email).FirstOrDefault();
+
+
+        //            MailRequest mail = new MailRequest()
+        //            {
+        //                //To = userModel.Email,
+        //                //To = "lgcompadmin@lion.com.my",
+        //                To = companyAdminEmail,
+        //                Subject = "Issuance " + responseGetIssuanceById.Data.DOCNo + " need approval.",
+        //                // 
+        //                //Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("www.liongroup.com.my")}'>clicking here</a> to open the document."
+        //                // Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://localhost:5001/documentation/issuance/preview/" + isssuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //                Body = $"Document need approval. <a href='{HtmlEncoder.Default.Encode("https://edocs.lion.com.my/documentation/issuance/preview?id=" + issuanceStatus.IssuanceId)}'>clicking here</a> to open the document."
+        //            };
+
+        //            try
+        //            {
+        //                await _mailService.SendAsync(mail);
+        //            }
+        //            catch (Exception)
+        //            {
+
+        //            }
+        //        }
+        //        else if (issuanceStatus.DocumentStatusId == 7) //ACKNOWLEDGED
+        //        {
+        //            var StatusId = _context.IssuanceStatus.Where(a => a.IssuanceId == responseGetIssuanceById.Data.Id).OrderBy(a => a.CreatedOn)
+        //                .Include(a => a.DocumentStatus)
+        //                .Last();
+        //            var ivm = _mapper.Map<IssuanceViewModel>(responseGetIssuanceById.Data);
+        //            if (StatusId.DocumentStatus.Name == "Acknowledged")
+        //                ivm.AcknowledgedBy = StatusId.CreatedBy;
+        //            var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(ivm);
+        //            var result0 = await _mediator.Send(updateIssuanceCommand);
+        //            if (responseGetIssuanceById.Data.DOCStatus == "New")
+        //            {
+        //                var responseInfo = await _mediator.Send(new GetIssuanceInfoByHIdQuery() { HId = responseGetIssuanceById.Data.Id });
+        //                if (responseInfo.Succeeded)
+        //                {
+        //                    var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data);
+        //                    issuanceInfoViewModel = issuanceInfoViewModel.Where(w => w.IsActive = true).ToList();
+        //                    foreach (var info in issuanceInfoViewModel)
+        //                    {
+        //                        if (info.RecipientName1 != "" && info.RecipientName1 != null)
+        //                        {
+        //                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+        //                            iiprint.IssInfoId = info.Id;
+        //                            iiprint.RecipientName = info.RecipientName1;
+        //                            iiprint.IsActive = true;
+        //                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+        //                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+        //                        }
+        //                        if (info.RecipientName2 != "" && info.RecipientName2 != null)
+        //                        {
+        //                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+        //                            iiprint.IssInfoId = info.Id;
+        //                            iiprint.RecipientName = info.RecipientName2;
+        //                            iiprint.IsActive = true;
+        //                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+        //                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+        //                        }
+        //                        if (info.RecipientName3 != "" && info.RecipientName3 != null)
+        //                        {
+        //                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+        //                            iiprint.IssInfoId = info.Id;
+        //                            iiprint.RecipientName = info.RecipientName3;
+        //                            iiprint.IsActive = true;
+        //                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+        //                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+        //                        }
+        //                        if (info.RecipientName4 != "" && info.RecipientName4 != null)
+        //                        {
+        //                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+        //                            iiprint.IssInfoId = info.Id;
+        //                            iiprint.RecipientName = info.RecipientName4;
+        //                            iiprint.IsActive = true;
+        //                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+        //                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+        //                        }
+        //                        if (info.RecipientName5 != "" && info.RecipientName5 != null)
+        //                        {
+        //                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+        //                            iiprint.IssInfoId = info.Id;
+        //                            iiprint.RecipientName = info.RecipientName5;
+        //                            iiprint.IsActive = true;
+        //                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+        //                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+        //                        }
+        //                        if (info.RecipientName6 != "" && info.RecipientName6 != null)
+        //                        {
+        //                            IssuanceInfoPrintViewModel iiprint = new IssuanceInfoPrintViewModel();
+        //                            iiprint.IssInfoId = info.Id;
+        //                            iiprint.RecipientName = info.RecipientName6;
+        //                            iiprint.IsActive = true;
+        //                            var createIssuanceInfoPrintCommand = _mapper.Map<CreateIssuanceInfoPrintCommand>(iiprint);
+        //                            var resultInfoPrint = await _mediator.Send(createIssuanceInfoPrintCommand);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        ////if (result.Succeeded)
+        //        ////{
+        //        ////    id = result.Data;
+        //        ////    _notify.Success($"Issuance with ID {result.Data} Submitted. ");
+        //        ////}
+        //        ////else _notify.Error(result.Message);
+        //        //}
+
+        //        //else
+        //        //{
+
+        //        //}
+        //        try
+        //        {
+        //            var response = await _mediator.Send(new GetAllIssuanceStatusCachedQuery());
+        //            if (response.Succeeded)
+        //            {
+        //                var viewModel = _mapper.Map<List<IssuanceStatusViewModel>>(response.Data);
+        //                var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+        //                return new JsonResult(new { isValid = true, html = html });
+        //            }
+        //            else
+        //            {
+        //                _notify.Error(response.Message);
+        //                var viewModel = new List<IssuanceStatusViewModel>();
+        //                var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+        //                return new JsonResult(new { isValid = true, html = html });
+        //            }
+        //        }
+        //        catch
+        //        {
+        //            var viewModel = new List<IssuanceStatusViewModel>();
+        //            var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+        //            return new JsonResult(new { isValid = true, html = html });
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var html = await _viewRenderer.RenderViewToStringAsync("_Submit", issuanceStatus);
+        //        return new JsonResult(new { isValid = false, html = html });
+        //    }
+        //}
+
+
         [HttpPost]
         public async Task<JsonResult> OnPostSubmit(int id, IssuanceStatusViewModel issuanceStatus)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                var html = await _viewRenderer.RenderViewToStringAsync("_Submit", issuanceStatus);
+                return new JsonResult(new { isValid = false, html = html });
+            }
+
+            try
+            {
+                // 1. Get the issuance record first
                 var responseGetIssuanceById = await _mediator.Send(new GetIssuanceByIdQuery() { Id = issuanceStatus.IssuanceId });
-                var issuanceIdx = responseGetIssuanceById.Data.CompanyId;
-
-
-
-                if (responseGetIssuanceById.Succeeded)
+                if (!responseGetIssuanceById.Succeeded)
                 {
-                    ver = responseGetIssuanceById.Data.VerifiedBy;
-                    app = responseGetIssuanceById.Data.ApprovedBy;
-                    ack = responseGetIssuanceById.Data.AcknowledgedBy;
-                    //emailTo = _userManager.Users.Where(a => a.Id == lTo).Select(a => a.Email).SingleOrDefault();
+                    throw new Exception($"Failed to get issuance record: {responseGetIssuanceById.Message}");
                 }
 
+                // 2. Create issuance status with timeout
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 var createIssuanceStatusCommand = _mapper.Map<CreateIssuanceStatusCommand>(issuanceStatus);
-                var result = await _mediator.Send(createIssuanceStatusCommand);
+                var result = await _mediator.Send(createIssuanceStatusCommand, cts.Token);
+
+
                 if (issuanceStatus.DocumentStatusId == 5) // REJECTED: send email to dept admin
                 {
                     // locate company admin email and send to [TO] sender
@@ -406,48 +723,86 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         }
                     }
                 }
-                ////if (result.Succeeded)
-                ////{
-                ////    id = result.Data;
-                ////    _notify.Success($"Issuance with ID {result.Data} Submitted. ");
-                ////}
-                ////else _notify.Error(result.Message);
-                //}
-
-                //else
+                // 3. Handle acknowledge specific logic
+                //if (issuanceStatus.DocumentStatusId == 7) //ACKNOWLEDGED
                 //{
+                //    // Get latest status in separate query
+                //    var latestStatus = await _context.IssuanceStatus
+                //        .Where(a => a.IssuanceId == responseGetIssuanceById.Data.Id)
+                //        .OrderByDescending(a => a.CreatedOn)
+                //        .Include(a => a.DocumentStatus)
+                //        .FirstOrDefaultAsync();
 
+                //    if (latestStatus?.DocumentStatus.Name == "Acknowledged")
+                //    {
+                //        // Update main issuance record
+                //        var ivm = _mapper.Map<IssuanceViewModel>(responseGetIssuanceById.Data);
+                //        ivm.AcknowledgedBy = latestStatus.CreatedBy;
+                //        var updateIssuanceCommand = _mapper.Map<UpdateIssuanceCommand>(ivm);
+                //        await _mediator.Send(updateIssuanceCommand);
+
+                //        // Handle new document status
+                //        if (responseGetIssuanceById.Data.DOCStatus == "New")
+                //        {
+                //            await CreateRecipientPrintRecords(responseGetIssuanceById.Data.Id);
+                //        }
+                //    }
                 //}
-                try
-                {
-                    var response = await _mediator.Send(new GetAllIssuanceStatusCachedQuery());
-                    if (response.Succeeded)
-                    {
-                        var viewModel = _mapper.Map<List<IssuanceStatusViewModel>>(response.Data);
-                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
-                        return new JsonResult(new { isValid = true, html = html });
-                    }
-                    else
-                    {
-                        _notify.Error(response.Message);
-                        var viewModel = new List<IssuanceStatusViewModel>();
-                        var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
-                        return new JsonResult(new { isValid = true, html = html });
-                    }
-                }
-                catch
-                {
-                    var viewModel = new List<IssuanceStatusViewModel>();
-                    var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
-                    return new JsonResult(new { isValid = true, html = html });
-                }
+                // Add other status handling here (for status 1-5)
+
+                // 4. Return updated view
+                var response = await _mediator.Send(new GetAllIssuanceStatusCachedQuery());
+                var viewModel = response.Succeeded ?
+                    _mapper.Map<List<IssuanceStatusViewModel>>(response.Data) :
+                    new List<IssuanceStatusViewModel>();
+
+                var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
+                return new JsonResult(new { isValid = true, html = html });
             }
-            else
+            catch (OperationCanceledException)
             {
-                var html = await _viewRenderer.RenderViewToStringAsync("_Submit", issuanceStatus);
-                return new JsonResult(new { isValid = false, html = html });
+                _notify.Error("Operation timed out. Please try again.");
+                return new JsonResult(new { isValid = false, message = "Operation timed out" });
+            }
+            catch (Exception ex)
+            {
+                _notify.Error($"Error processing request: {ex.Message}");
+                return new JsonResult(new { isValid = false, message = ex.Message });
             }
         }
+
+        private async Task CreateRecipientPrintRecords(int issuanceId)
+        {
+            var responseInfo = await _mediator.Send(new GetIssuanceInfoByHIdQuery() { HId = issuanceId });
+            if (!responseInfo.Succeeded) return;
+
+            var issuanceInfoViewModel = _mapper.Map<List<IssuanceInfoViewModel>>(responseInfo.Data)
+                .Where(w => w.IsActive).ToList();
+
+            foreach (var info in issuanceInfoViewModel)
+            {
+                var recipients = new[]
+                {
+            info.RecipientName1, info.RecipientName2, info.RecipientName3,
+            info.RecipientName4, info.RecipientName5, info.RecipientName6
+        };
+
+                foreach (var recipient in recipients.Where(r => !string.IsNullOrEmpty(r)))
+                {
+                    var printRecord = new IssuanceInfoPrintViewModel
+                    {
+                        IssInfoId = info.Id,
+                        RecipientName = recipient,
+                        IsActive = true
+                    };
+
+                    var command = _mapper.Map<CreateIssuanceInfoPrintCommand>(printRecord);
+                    await _mediator.Send(command);
+                }
+            }
+        }
+
+
 
         [HttpPost]
         public async Task<JsonResult> OnPostCreateOrEdit(int id, IssuanceStatusViewModel issuanceStatus)

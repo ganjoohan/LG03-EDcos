@@ -3,78 +3,78 @@
 @{
     var archiveList = new List<SOPViewModel>();
     archiveList = Model.Where(w => w.ArchiveDate <= DateTime.Now && w.ArchiveDate != default(DateTime)).ToList();
-    var nonAL = Model.Where(w=> !archiveList.Contains(w)).ToList();
+    var nonAL = Model.Where(w => !archiveList.Contains(w)).ToList();
     var subAL = nonAL.Where(w => w.ArchiveId != 0).ToList();
     var preAL = archiveList.Where(w => !subAL.Select(s => s.ArchiveId).Contains(w.Id)).ToList();
     var pendApp = new List<SOPViewModel>();
-    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
+    @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
     {
         string userIds = ViewBag.userIds;
         List<string> userId = userIds.Split(',').ToList();
-        pendApp = (User.IsInRole("E") || ViewBag.RoleE) ? (nonAL.Where(w => w.SOPStatusView == "Submitted").ToList()) :(nonAL.Where(w => (userId.Contains(w.Concurred1) && w.SOPStatusView == "Format Checked") || (userId.Contains(w.Concurred2) && w.SOPStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SOPStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SOPStatusView == "Concurred2")).ToList());
+        pendApp = (User.IsInRole("E") || ViewBag.RoleE) ? (nonAL.Where(w => w.SOPStatusView == "Submitted").ToList()) : (nonAL.Where(w => (userId.Contains(w.Concurred1) && w.SOPStatusView == "Format Checked") || (userId.Contains(w.Concurred2) && w.SOPStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SOPStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SOPStatusView == "Concurred2")).ToList());
     }
 }
 @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> *@
 
 <style>
-  .tabs {
-    height: auto;
-    width: 100%;
-    text-align: left;
-  }
-  
-  .tab-nav-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    position: relative !important;
-    z-index: 999 !important;
-    top: 3px;
-  }
-  
-  .tabs ul {
-    display: block;
-    /*width: max-content;*/
-    overflow-y: hidden;
-    margin: 0px;
-    padding-inline-start: 5px;
-  }
-  
-  .tabs ul li {
-    display: inline-block;
-    border: 1px solid grey;
-    border-bottom: 1px solid black;
-    background-color: white;
-  }
-  
-  .tabs ul li.active {
-    border: 1px solid black;
-    border-bottom: 1px solid white;
-  }
-  
-  .tabs ul li a {
-    text-decoration: none;
-    color: black;
-    padding: 10px;
-    line-height: 25px;
-    position: relative;
-    font-weight: bold;
-  }
-  
-  .tab-content-wrapper {
-    position: relative !important;
-    z-index: 1 !important;
-    border: 1px solid black;
-    padding: 20px;
-    min-height: 40px;
-  }
+    .tabs {
+        height: auto;
+        width: 100%;
+        text-align: left;
+    }
+
+    .tab-nav-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        position: relative !important;
+        z-index: 999 !important;
+        top: 3px;
+    }
+
+    .tabs ul {
+        display: block;
+        /*width: max-content;*/
+        overflow-y: hidden;
+        margin: 0px;
+        padding-inline-start: 5px;
+    }
+
+        .tabs ul li {
+            display: inline-block;
+            border: 1px solid grey;
+            border-bottom: 1px solid black;
+            background-color: white;
+        }
+
+            .tabs ul li.active {
+                border: 1px solid black;
+                border-bottom: 1px solid white;
+            }
+
+            .tabs ul li a {
+                text-decoration: none;
+                color: black;
+                padding: 10px;
+                line-height: 25px;
+                position: relative;
+                font-weight: bold;
+            }
+
+    .tab-content-wrapper {
+        position: relative !important;
+        z-index: 1 !important;
+        border: 1px solid black;
+        padding: 20px;
+        min-height: 40px;
+    }
 </style>
 <div class="tabs">
- 
-    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE  || User.IsInRole("D") || ViewBag.RoleD)
+
+    @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
     {
         <div class="tab-nav-wrapper">
             <ul>
-                 @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
+                @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
                 {
                     <li class="active"><a href="#tab1">To Be Approved</a></li>
                     <li><a href="#tab2">Main</a></li>
@@ -83,494 +83,525 @@
                 {
                     <li class="active"><a href="#tab2">Main</a></li>
                 }
-                @if(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+                @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
                 {
-                <li><a href="#tab3">Archived</a></li>
+                    <li><a href="#tab3">Archived</a></li>
                 }
             </ul>
         </div>
     }
     else
     {
-         <div class="tab-nav-wrapper" hidden>
+        <div class="tab-nav-wrapper" hidden>
             <ul>
                 <li class="active"><a href="#tab2">Main</a></li>
             </ul>
         </div>
     }
-     <div class="tab-content-wrapper">
-    <div id="tab1" class="tab-content" style="display:none;">
-<table id="sopPendAppTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
-    <thead>
-        <tr>
-            <th>SOP No</th>
-            <th>SOP Title</th>
-            <th>Company</th>
-            <th>Process</th>
-            <th>WSCP No</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="tab-content-wrapper">
+        <div id="tab1" class="tab-content" style="display:none;">
+            <table id="sopPendAppTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>SOP No</th>
+                        <th>SOP Title</th>
+                        <th>Company</th>
+                        <th>Process</th>
+                        <th>WSCP No</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-        @foreach (var sop in pendApp)
-        {
-            <tr>
-                <td style="text-indent: 45px; ">» @sop.SOPNo</td>
-                <td>@sop.Title</td>
-                
-                
-                <td>@sop.CompanyName</td>
-                <td><b>@sop.ProcessName.ToUpper()</b> </td>
-               @* <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>*@
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
-                <td align="center">
-                    @if (!User.IsInRole("None"))
+                    @foreach (var sop in pendApp)
                     {
-                        @if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                            <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (sop.SOPStatusView == "Approved")
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                        }
-                        else if (@sop.SOPStatusView == "New")
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                        }
-                    }
-                </td>
-                
-                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department) 
-                {
-                    <td class="text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                                @*Can only Edit if New or Rejected status *@
-                                @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
-                                {
-                                    <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
-                                        <i class="fas fa-pencil-alt"></i>
-                                        Edit SOP
-                                    </a>
-                                }
+                        <tr>
+                            <td style="text-indent: 45px; ">» @sop.SOPNo</td>
+                            <td>@sop.Title</td>
 
-                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
-                                @if ((@sop.SOPStatusView == "New") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                                {
-                                    <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview SOP
-                                    </a>
-                                     <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                    </form>
-                                 @*   <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                    </form>*@
-                                }
-                                else if (@sop.SOPStatusView != "New")
-                                {
-                                    <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview SOP
-                                    </a>
 
-                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                            <td>@sop.CompanyName</td>
+                            <td><b>@sop.ProcessName.ToUpper()</b> </td>
+                            @* <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>*@
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
+                            <td align="center">
+                                @if (!User.IsInRole("None"))
+                                {
+                                    @if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
                                     {
-                                        <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                            <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                        </form>
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                        <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                                    }
+                                    else if (sop.SOPStatusView == "Approved")
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                    }
+                                    else if (@sop.SOPStatusView == "New")
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
                                     }
                                 }
+                            </td>
 
-                                <div class="dropdown-divider"></div>
-                                
-                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
-                                       asp-route-wscpno="@sop.WSCPNo"
-                                       asp-route-wscpid="@sop.WSCPId"
-                                       asp-route-departmentId="@sop.DepartmentId"
-                                       asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
-                                       asp-route-sopno="@sop.SOPNo"
-                                       asp-route-procedureId="@sop.Id">
-                                        <i class="fa fa-plus-square"></i> Create WI
-                                    </a>
+                            @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department)
+                            {
+                                <td class="text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            @*Can only Edit if New or Rejected status *@
+                                            @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit SOP
+                                                </a>
+                                            }
 
-                                <a href="/documentation/wi/Index?sopno=@sop.SOPNo" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+                                            @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                            @if ((@sop.SOPStatusView == "New") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                            {
+                                                <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview SOP
+                                                </a>
+                                                <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                                </form>
+                                                @*   <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                    </form>*@
+                                            }
+                                            else if (@sop.SOPStatusView != "New")
+                                            {
+                                                <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview SOP
+                                                </a>
 
-                            </div>
-                            </div>
-                        </td>
-                }
-                @* See All Docs Users  *@
-                else if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("B2") || ViewBag.RoleB2)
-                {
-                    <td align="center"><a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a></td>
-                }
-                 @* Company Admin  *@
-                else if (User.IsInRole("E") || ViewBag.RoleE)
-                {
-                    <td class="text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
-                       <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                            <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                        </form>
-                        </div>
-                        </div>
-                    </td>
-                }
-                @* Read Only Users  *@
-                else if ((User.IsInRole("C") || ViewBag.RoleC) && sop.SOPStatusView == "Approved")
-                {
-                    <td align="center">
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a>
-                        </td>
-                }
-                else
-                {
-                    <td></td>
-                }
+                                                @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                                {
+                                                    <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                                        <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                                    </form>
+                                                }
+                                            }
 
-                @*<td class="text-right">
-                    <div class="btn-group">
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                               asp-route-wscpno="@sop.WSCPNo"
+                                               asp-route-wscpid="@sop.WSCPId"
+                                               asp-route-departmentId="@sop.DepartmentId"
+                                               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                               asp-route-sopno="@sop.SOPNo"
+                                               asp-route-procedureId="@sop.Id">
+                                                <i class="fa fa-plus-square"></i> Create WI
+                                            </a>
+
+                                            <a href="/documentation/wi/Index?sopno=@sop.SOPNo" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            @* See All Docs Users  *@
+                            else if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("B2") || ViewBag.RoleB2)
+                            {
+                                <td align="center"><a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a></td>
+                            }
+                            @* Company Admin  *@
+                            else if (User.IsInRole("E") || ViewBag.RoleE)
+                            {
+                                <td class="text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
+                                            <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                                <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            @* Read Only Users  *@
+                            else if ((User.IsInRole("C") || ViewBag.RoleC) && sop.SOPStatusView == "Approved")
+                            {
+                                <td align="center">
+                                    <a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            @*<td class="text-right">
+                        <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Action
+                        Action
                         </button>
                         <div class="dropdown-menu shadow animated--grow-in">
-                            <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
-                            <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
+                        <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
+                        <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
 
-                            <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                            </form>
+                        <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                        </form>
 
-                            <div class="dropdown-divider"></div>
+                        <div class="dropdown-divider"></div>
 
-                            <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
-                            <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
 
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
-                                asp-route-wscpno="@sop.WSCPNo"
-                                asp-route-departmentId="@sop.DepartmentId"
-                                asp-route-procedureId="@sop.Id">
-                                <i class="fa fa-plus-square"></i> Create WI</a>
-                                <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                        asp-route-wscpno="@sop.WSCPNo"
+                        asp-route-departmentId="@sop.DepartmentId"
+                        asp-route-procedureId="@sop.Id">
+                        <i class="fa fa-plus-square"></i> Create WI</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
                         </div>
-                    </div>
-                </td>*@
-            </tr>
-        }
-    </tbody>
-</table>
-  </div>
-    <div id="tab2" class="tab-content" style="display:none;">  
-        <table id="sopTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
-    <thead>
-        <tr>
-            <th>SOP No</th>
-            <th>SOP Title</th>
-            <th>Company</th>
-            <th>Process</th>
-            <th>WSCP No</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var sop in nonAL)
-        {
-            <tr>
-                <td style="text-indent: 45px; ">» @sop.SOPNo</td>
-                <td>@sop.Title</td>
-                
-                
-                <td>@sop.CompanyName</td>
-                <td><b>@sop.ProcessName.ToUpper()</b> </td>
-               @* <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>*@
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
-                <td align="center">
-                    @if (!User.IsInRole("None"))
-                    {
-                        @if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                            <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (sop.SOPStatusView == "Approved")
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                        }
-                        else if (@sop.SOPStatusView == "New")
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                        }
+                        </div>
+                        </td>*@
+                        </tr>
                     }
-                </td>
-                
-                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department) 
-                {
-                    <td class="text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                                @*Can only Edit if New or Rejected status *@
-                                @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
-                                {
-                                    <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
-                                        <i class="fas fa-pencil-alt"></i>
-                                        Edit SOP
-                                    </a>
-                                }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab2" class="tab-content" style="display:none;">
+            <table id="sopTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>SOP No</th>
+                        <th>SOP Title</th>
+                        <th>Company</th>
+                        <th>Process</th>
+                        <th>WSCP No</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
-                                @if ((@sop.SOPStatusView == "New") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                                {
-                                    <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview SOP
-                                    </a>
-                                     <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                    </form>
-                                 @*   <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                    </form>*@
-                                }
-                                else if (@sop.SOPStatusView != "New")
-                                {
-                                    <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview SOP
-                                    </a>
+                    @foreach (var sop in nonAL)
+                    {
+                        <tr>
+                            <td style="text-indent: 45px; ">» @sop.SOPNo</td>
+                            <td>@sop.Title</td>
 
-                                    @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE )
+
+                            <td>@sop.CompanyName</td>
+                            <td><b>@sop.ProcessName.ToUpper()</b> </td>
+                            @* <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>*@
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
+                            <td align="center">
+                                @if (!User.IsInRole("None"))
+                                {
+                                    @if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
                                     {
-                                        <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                            <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                        </form>
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                        <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                                    }
+                                    else if (sop.SOPStatusView == "Approved")
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                    }
+                                    else if (@sop.SOPStatusView == "New")
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
                                     }
                                 }
+                            </td>
 
-                                <div class="dropdown-divider"></div>
-                                
-                                    <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
-                                       asp-route-wscpno="@sop.WSCPNo"
-                                       asp-route-wscpid="@sop.WSCPId"
-                                       asp-route-departmentId="@sop.DepartmentId"
-                                       asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
-                                       asp-route-sopno="@sop.SOPNo"
-                                       asp-route-procedureId="@sop.Id">
-                                        <i class="fa fa-plus-square"></i> Create WI
-                                    </a>
+                            @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department)
+                            {
+                                <td class="text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            @*Can only Edit if New or Rejected status *@
+                                            @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit SOP
+                                                </a>
+                                            }
 
-                                <a href="/documentation/wi/Index?sopno=@sop.SOPNo&wscpid=@sop.WSCPId" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+                                            @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                            @if ((@sop.SOPStatusView == "New") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                            {
+                                                <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview SOP
+                                                </a>
+                                                <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                                </form>
+                                                @*   <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                    </form>*@
+                                            }
+                                            else if (@sop.SOPStatusView != "New")
+                                            {
+                                                <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview SOP
+                                                </a>
 
-                            </div>
-                            </div>
-                        </td>
-                }
-                @* See All Docs Users  *@
-                else if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("B2") || ViewBag.RoleB2)
-                {
-                    <td align="center"><a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a></td>
-                }
-                 @* Company Admin  *@
-                else if (User.IsInRole("E") || ViewBag.RoleE)
-                {
-                   <td class="text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
-                       <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                            <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                        </form>
-                         </div>
-                        </div>
-                    </td>
-                }
-                @* Read Only Users  *@
-                else if ((User.IsInRole("C") || ViewBag.RoleC) && sop.SOPStatusView == "Approved")
-                {
-                    <td align="center">
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a>
-                        </td>
-                }
-                else
-                {
-                    <td></td>
-                }
+                                                @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE)
+                                                {
+                                                    <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                                        <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                                    </form>
+                                                }
+                                            }
 
-                @*<td class="text-right">
-                    <div class="btn-group">
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                               asp-route-wscpno="@sop.WSCPNo"
+                                               asp-route-wscpid="@sop.WSCPId"
+                                               asp-route-departmentId="@sop.DepartmentId"
+                                               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                               asp-route-sopno="@sop.SOPNo"
+                                               asp-route-procedureId="@sop.Id">
+                                                <i class="fa fa-plus-square"></i> Create WI
+                                            </a>
+
+                                            <a href="/documentation/wi/Index?sopno=@sop.SOPNo&wscpid=@sop.WSCPId" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            @* See All Docs Users  *@
+                            else if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("B2") || ViewBag.RoleB2)
+                            {
+                                <td align="center"><a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a></td>
+                            }
+                            @* Company Admin  *@
+                            else if (User.IsInRole("E") || ViewBag.RoleE)
+                            {
+                                <td class="text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
+                                            <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                                                <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            @* Read Only Users  *@
+                            else if ((User.IsInRole("C") || ViewBag.RoleC) && sop.SOPStatusView == "Approved")
+                            {
+                                <td align="center">
+                                    <a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+
+                            @*<td class="text-right">
+                        <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Action
+                        Action
                         </button>
                         <div class="dropdown-menu shadow animated--grow-in">
-                            <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
-                            <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
+                        <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
+                        <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
 
-                            <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                            </form>
+                        <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
+                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
+                        </form>
 
-                            <div class="dropdown-divider"></div>
+                        <div class="dropdown-divider"></div>
 
-                            <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
-                            <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
 
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
-                                asp-route-wscpno="@sop.WSCPNo"
-                                asp-route-departmentId="@sop.DepartmentId"
-                                asp-route-procedureId="@sop.Id">
-                                <i class="fa fa-plus-square"></i> Create WI</a>
-                                <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                        asp-route-wscpno="@sop.WSCPNo"
+                        asp-route-departmentId="@sop.DepartmentId"
+                        asp-route-procedureId="@sop.Id">
+                        <i class="fa fa-plus-square"></i> Create WI</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
                         </div>
-                    </div>
-                </td>*@
-            </tr>
-        }
-    </tbody>
-</table>
- </div>
-  <div id="tab3" class="tab-content" style="display:none;">
-<table id="sopArchiveListTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
-    <thead>
-        <tr>
-            <th>SOP No</th>
-            <th>SOP Title</th>
-            <th>Company</th>
-            <th>Process</th>
-            <th>WSCP No</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var sop in archiveList)
-        {
-            <tr>
-                <td style="text-indent: 45px; ">» @sop.SOPNo</td>
-                <td>@sop.Title</td>
-                
-                
-                <td>@sop.CompanyName</td>
-                <td><b>@sop.ProcessName.ToUpper()</b> </td>
-               @* <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>*@
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
-                <td align="center">
-                    @if (!User.IsInRole("None"))
-                    {
-                        @if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                            <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (sop.SOPStatusView == "Approved")
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                        }
-                        else if (@sop.SOPStatusView == "New")
-                        {
-                            <span class="badge badge-warning">@sop.SOPStatusView</span>
-                        }
+                        </div>
+                        </td>*@
+                        </tr>
                     }
-                </td>
-                <td class="text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a>
-                        <a href="/documentation/wi/Index?sopno=@sop.SOPNo&wscpid=@sop.WSCPId" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
-                        @if (preAL.Select(s => s.Id).Contains(sop.Id))
-                        {
-                            <a href="/documentation/sop/Preview?id=@sop.Id&revert=true" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Revert SOP</a>
-                        }
-                         </div>
-                        </div>
-                        </td>
+                </tbody>
+            </table>
+        </div>
+        <div id="tab3" class="tab-content" style="display:none;">
+            <table id="sopArchiveListTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>SOP No</th>
+                        <th>SOP Title</th>
+                        <th>Company</th>
+                        <th>Process</th>
+                        <th>WSCP No</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-            </tr>
-        }
-    </tbody>
-</table>
-  </div>
-  </div>
+                    @foreach (var sop in archiveList)
+                    {
+                        <tr>
+                            <td style="text-indent: 45px; ">» @sop.SOPNo</td>
+                            <td>@sop.Title</td>
+
+
+                            <td>@sop.CompanyName</td>
+                            <td><b>@sop.ProcessName.ToUpper()</b> </td>
+                            @* <td><b>@Html.Encode(@sop.ProcessName).ToUpper()</b> </td>*@
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-long-arrow-right" aria-hidden="true"></i>@sop.WSCPNo</td>
+                            <td align="center">
+                                @if (!User.IsInRole("None"))
+                                {
+                                    @if (@sop.SOPStatusView != "New" && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                        <a href="/documentation/SOPStatus/Index?id=@sop.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                                    }
+                                    else if (sop.SOPStatusView == "Approved")
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                    }
+                                    else if (@sop.SOPStatusView == "New")
+                                    {
+                                        <span class="badge badge-warning">@sop.SOPStatusView</span>
+                                    }
+                                }
+                            </td>
+                            <td class="text-right">
+                                <div class="btn-group ">
+                                    <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Action
+                                    </button>
+                                    <div class="dropdown-menu shadow animated--grow-in">
+                                        <a href="/documentation/sop/Preview?id=@sop.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview SOP</a>
+                                        <a href="/documentation/wi/Index?sopno=@sop.SOPNo&wscpid=@sop.WSCPId" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+                                        @if (preAL.Select(s => s.Id).Contains(sop.Id))
+                                        {
+                                            <a href="/documentation/sop/Preview?id=@sop.Id&revert=true" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Revert SOP</a>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
+    function initializeDataTable(tableId, data) {
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+        var table = $('#' + tableId).DataTable({
+            order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [0, 'asc'], [1, 'asc']],
+            rowGroup: {
+                dataSrc: [2, 3, 4]
+            },
+            columnDefs: [{
+                targets: [4, 3, 2],
+                visible: false
+            }]
+        });
+
+        // Store table instance
+        if (!window.tables) {
+            window.tables = {};
+        }
+        window.tables[tableId] = table;
+
+        // Apply current filter if exists
+        var currentFilter = $('#departmentFilter').val();
+        if (currentFilter) {
+            table.column(3).search(currentFilter).draw();
+        }
+    }
+
     $(document).ready(function () {
-        $('#sopTable').DataTable( {
-        order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2,3,4 ]
-        },
-        columnDefs: [ {
-            targets: [ 4,3,2 ],
-            visible: false
-        } ]
-    } );
-    });
-        $(document).ready(function () {
-        $('#sopPendAppTable').DataTable( {
-        order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2,3,4 ]
-        },
-        columnDefs: [ {
-            targets: [ 4,3,2 ],
-            visible: false
-        } ]
-    } );
-    });
-      $(document).ready(function () {
-        $('#sopArchiveListTable').DataTable( {
-        order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2,3,4 ]
-        },
-        columnDefs: [ {
-            targets: [ 4,3,2 ],
-            visible: false
-        } ]
-    } );
-    });
-     $(document).ready(function() {
-  $(".tab-nav-wrapper li.active").click();
-  $($(".tab-nav-wrapper li.active a").attr("href")).show();
+        // Initialize tables
+        if ($('#sopPendAppTable').length) {
+            initializeDataTable('sopPendAppTable');
+        }
+        if ($('#sopTable').length) {
+            initializeDataTable('sopTable');
+        }
+        if ($('#sopArchiveListTable').length) {
+            initializeDataTable('sopArchiveListTable');
+        }
 
-  $(".tab-nav-wrapper li").click(function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+        // Tab handling
+        $(".tab-nav-wrapper li.active").click();
+        $($(".tab-nav-wrapper li.active a").attr("href")).show();
 
-    $(".tab-nav-wrapper li").removeClass("active");
-    $(this).addClass("active");
+        // Tab click handling
+        $(".tab-nav-wrapper li").click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-    var target = $(this).find("a").attr("href");
-    $(".tab-content-wrapper").find(".tab-content").hide();
-    $(".tab-content-wrapper").find(target).show();
-  })
-});
+            $(".tab-nav-wrapper li").removeClass("active");
+            $(this).addClass("active");
+
+            var target = $(this).find("a").attr("href");
+            $(".tab-content-wrapper").find(".tab-content").hide();
+            $(".tab-content-wrapper").find(target).show();
+
+            // Adjust table columns
+            setTimeout(function () {
+                if (window.tables) {
+                    Object.values(window.tables).forEach(function (table) {
+                        if (table) {
+                            table.columns.adjust().draw();
+                        }
+                    });
+                }
+            }, 0);
+        });
+
+        // Department filter change handler
+        $('#departmentFilter').on('change', function () {
+            var department = $(this).val();
+            if (window.tables) {
+                Object.values(window.tables).forEach(function (table) {
+                    if (table) {
+                        if (!department) {
+                            table.column(3).search('').draw();
+                        } else {
+                            table.column(3).search('^' + department + '$', true, false).draw();
+                        }
+                    }
+                });
+            }
+        });
+    });
 </script>
-

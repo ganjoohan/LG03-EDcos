@@ -8,50 +8,97 @@
 <p>@ViewBag.WebRootPath</p>
 <div class="card">
     <div class="col-sm-12" style="padding:20px">
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.Create)).Result.Succeeded)
-        {*@
-             @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD)
-             {
-            <a asp-area="Documentation" asp-controller="Procedure" asp-action="CreateOrEdit" asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
+        @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD)
+        {
+            <a asp-area="Documentation" asp-controller="Procedure" asp-action="CreateOrEdit"
+               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893" class="btn bg-success">
                 <i class="fa fa-plus-square"></i> Create
             </a>
-             }
-        @*}*@
-
-        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.Preview)).Result.Succeeded || AuthorizationService.AuthorizeAsync(User, Permissions.Procedures.View).Result.Succeeded)
-        {
-            <form id="create-form" method="post" asp-area="Documentation" asp-controller="Procedure" asp-action="View1" asp-route-id="1d">
-
-
-                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
-                    <button type="submit" class="btn btn-success">Print</button>
-
-                </div>
-            </form>
-        }*@
+        }
 
         <a id="reload" class="btn btn-primary text-white">
             <i class="fa fas fa-bolt"></i>
             Reload
         </a>
+
+        <hr />
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="departmentFilter">Filter by Department:</label>
+                        <select id="departmentFilter" class="form-control">
+                            <option value="">All Departments</option>
+                            @if (ViewBag.Departments != null)
+                            {
+                                foreach (var dept in ViewBag.Departments)
+                                {
+                                    <option value="@dept">@dept</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div id="viewAll" class="card-body table-responsive">
     </div>
 </div>
 
-@section Scripts
-{
+@section Scripts {
     <script src="~/js/site.js"></script>
     <script>
+        var tables = {};  // Global tables object
+
         $(document).ready(function () {
-            $("#procedureTable").DataTable();
             loadData();
+
             $('#reload').on('click', function () {
                 loadData();
             });
+
+            $('#departmentFilter').on('change', function () {
+                var department = $(this).val();
+                if (window.tables) {
+                    Object.values(window.tables).forEach(function (table) {
+                        if (table) {
+                            if (!department) {
+                                table.column(3).search('').draw();
+                            } else {
+                                table.column(3).search('^' + department + '$', true, false).draw();
+                            }
+                        }
+                    });
+                }
+            });
         });
+
         function loadData() {
-            $('#viewAll').load('/documentation/procedure/LoadAll');
+            // Destroy existing tables
+            if (window.tables) {
+                Object.values(window.tables).forEach(function (table) {
+                    if (table) {
+                        table.destroy();
+                    }
+                });
+            }
+            window.tables = {};
+
+            $('#viewAll').load('/documentation/procedure/LoadAll', function () {
+                // Tables will be initialized in _ViewAll.cshtml
+
+                // Reapply current filter if exists
+                var currentFilter = $('#departmentFilter').val();
+                if (currentFilter) {
+                    Object.values(window.tables).forEach(function (table) {
+                        if (table) {
+                            table.column(3).search('^' + currentFilter + '$', true, false).draw();
+                        }
+                    });
+                }
+            });
         }
     </script>
 }

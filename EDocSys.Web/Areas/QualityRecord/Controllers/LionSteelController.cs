@@ -159,18 +159,22 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 if (rolesList.Contains("A"))
                 {
                     ViewBag.RoleA = true;
+                    validUser = true;
                 }
                 if (rolesListComp.Contains("E") && userChkE)
                 {
                     ViewBag.RoleE = true;
+                    validUser = true;
                 }
                 if (rolesListComp.Contains("D") && userChk)
                 {
                     ViewBag.RoleD = true;
+                    validUser = true;
                 }
                 if (rolesList.Contains("SuperAdmin"))
                 {
                     ViewBag.RoleSA = true;
+                    validUser = true;
                 }
                 if (!validUser)
                 {

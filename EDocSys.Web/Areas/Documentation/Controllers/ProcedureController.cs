@@ -70,14 +70,22 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             ViewBag.RoleE = false;
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
+
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
+            List<int> listComp = new List<int>();
+            List<int> listDept = new List<int>();
+
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 rolesList.AddRange(roles);
+                listComp.Add(user.UserCompanyId);
+                listDept.Add(user.UserDepartmentId);
             }
+
+            // Set role flags
             if (rolesList.Contains("A"))
             {
                 ViewBag.RoleA = true;
@@ -108,6 +116,57 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             {
                 ViewBag.RoleSA = true;
             }
+
+            // Get departments for filter
+            var response = await _mediator.Send(new GetAllProceduresCachedQuery());
+            if (response.Succeeded)
+            {
+                var allProcedures = _mapper.Map<List<ProcedureViewModel>>(response.Data);
+
+                // Filter procedures based on user's company and department access
+                var filteredProcedures = allProcedures.Where(a =>
+                    a.IsActive == true &&
+                    (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) &&
+                    ((listDept.Contains(0) || rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
+                        ? true
+                        : listDept.Contains(a.DepartmentId))
+                ).ToList();
+
+                // Apply role-specific filtering
+                if (rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
+                {
+                    // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
+                    filteredProcedures = filteredProcedures
+                        .Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId))
+                        .ToList();
+                }
+                else if (rolesList.Contains("D"))
+                {
+                    // SOP Department Admin (Full Access by Department)
+                    filteredProcedures = filteredProcedures
+                        .Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)
+                            && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId))
+                        .ToList();
+                }
+                else if (rolesList.Contains("C"))
+                {
+                    filteredProcedures = filteredProcedures
+                        .Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)
+                            && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId)
+                            && a.ProcedureStatusView == "Approved")
+                        .ToList();
+                }
+
+                // Get unique departments based on filtered procedures
+                var departments = filteredProcedures
+                    .Select(x => x.ProcessName)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                ViewBag.Departments = departments;
+            }
+
             var model = new ProcedureViewModel();
             return View(model);
         }
@@ -744,6 +803,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<ProcedureViewModel>>(response.Data);
+
                 viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) && ((listDept.Contains(0) || rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2")) ? true : listDept.Contains(a.DepartmentId))).ToList();
 
                 
@@ -779,6 +839,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         item.ProcedureStatusView = "New";
                     }
                 }
+
                 return PartialView("_ViewAll", viewModel);
             }
             return null;

@@ -55,10 +55,127 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             _roleManager = roleManager;
         }
 
-        public IActionResult Index(string sopno, int wscpId = 0, int sopId = 0)
-        {
-            var model = new WIViewModel();
+        //public IActionResult Index(string sopno, int wscpId = 0, int sopId = 0)
+        //{
+        //    var model = new WIViewModel();
 
+        //    ViewBag.SOPNo = sopno;
+        //    ViewBag.WSCPId = wscpId;
+        //    ViewBag.SOPId = sopId;
+
+        //    return View(model);
+        //}
+
+
+        public async Task<IActionResult> Index(string sopno, int wscpId = 0, int sopId = 0)
+        {
+            ViewBag.RoleAB1 = false;
+            ViewBag.RoleA = false;
+            ViewBag.RoleB1 = false;
+            ViewBag.RoleB2 = false;
+            ViewBag.RoleC = false;
+            ViewBag.RoleE = false;
+            ViewBag.RoleD = false;
+            ViewBag.RoleSA = false;
+
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
+            List<string> rolesList = new List<string>();
+            List<int> listComp = new List<int>();
+            List<int> listDept = new List<int>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                rolesList.AddRange(roles);
+                listComp.Add(user.UserCompanyId);
+                listDept.Add(user.UserDepartmentId);
+            }
+
+            // Set role flags
+            if (rolesList.Contains("A"))
+            {
+                ViewBag.RoleA = true;
+                ViewBag.RoleAB1 = true;
+            }
+            if (rolesList.Contains("B1"))
+            {
+                ViewBag.RoleB1 = true;
+                ViewBag.RoleAB1 = true;
+            }
+            if (rolesList.Contains("B2"))
+            {
+                ViewBag.RoleB2 = true;
+            }
+            if (rolesList.Contains("C"))
+            {
+                ViewBag.RoleC = true;
+            }
+            if (rolesList.Contains("E"))
+            {
+                ViewBag.RoleE = true;
+            }
+            if (rolesList.Contains("D"))
+            {
+                ViewBag.RoleD = true;
+            }
+            if (rolesList.Contains("SuperAdmin"))
+            {
+                ViewBag.RoleSA = true;
+            }
+
+            var response = await _mediator.Send(new GetAllWIsCachedQuery());
+            if (response.Succeeded)
+            {
+                var viewModel = _mapper.Map<List<WIViewModel>>(response.Data);
+
+                // Filter procedures based on user's company and department access
+                var filteredProcedures = viewModel.Where(a =>
+                    a.IsActive == true &&
+                    (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) &&
+                    ((listDept.Contains(0) || rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
+                        ? true
+                        : listDept.Contains(a.DepartmentId))
+                ).ToList();
+
+                // Apply role-specific filtering
+                if (rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
+                {
+                    // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
+                    filteredProcedures = filteredProcedures
+                        .Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId))
+                        .ToList();
+                }
+                else if (rolesList.Contains("D"))
+                {
+                    // SOP Department Admin (Full Access by Department)
+                    filteredProcedures = filteredProcedures
+                        .Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)
+                            && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId))
+                        .ToList();
+                }
+                else if (rolesList.Contains("C"))
+                {
+                    filteredProcedures = filteredProcedures
+                        .Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)
+                            && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId)
+                            && a.WIStatusView == "Approved")
+                        .ToList();
+                }
+
+
+                // Get unique departments for filter
+                var departments = filteredProcedures
+                    .Where(a => a.IsActive == true) // Only get departments from active WIs
+                    .Select(x => x.ProcessName)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                ViewBag.Departments = departments;
+            }
+
+            var model = new WIViewModel();
             ViewBag.SOPNo = sopno;
             ViewBag.WSCPId = wscpId;
             ViewBag.SOPId = sopId;
@@ -547,6 +664,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             ViewBag.RoleD = false;
             ViewBag.RoleSA = false;
             ViewBag.userIds = "";
+
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
@@ -596,17 +714,26 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<WIViewModel>>(response.Data);
+
                 viewModel = viewModel.Where(a => a.IsActive == true && (listComp.Contains(0) ? true : listComp.Contains(a.CompanyId)) && ((listDept.Contains(0) || rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2")) ? true : listDept.Contains(a.DepartmentId))).ToList();
-                // Access Category = D  
-                // SOP Department Admin (Full Access by Department)
-                if (rolesList.Contains("D"))
+
+
+                if (rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
                 {
+                    // Access Category = E  
+                    // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
+                }
+                else if (rolesList.Contains("D"))
+                {
+                    // Access Category = D  
+                    // SOP Department Admin (Full Access by Department)
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId)).ToList();
                 }
-
-                // Access Category = E  
-                // QMR / Lead Auditor / SOP Company Admin (Full Access by Company)
-
+                else if (rolesList.Contains("C"))
+                {
+                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) && a.WIStatusView == "Approved").ToList();
+                }
 
                 foreach (WIViewModel item in viewModel)
                 {
@@ -624,15 +751,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         item.WIStatusView = "New";
                     }
                 }
-                if (rolesList.Contains("E") || rolesList.Contains("B1") || rolesList.Contains("B2"))
-                {
-                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
-                }
-                else if (rolesList.Contains("C"))
-                {
-                    viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId) && users.Select(s => s.UserDepartmentId).Contains(a.DepartmentId) && a.WIStatusView == "Approved").ToList();
-                }
-
+                
                 return PartialView("_ViewAll", viewModel);
             }
             return null;

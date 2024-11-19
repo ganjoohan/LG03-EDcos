@@ -14,7 +14,7 @@ namespace EDocSys.Application.Features.IssuanceStatuses.Queries.GetAllCached
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public int IssuanceId { get; set; }
-        
+
         public Issuance Issuance { get; set; }
         public int DocumentStatusId { get; set; }
         public virtual DocumentStatus DocumentStatus { get; set; }

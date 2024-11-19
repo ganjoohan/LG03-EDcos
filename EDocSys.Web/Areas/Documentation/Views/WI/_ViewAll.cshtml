@@ -474,57 +474,73 @@
 </div>
 
 <script>
+    function initializeDataTable(tableId, data) {
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+        var table = $('#' + tableId).DataTable({
+            order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [5, 'asc'], [0, 'asc'], [1, 'asc']],
+            rowGroup: {
+                dataSrc: [2, 3, 4, 5]
+            },
+            columnDefs: [{
+                targets: [5, 4, 3, 2],
+                visible: false
+            }]
+        });
+
+        // Store table instance
+        if (!window.tables) {
+            window.tables = {};
+        }
+        window.tables[tableId] = table;
+
+        // Apply current filter if exists
+        var currentFilter = $('#departmentFilter').val();
+        if (currentFilter) {
+            table.column(3).search(currentFilter).draw();
+        }
+    }
+
     $(document).ready(function () {
-        $('#wiTable').DataTable( {
-        order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [5, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2,3,4,5 ]
-        },
-        columnDefs: [ {
-            targets: [ 5,4,3,2 ],
-            visible: false
-        } ]
-    } );
-    });
-     $(document).ready(function () {
-        $('#wiPendAppTable').DataTable( {
-        order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [5, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2,3,4,5 ]
-        },
-        columnDefs: [ {
-            targets: [ 5,4,3,2 ],
-            visible: false
-        } ]
-    } );
-    });
-     $(document).ready(function () {
-        $('#wiArchiveListTable').DataTable( {
-        order: [[2, 'asc'], [3, 'asc'], [4, 'asc'], [5, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2,3,4,5 ]
-        },
-        columnDefs: [ {
-            targets: [ 5,4,3,2 ],
-            visible: false
-        } ]
-    } );
-    });
-     $(document).ready(function() {
-  $(".tab-nav-wrapper li.active").click();
-  $($(".tab-nav-wrapper li.active a").attr("href")).show();
+        // Initialize tables
+        if ($('#wiPendAppTable').length) {
+            initializeDataTable('wiPendAppTable');
+        }
+        if ($('#wiTable').length) {
+            initializeDataTable('wiTable');
+        }
+        if ($('#wiArchiveListTable').length) {
+            initializeDataTable('wiArchiveListTable');
+        }
 
-  $(".tab-nav-wrapper li").click(function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+        // Tab handling
+        $(".tab-nav-wrapper li.active").click();
+        $($(".tab-nav-wrapper li.active a").attr("href")).show();
 
-    $(".tab-nav-wrapper li").removeClass("active");
-    $(this).addClass("active");
+        // Tab click handling
+        $(".tab-nav-wrapper li").click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-    var target = $(this).find("a").attr("href");
-    $(".tab-content-wrapper").find(".tab-content").hide();
-    $(".tab-content-wrapper").find(target).show();
-  })
-});
+            $(".tab-nav-wrapper li").removeClass("active");
+            $(this).addClass("active");
+
+            var target = $(this).find("a").attr("href");
+            $(".tab-content-wrapper").find(".tab-content").hide();
+            $(".tab-content-wrapper").find(target).show();
+
+            // Adjust table columns
+            setTimeout(function () {
+                if (window.tables) {
+                    Object.values(window.tables).forEach(function (table) {
+                        if (table) {
+                            table.columns.adjust().draw();
+                        }
+                    });
+                }
+            }, 0);
+        });
+    });
 </script>
 
