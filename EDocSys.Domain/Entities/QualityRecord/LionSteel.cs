@@ -12,10 +12,10 @@ namespace EDocSys.Domain.Entities.QualityRecord
         public string Section { get; set; }
         public string Type { get; set; }
         public int CompanyId { get; set; }
-        public virtual Company Company { get; set; }
+        //public virtual Company Company { get; set; }
         //public string CompanyName { get; set; }
         public int DepartmentId { get; set; }
-        public virtual Department Department { get; set; }
+        //public virtual Department Department { get; set; }
         //public string ProcessName { get; set; }
 
         public string Location { get; set; }

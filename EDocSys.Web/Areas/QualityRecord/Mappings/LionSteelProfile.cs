@@ -17,16 +17,12 @@ namespace EDocSys.Web.Areas.QualityRecord.Mappings
     {
         public LionSteelProfile()
         {
-            CreateMap<LionSteel, GetAllLionSteelsCachedResponse>()
-                .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
-                .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
+            CreateMap<LionSteel, GetAllLionSteelsCachedResponse>();
 
             CreateMap<GetAllLionSteelsCachedResponse, LionSteelViewModel>().ReverseMap();
 
 
-            CreateMap<LionSteel, GetLionSteelByIdResponse>()
-                .ForMember(d => d.ProcessName, o => o.MapFrom(s => s.Department.Name))
-                .ForMember(d => d.CompanyName, o => o.MapFrom(s => s.Company.Name));
+            CreateMap<LionSteel, GetLionSteelByIdResponse>();
 
 
             CreateMap<GetLionSteelByIdResponse, LionSteelViewModel>().ReverseMap();

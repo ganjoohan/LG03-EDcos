@@ -135,6 +135,21 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             if (response.Succeeded)
             {
                 var lionSteelViewModel = _mapper.Map<LionSteelViewModel>(response.Data);
+
+                // Execute both cached queries in parallel since they're independent
+                var companiesTask = _mediator.Send(new GetAllCompaniesCachedQuery());
+                var departmentsTask = _mediator.Send(new GetAllDepartmentsCachedQuery());
+
+                await Task.WhenAll(companiesTask, departmentsTask);
+
+                var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesTask.Result.Data);
+                var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsTask.Result.Data);
+
+                lionSteelViewModel.CompanyName = companyViewModel.FirstOrDefault(w => w.Id == lionSteelViewModel.CompanyId)?.Name;
+                lionSteelViewModel.ProcessName = departmentViewModel.FirstOrDefault(w => w.Id == lionSteelViewModel.DepartmentId)?.Name;
+
+
+
                 if (print || lionSteel.PrintCount != 0)
                 {
                     if (lionSteel.PrintCount != lionSteelViewModel.PrintCount)
@@ -395,7 +410,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                                 //To = userModel.Email,
                                 // To = "lgcompadmin@lion.com.my",
                                 To = informedList,
-                                Subject = "Lion Steel External Record Expired.",
+                                Subject = "Steel Division: External Record Expired.",
                                 // 
 
                                 Body = s_body
@@ -972,7 +987,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                             //To = userModel.Email,
                             // To = "lgcompadmin@lion.com.my",
                             To = informedList,
-                            Subject = "Lion Steel External Record Expired.",
+                            Subject = "Steel Division: External Record Expired.",
                             // 
 
                             Body = s_body

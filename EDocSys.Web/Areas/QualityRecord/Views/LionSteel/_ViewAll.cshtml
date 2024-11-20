@@ -128,14 +128,14 @@
                             <div class="dropdown-menu shadow animated--grow-in">
                                     <a href="/Qualityrecord/lionsteel/Preview?id=@lionSteel.Id" class="dropdown-item">
                                         <i class="fas fa-eye"></i>
-                                        Preview Lion Steel
+                                        Preview Quality Record
                                     </a>
                                      <a href="/Qualityrecord/lionsteel/CreateOrEdit?id=@lionSteel.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
                                         <i class="fas fa-pencil-alt"></i>
-                                        Edit Lion Steel
+                                        Edit Quality Record
                                     </a>
                                       <form id="form_deactivate_@lionSteel.Id" asp-area="QualityRecord" asp-controller="LionSteel" method="post" asp-action="OnPostDeactivate" asp-route-id="@lionSteel.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@lionSteel.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Lion Steel</a>
+                                        <a href="javascript:$('#form_deactivate_@lionSteel.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Quality Record</a>
                                     </form>
 
                             </div>
@@ -144,7 +144,7 @@
                 }
                 else 
                 {
-                    <td align="center"><a href="/Qualityrecord/lionsteel/Preview?id=@lionSteel.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Lion Steel</a></td>
+                    <td align="center"><a href="/Qualityrecord/lionsteel/Preview?id=@lionSteel.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Quality Record</a></td>
                 }
                
             </tr>
