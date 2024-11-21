@@ -31,7 +31,10 @@
                         <label class="col-md-4 col-form-label">Process</label>
                         <div class="col-md-8">
                             <div class="input-group">
-                                <select name="DepartmentId" class="form-control select2bs4" id="DepartmentId" asp-for="DepartmentId" asp-items="@Model.Departments" onchange="document.getElementById('refreshInfo').click();"></select>
+                                <select name="DepartmentId" class="form-control select2bs4" id="DepartmentId" asp-for="DepartmentId" asp-items="@Model.Departments" onchange="document.getElementById('refreshInfo').click();">
+                                    <option value="0">Select Process</option>
+                                </select>
+
                             </div>
                             <span asp-validation-for="DepartmentId" class="text-danger"></span>
                         </div>
@@ -466,8 +469,17 @@
 
             //Initialize Select2 Elements
             $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
+                theme: 'bootstrap4',
+                placeholder: "Select Process",
+                allowClear: true
+            });
+
+            // If DepartmentId is 0, clear the selection
+            var departmentId = '@Model.DepartmentId';
+            if (departmentId === '0') {
+                $('#DepartmentId').val('').trigger('change');
+            }
+
 
             // Datepicker configuration
             var datePickerConfig = {
