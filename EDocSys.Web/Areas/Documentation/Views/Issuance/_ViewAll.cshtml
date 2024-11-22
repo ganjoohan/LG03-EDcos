@@ -136,6 +136,18 @@
                         {
                             <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
                         }
+                        else if (@issuance.IssuanceStatusView == "Submitted")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Rejected")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Verified")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
                     }
                 </td>
                 @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("D") || ViewBag.RoleD) // SOP Department Admin (Full Access by Department) 
@@ -227,6 +239,18 @@
                             <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
                         }
                         else if (@issuance.IssuanceStatusView == "New")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Submitted")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Rejected")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Verified")
                         {
                             <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
                         }
@@ -322,6 +346,18 @@
                             <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
                         }
                         else if (@issuance.IssuanceStatusView == "New")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Submitted")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Rejected")
+                        {
+                            <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
+                        }
+                        else if (@issuance.IssuanceStatusView == "Verified")
                         {
                             <span class="badge badge-warning">@issuance.IssuanceStatusView</span>
                         }

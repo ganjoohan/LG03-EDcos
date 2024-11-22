@@ -965,15 +965,51 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         {
                             departmentViewModel = departmentViewModel.Where(a => users.Select(s => s.UserDepartmentId).Contains(a.Id)).ToList();
                         }
+
+                        // Add default "Select Process" option
+                        var departments = departmentViewModel.ToList();
+
+                        // Create the SelectList with the correct selected value
+                        issuanceViewModel.Departments = new SelectList(
+                            departments,
+                            nameof(DepartmentViewModel.Id),
+                            nameof(DepartmentViewModel.Name),
+                            issuanceViewModel.DepartmentId == 0 ? null : issuanceViewModel.DepartmentId  // Set selected value
+                        );
+
+                        // Ensure the model's DepartmentId matches what we want to display
+                        if (issuanceViewModel.DepartmentId == 0)
+                        {
+                            issuanceViewModel.DepartmentId = 0;  // Explicitly set to 0 for "Select Process"
+                        }
+
                         issuanceViewModel.Departments = new SelectList(departmentViewModel, nameof(DepartmentViewModel.Id), nameof(DepartmentViewModel.Name), null, null);
                     }
+
+                    // First check if user has Role E (Company Admin)
+                    var hasRoleE = rolesList.Contains("E");
+
                     var companyId = issuanceViewModel.CompanyId == 0 ? currentUser.UserCompanyId : issuanceViewModel.CompanyId;
                     var departmentId = issuanceViewModel.DepartmentId == 0 ? currentUser.UserDepartmentId : issuanceViewModel.DepartmentId;
+                    
                     var responseWSCP = await _mediator.Send(new GetProceduresByParameterQuery() { CompId = companyId, DeptId = departmentId });
                     var viewModelWSCP = responseWSCP != null ? _mapper.Map<List<ProcedureViewModel>>(responseWSCP.Data) : null;
                     if (viewModelWSCP != null)
                     {
-                        viewModelWSCP = viewModelWSCP.Where(a => a.IsActive == true && (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && (currentUser.UserDepartmentId == 0 ? true : currentUser.UserDepartmentId == a.DepartmentId)).ToList();
+                        // Similar modifications should be applied to WSCP and WI filtering:
+                        viewModelWSCP = viewModelWSCP.Where(a =>
+                            a.IsActive == true &&
+                            (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) &&
+                            (
+                                currentUser.UserDepartmentId == 0 ? true : // SuperAdmin check
+                                hasRoleE ? true : // Company Admin can see all departments
+                                currentUser.UserDepartmentId == a.DepartmentId // Department check for other roles
+                            )
+                        ).ToList();
+
+                        //viewModelWSCP = viewModelWSCP.Where(a => a.IsActive == true && (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && (currentUser.UserDepartmentId == 0 ? true : currentUser.UserDepartmentId == a.DepartmentId)).ToList();
+
+
                         foreach (var item in viewModelWSCP)
                         {
                             var psStatat = _context.ProcedureStatus.Where(a => a.ProcedureId == item.Id).ToList();
@@ -1000,7 +1036,21 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var viewModelSOP = responseSOP != null ? _mapper.Map<List<SOPViewModel>>(responseSOP.Data) : null;
                     if (viewModelSOP != null)
                     {
-                        viewModelSOP = viewModelSOP.Where(a => a.IsActive == true && (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && (currentUser.UserDepartmentId == 0 ? true : currentUser.UserDepartmentId == a.DepartmentId)).ToList();
+                        // Modified filter logic for SOP documents
+                        viewModelSOP = viewModelSOP.Where(a =>
+                            a.IsActive == true &&
+                            (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && // Company check
+                            (
+                                currentUser.UserDepartmentId == 0 ? true : // SuperAdmin check
+                                hasRoleE ? true : // Company Admin can see all departments
+                                currentUser.UserDepartmentId == a.DepartmentId // Department check for other roles
+                            )
+                        ).ToList();
+
+
+                        //viewModelSOP = viewModelSOP.Where(a => a.IsActive == true && (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && (currentUser.UserDepartmentId == 0 ? true : currentUser.UserDepartmentId == a.DepartmentId)).ToList();
+
+
                         foreach (var item in viewModelSOP)
                         {
                             var psStatat = _context.SOPStatus.Where(a => a.SOPId == item.Id).ToList();
@@ -1031,7 +1081,19 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     var viewModelWI = responseWI != null ? _mapper.Map<List<WIViewModel>>(responseWI.Data) : null;
                     if (viewModelWI != null)
                     {
-                        viewModelWI = viewModelWI.Where(a => a.IsActive == true && (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && (currentUser.UserDepartmentId == 0 ? true : currentUser.UserDepartmentId == a.DepartmentId)).ToList();
+                        viewModelWI = viewModelWI.Where(a =>
+                            a.IsActive == true &&
+                            (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) &&
+                            (
+                                currentUser.UserDepartmentId == 0 ? true : // SuperAdmin check
+                                hasRoleE ? true : // Company Admin can see all departments
+                                currentUser.UserDepartmentId == a.DepartmentId // Department check for other roles
+                            )
+                        ).ToList();
+
+
+                        //viewModelWI = viewModelWI.Where(a => a.IsActive == true && (currentUser.UserCompanyId == 0 ? true : currentUser.UserCompanyId == a.CompanyId) && (currentUser.UserDepartmentId == 0 ? true : currentUser.UserDepartmentId == a.DepartmentId)).ToList();
+
                         foreach (var item in viewModelWI)
                         {
                             var psStatat = _context.WIStatus.Where(a => a.WIId == item.Id).ToList();

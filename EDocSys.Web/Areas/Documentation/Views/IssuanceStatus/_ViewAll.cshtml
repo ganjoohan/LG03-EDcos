@@ -1,14 +1,55 @@
 ﻿@using EDocSys.Web.Areas.Documentation.Models
 @model IEnumerable<IssuanceStatusViewModel>
+@{
+    var modelList = Model?.ToList() ?? new List<IssuanceStatusViewModel>();
+    var count = modelList.Count;
+}
 <table id="procedureTable" class="table table-striped" width="100%" cellspacing="0">
     <thead>
         <tr>
-            @*<th>Id</th>*@
             <th>Remarks</th>
             <th>Status</th>
-            @*<th>Created By</th>*@
             <th>Created On (UTC)</th>
-            @*<th>Action</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 0;
+        }
+        @foreach (var issuance in modelList)
+        {
+            <tr>
+                <td text-wrap>@issuance.Remarks</td>
+                <td>@(issuance.DocumentStatus?.Name ?? "")</td>
+                <td>@issuance.CreatedOn</td>
+                <td>
+                    @if (++i == count)
+                    {
+                        if (issuance.DocumentStatus?.Name == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE == true))
+                        {
+                            <a href="/documentation/issuance/CreateOrEdit?id=@issuance.IssuanceId&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Issuance</a>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@* 
+@using EDocSys.Web.Areas.Documentation.Models
+@model IEnumerable<IssuanceStatusViewModel>
+<table id="procedureTable" class="table table-striped" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            @*<th>Id</th>
+            <th>Remarks</th>
+            <th>Status</th>
+            @*<th>Created By</th>
+            <th>Created On (UTC)</th>
+            @*<th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -20,15 +61,15 @@
         @foreach (var issuance in Model)
         {
             <tr>
-                @*<td>@issuance.Id</td>*@
+                @*<td>@issuance.Id</td>
                 <td text-wrap>@issuance.Remarks</td>
                 <td>@issuance.DocumentStatus.Name</td>
-                @*<td>@issuance.CreatedBy</td>*@
+                @*<td>@issuance.CreatedBy</td>
                 <td>@issuance.CreatedOn</td>
                 <td>
                     @if (++i == count)
                     {
-                        @*<h5>this is the last item</h5>*@
+                        @*<h5>this is the last item</h5>
                         if (@issuance.DocumentStatus.Name == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
                         {
                             <a href="/documentation/issuance/CreateOrEdit?id=@issuance.IssuanceId&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn-default"><i class="fas fa-pencil-alt"></i>  Edit Issuance</a>
@@ -45,4 +86,5 @@
     $(document).ready(function () {
         $("#issuanceTable").DataTable();
     });
-</script>
+</script> 
+*@
