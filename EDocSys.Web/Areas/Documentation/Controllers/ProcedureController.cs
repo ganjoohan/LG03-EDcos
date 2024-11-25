@@ -260,7 +260,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                                 var viewModelP = _mapper.Map<List<IssuanceInfoPrintViewModel>>(responseP.Data);
                                 var printed = viewModelP.Where(w => w.IsPrinted = true && w.PrintedDate != null && w.IsReturned == false).ToList();
                                 issuanceViewModel.PrintCountAct = printed.Count();
-                                viewModelP = viewModelP.Where(w => w.IssInfoId == IPrint && w.IsPrinted && w.PrintedDate == null).ToList();
+                                viewModelP = viewModelP.Where(w => w.IssInfoId == IPrint && w.IsPrinted == false && w.PrintedDate == null).ToList();
                                 if (viewModelP.Count > 0)
                                 {   
                                     if (rolesListComp.Contains("E") || rolesListComp.Contains("SuperAdmin"))
