@@ -1,31 +1,35 @@
 ﻿@model EDocSys.Web.Areas.Documentation.Models.WIViewModel
 
-    <div class="row" style="max-width:1000px">
-        <div class="col-12">
-            <div class="documentation p-3 mb-3 print-container">
-                 <div class="@(((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint   ? "" : "no-print")">
+<div class="row" style="max-width:1000px">
+    <div class="col-12">
+        <div class="documentation p-3 mb-3 print-container">
+            <div class="@(((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint   ? "" : "no-print")">
                 <div class="row">
-                <div class="col-sm-3 documentation-col">
-                    <h4>
-                        <img src="~/images/logo.png" />
-                    </h4>
+                    <div class="col-sm-3 documentation-col">
+                        <h4>
+                            <img src="~/images/logo.png" />
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 documentation-col text-center">
+                        <h1>
+                            STEEL DIVISION <br /><small>@Model.CompanyName</small>
+                        </h1>
+                    </div>
+                    <div class="col-sm-3 documentation-col">
+                        @if (@Model.WIStatusView != "Approved")
+                        {
+                            <h3 class="float-right">@Model.WIStatusView</h3>
+
+                            <br>
+                        }
+                        else if (@Model.WIStatusView == "Approved")
+                        {
+                            <h3 class="float-right">@Model.WIStatusView</h3>
+
+                            <br>
+                        }
+                    </div>
                 </div>
-                <div class="col-sm-6 documentation-col text-center">
-                    <h1>
-                        STEEL DIVISION <br /><small>@Model.CompanyName</small>
-                    </h1>
-                </div>
-                <div class="col-sm-3 documentation-col">
-                    @if (@Model.WIStatusView != "Approved")
-                    {
-                        <h3 class="float-right">@Model.WIStatusView</h3><br>
-                    }
-                    else if (@Model.WIStatusView == "Approved")
-                    {
-                        <h3 class="float-right">@Model.WIStatusView</h3><br>
-                    }
-                </div>
-            </div>
                 <div class="row">
                     <div class="col-sm-12 col-md-12 text-center">
                         <div class="color-palette-set">
@@ -66,17 +70,17 @@
                                     <td><b>TITLE</b></td>
                                     <td colspan="3"><b>@Model.Title</b></td>
                                 </tr>
-                              @*  <tr>
-                                    <td>PURPOSE</td>
-                                    <td colspan="3">@Model.Purpose</td>
+                                @*  <tr>
+                                <td>PURPOSE</td>
+                                <td colspan="3">@Model.Purpose</td>
                                 </tr>
                                 <tr>
-                                    <td>SCOPE</td>
-                                    <td colspan="3">@Model.Scope</td>
+                                <td>SCOPE</td>
+                                <td colspan="3">@Model.Scope</td>
                                 </tr>
                                 <tr>
-                                    <td>DEFINITIONS</td>
-                                    <td colspan="3"><textarea hidden id="editor2" asp-for="Definition" class="form-control"></textarea></td>
+                                <td>DEFINITIONS</td>
+                                <td colspan="3"><textarea hidden id="editor2" asp-for="Definition" class="form-control"></textarea></td>
                                 </tr>*@
                             </tbody>
                         </table>
@@ -121,10 +125,10 @@
                                 </tr>
                                 <tr>
                                     <td><b>Date</b></td>
-                                <td>@Html.DisplayFor(modelItem => @Model.PreparedByDate)</td>
-                                <td>@Html.DisplayFor(modelItem => @Model.DateApprovedC1)</td>
-                                <td>@Html.DisplayFor(modelItem => @Model.DateApprovedC2)</td>
-                                <td>@Html.DisplayFor(modelItem => @Model.DateApprovedAPP)</td>
+                                    <td>@Html.DisplayFor(modelItem => @Model.PreparedByDate)</td>
+                                    <td>@Html.DisplayFor(modelItem => @Model.DateApprovedC1)</td>
+                                    <td>@Html.DisplayFor(modelItem => @Model.DateApprovedC2)</td>
+                                    <td>@Html.DisplayFor(modelItem => @Model.DateApprovedAPP)</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -138,22 +142,24 @@
                                 <tr>
                                     <td colspan="2">
                                         <h6><b>CONTROLLED DOCUMENT</b></h6>
-                                        <p>Note: This document is the property of the Company. It shall not be reproduced, copied, altered or disclosed
-                                        to any person without written consent of the HOC/HOD and shall be returned to the Company.
+                                        <p>
+                                            Note: This document is the property of the Company. It shall not be reproduced, copied, altered or disclosed
+                                            to any person without written consent of the HOC/HOD and shall be returned to the Company.
                                         </p>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td width="50%">CONTROLLED COPY</td>
-                                    <td>ELECTRONIC - @Model.PrintCount
-                                       @* @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                                    <td>
+                                        ELECTRONIC - @Model.PrintCount
+                                        @* @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
                                         {
-                                            <div class="no-print">
-                                                <form method="get" asp-area="documentation" asp-controller="WI" asp-action="Preview" asp-route-id="@Model.Id">
-                                                    <input id="noElectronic" type="text" asp-for="PrintCount" name="PrintCount" class="form-control">   
-                                                    <button type="submit" class="btn btn-success">Update Electronic</button>
-                                                </form>
-                                            </div>
+                                        <div class="no-print">
+                                        <form method="get" asp-area="documentation" asp-controller="WI" asp-action="Preview" asp-route-id="@Model.Id">
+                                        <input id="noElectronic" type="text" asp-for="PrintCount" name="PrintCount" class="form-control">
+                                        <button type="submit" class="btn btn-success">Update Electronic</button>
+                                        </form>
+                                        </div>
                                         }*@
                                     </td>
                                 </tr>
@@ -161,379 +167,397 @@
                         </table>
                     </div>
                 </div>
-                 @if(((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
-            {
-            <div class="row print-only">
-                <table>
-                    <tbody>
-                        <tr>
-                            <td>Printed By</td>
-                            <td>@User.Identity.Name/@Model.CompanyName on @DateTime.Now</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>   
+                @if (((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
+                {
+                    <div class="row print-only">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Printed By</td>
+                                    <td>@User.Identity.Name/@Model.CompanyName on @DateTime.Now</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 }
                 <!-- this row will not appear when printing -->
                 <!--<div class="row no-print">-->
                 <!--    <div class="col-12">-->
-                        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Print)).Result.Succeeded)
-                        {*@
-                  <!--          <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>-->
-                        @*}*@
+                @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Print)).Result.Succeeded)
+                {*@
+                <!--          <button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>-->
+                @*}*@
 
-                        @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded)
-                        {*@
-                  <!--          <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">-->
-                  <!--              <i class="fas fa-pencil-alt"></i> Edit-->
-                  <!--          </a>-->
-                        @*}*@
-                   <!-- </div>-->
+                @*@if ((AuthorizationService.AuthorizeAsync(User, Permissions.WIs.Edit)).Result.Succeeded)
+                {*@
+                <!--          <a asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn bg-success">-->
+                <!--              <i class="fas fa-pencil-alt"></i> Edit-->
+                <!--          </a>-->
+                @*}*@
+                <!-- </div>-->
                 <!--</div>-->
             </div>
         </div>
     </div>
     <!-- this row will not appear when printing -->
-                <div class="row no-print">
-                <div class="col-12">
-                    <a onclick="copyPageUrl()" class="btn btn-default float-right"><i class="fas fa-copy"></i> Copy WI URL</a>
-                    @if (@Model.WIStatusView == "Approved" && @Model.IsArchive == false && ViewBag.IAmend)
-                    {
-                            <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&WIrev=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn btn-default float-right">
-                            <i class="fas fa-copy"></i>
-                            New Revision WI
-                        </a>
-                    }
-                     @if(((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint)//User.IsInRole("D") || User.IsInRole("A") || 
-                    {
-                        @*<button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>*@
-                        <a class="btn btn-default" onclick="window.print();" ><i class="fas fa-print"></i> Print</a>
-                    }
-
-        @*@if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
-                    {
-                        if (Model.WIStatusView == "New" || Model.WIStatusView == "Rejected")
-                            {
-                                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
-                                    <i class="fas fa-pencil-alt"></i>
-                                    Edit WI
-                                </a>
-
-                                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'
-                                    + '&&status=1', 'Submit for Formatting Check')"
-                                   class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
-                        }
-                    }*@
-
-        @if ((Model.WIStatusView == "New" || Model.WIStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-        {
-            
-            @if (Model.Concurred1 != null && Model.ApprovedBy != null)
+    <div class="row no-print">
+        <div class="col-12">
+            <a onclick="copyPageUrl()" class="btn btn-default float-right"><i class="fas fa-copy"></i> Copy WI URL</a>
+            @if (@Model.WIStatusView == "Approved" && @Model.IsArchive == false && ViewBag.IAmend)
             {
-                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
-                <i class="fas fa-pencil-alt"></i>
-                Edit WI
-            </a>
-                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'
-                                    + '&&status=1', 'Submit for Formatting Check')"
-                                   class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
+                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&WIrev=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn btn-default float-right">
+                    <i class="fas fa-copy"></i>
+                    New Revision WI
+                </a>
             }
-            else
+            @if (((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint)//User.IsInRole("D") || User.IsInRole("A") ||
             {
-                <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
-                <i class="fas fa-pencil-alt"></i>
-                Edit WI (Unable to submit without concurred1 and approver)
-            </a>
+                @*<button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>*@
+                @* <a class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</a> *@
+                <a class="btn btn-default" onclick="handlePrintClick()"><i class="fas fa-print"></i> Print</a>
             }
-            
-        }
+
+            @*@if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
+            {
+            if (Model.WIStatusView == "New" || Model.WIStatusView == "Rejected")
+            {
+            <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+            <i class="fas fa-pencil-alt"></i>
+            Edit WI
+            </a>
+
+            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'
+            + '&&status=1', 'Submit for Formatting Check')"
+            class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
+            }
+            }*@
+
+            @if ((Model.WIStatusView == "New" || Model.WIStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+            {
+
+                @if (Model.Concurred1 != null && Model.ApprovedBy != null)
+                {
+                    <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+                        <i class="fas fa-pencil-alt"></i>
+                        Edit WI
+                    </a>
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'
+                                    + '&&status=1', 'Submit for Formatting Check')"
+                       class="btn bg-success"><i class="fas fa-paper-plane"></i>  Submit for Formatting Check</a>
+                }
+                else
+                {
+                    <a href="/documentation/wi/CreateOrEdit?id=@Model.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="btn bg-success">
+                        <i class="fas fa-pencil-alt"></i>
+                        Edit WI (Unable to submit without concurred1 and approver)
+                    </a>
+                }
+
+            }
 
 
-                    @if (Model.WIStatusView == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
-                    {
+            @if (Model.WIStatusView == "Rejected" && (User.IsInRole("E") || ViewBag.RoleE))
+            {
 
-                    }
+            }
 
-                    @* Check if status is "Submitted" and Role is E => to Approved Formatting Check*@
-                    @if (Model.WIStatusView == "Submitted" && (User.IsInRole("E") || ViewBag.RoleE))
-                    {
-                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
-                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
-                    }
+            @* Check if status is "Submitted" and Role is E => to Approved Formatting Check*@
+            @if (Model.WIStatusView == "Submitted" && (User.IsInRole("E") || ViewBag.RoleE))
+            {
+                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=6','Approve Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approve Format</a>
+                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject Format')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject Format</a>
+            }
 
-                    @if (Model.WIStatusView == "Format Checked" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
-                    {
-                        if(Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
-                        {
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=2','Concurred 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                        }
-                    }
+            @if (Model.WIStatusView == "Format Checked" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
+            {
+                if (Model.Concurred1 != null && ViewBag.IsConcurred1 == true)
+                {
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=2','Concurred 1')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 1</a>
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                }
+            }
 
-                    @if (Model.WIStatusView == "Concurred1" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
-                    {
-                        if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) // 
-                        {
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurred 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                        }
-                        else if (Model.Concurred2 == null && Model.Concurred1 != null && ViewBag.IsApp == true) { // if Concurred 1 To Approver
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
-                            <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                        }
-                    }
-                    
-                    @if (Model.WIStatusView == "Concurred2" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsApp == true)
-                    {
-                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
-                        <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
-                    }
+            @if (Model.WIStatusView == "Concurred1" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1))
+            {
+                if (Model.Concurred2 != null && ViewBag.IsConcurred2 == true) //
+                {
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=3','Concurred 2')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Concurr 2</a>
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                }
+                else if (Model.Concurred2 == null && Model.Concurred1 != null && ViewBag.IsApp == true)
+                { // if Concurred 1 To Approver
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                    <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+                }
+            }
 
-                </div>
-            </div>
-            </div>
-    @section Scripts {
-        <style>
-    .print-only{
-        display: none;
-    }
+            @if (Model.WIStatusView == "Concurred2" && (User.IsInRole("A") || User.IsInRole("B1") || ViewBag.RoleAB1) && ViewBag.IsApp == true)
+            {
+                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=4','Approved')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Approved</a>
+                <a onclick="jQueryModalGet('/documentation/wistatus/OnGetSubmit?wiId=@Model.Id'+'&&status=5','Reject')" class="btn bg-success"><i class="fas fa-paper-plane"></i>  Reject</a>
+            }
 
-    @@media print {
-        .no-print {
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <style>
+        .print-only {
             display: none;
         }
 
-        .print-only{
-            display: block;
-        }
-
-        ::-webkit-scrollbar {
-            display: none;
-        }
-
-        div { page-break-inside:auto; width:auto }
-        table { page-break-inside:auto; width:auto; margin-bottom:5px }
-        tr    { page-break-inside:auto}
-}
-</style>
-        <script>
-            document.getElementById("btnPrint").onclick = function () {
-                printElement(document.getElementById("printThis"));
-
-                var modThis = document.querySelector("#printSection .modifyMe");
-                modThis.appendChild(document.createTextNode(" new"));
-
-                window.print();
+        @@media print {
+            .no-print {
+                display: none;
             }
 
-            function printElement(elem) {
-                var domClone = elem.cloneNode(true);
-
-                var $printSection = document.getElementById("printSection");
-
-                if (!$printSection) {
-                    var $printSection = document.createElement("div");
-                    $printSection.id = "printSection";
-                    document.body.appendChild($printSection);
-                }
-
-                $printSection.innerHTML = "";
-
-                $printSection.appendChild(domClone);
-            }
-        </script>
-
-        <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
-
-        <script>
-            document.getElementById("btnPrint").onclick = function () {
-                printElement(document.getElementById("printThis"));
-
-                var modThis = document.querySelector("#printSection .modifyMe");
-                modThis.appendChild(document.createTextNode(" new"));
-
-                window.print();
+            .print-only {
+                display: block;
             }
 
-            function printElement(elem) {
-                var domClone = elem.cloneNode(true);
-
-                var $printSection = document.getElementById("printSection");
-
-                if (!$printSection) {
-                    var $printSection = document.createElement("div");
-                    $printSection.id = "printSection";
-                    document.body.appendChild($printSection);
-                }
-
-                $printSection.innerHTML = "";
-
-                $printSection.appendChild(domClone);
+            ::-webkit-scrollbar {
+                display: none;
             }
-        </script>
 
-        <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
+            div {
+                page-break-inside: auto;
+                width: auto
+            }
 
-        <script>
-    class MyUploadAdapter {
-        constructor(loader) {
-            // The file loader instance to use during the upload. It sounds scary but do not
-            // worry — the loader will be passed into the adapter later on in this guide.
-            this.loader = loader;
-        }
+            table {
+                page-break-inside: auto;
+                width: auto;
+                margin-bottom: 5px
+            }
 
-        // Starts the upload process.
-        upload() {
-            return this.loader.file
-                .then(file => new Promise((resolve, reject) => {
-                    this._initRequest();
-                    this._initListeners(resolve, reject, file);
-                    this._sendRequest(file);
-                }));
-        }
-
-        // Aborts the upload process.
-        abort() {
-            if (this.xhr) {
-                this.xhr.abort();
+            tr {
+                page-break-inside: auto
             }
         }
+    </style>
 
-        // Initializes the XMLHttpRequest object using the URL passed to the constructor.
-        _initRequest() {
-            const xhr = this.xhr = new XMLHttpRequest();
 
-            // Note that your request may look different. It is up to you and your editor
-            // integration to choose the right communication channel. This example uses
-            // a POST request with JSON as a data structure but your configuration
-            // could be different.
-            xhr.open('POST', '@Url.Action("UploadImage","WI")', true);
-            xhr.responseType = 'json';
-        }
+    <script>
 
-        _initListeners(resolve, reject, file) {
-            const xhr = this.xhr;
-            const loader = this.loader;
-            const genericErrorText = `Couldn't upload file: ${file.name}.`;
-
-            xhr.addEventListener('error', () => reject(genericErrorText));
-            xhr.addEventListener('abort', () => reject());
-            xhr.addEventListener('load', () => {
-                const response = xhr.response;
-
-                // This example assumes the XHR server's "response" object will come with
-                // an "error" which has its own "message" that can be passed to reject()
-                // in the upload promise.
-                //
-                // Your integration may handle upload errors in a different way so make sure
-                // it is done properly. The reject() function must be called when the upload fails.
-                if (!response || response.error) {
-                    return reject(response && response.error ? response.error.message : genericErrorText);
-                }
-
-                // If the upload is successful, resolve the upload promise with an object containing
-                // at least the "default" URL, pointing to the image on the server.
-                // This URL will be used to display the image in the content. Learn more in the
-                // UploadAdapter#upload documentation.
-                resolve({
-                    default: response.url
-                });
+        async function handlePrintClick() {
+            const result = await Swal.fire({
+                title: 'Important Notice',
+                html: `
+                                <div class="text-left">
+                                    <p>Please note:</p>
+                                    <ul>
+                                        <li>This document can only be printed ONCE</li>
+                                        <li>The system will record this printing action</li>
+                                        <li>Print count will be incremented</li>
+                                    </ul>
+                                    <p>Are you sure you want to proceed?</p>
+                                </div>
+                            `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed',
+                cancelButtonText: 'No, cancel',
+                reverseButtons: true,
+                allowOutsideClick: false
             });
 
-            // Upload progress when it is supported. The file loader has the #uploadTotal and #uploaded
-            // properties which are used e.g. to display the upload progress bar in the editor
-            // user interface.
-            if (xhr.upload) {
-                xhr.upload.addEventListener('progress', evt => {
-                    if (evt.lengthComputable) {
-                        loader.uploadTotal = evt.total;
-                        loader.uploaded = evt.loaded;
-                    }
-                });
+            // Wait for the alert to close
+            if (result.isConfirmed) {
+                await Swal.close();
+                // Add a small delay before printing
+                setTimeout(() => {
+                    window.print();
+                }, 500); // Increased delay to 500ms to ensure modal is fully closed
             }
         }
 
-        // Prepares the data and sends the request.
-        _sendRequest(file) {
-            // Prepare the form data.
-            const data = new FormData();
 
-            data.append('upload', file);
 
-            // Important note: This is the right place to implement security mechanisms
-            // like authentication and CSRF protection. For instance, you can use
-            // XMLHttpRequest.setRequestHeader() to set the request headers containing
-            // the CSRF token generated earlier by your application.
+        document.addEventListener('DOMContentLoaded', function () {
+            // Disable keyboard shortcuts
+            document.addEventListener('keydown', function (e) {
+                // Disable Ctrl+P
+                if (e.ctrlKey && (e.key === 'p' || e.keyCode === 80)) {
+                    e.cancelBubble = true;
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    handlePrintClick();
+                }
 
-            // Send the request.
-            this.xhr.send(data);
-        }
+                // Disable Ctrl+Shift+P
+                if (e.ctrlKey && e.shiftKey && (e.key === 'p' || e.keyCode === 80)) {
+                    e.cancelBubble = true;
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    handlePrintClick();
+                }
+            });
 
-    }
-
-    function MyCustomUploadAdapterPlugin(editor) {
-        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-            // Configure the URL to the upload script in your back-end here!
-            return new MyUploadAdapter(loader);
-        };
-    }
-
-    ClassicEditor
-        .create(document.querySelector('#editor'),
-                {
-                    toolbar: {
-                        items: [
-
-                        ]
-                    }
-            }
-        )
-
-        .then(editor => {
-            window.editor = editor;
-            editor.isReadOnly = true;
-        })
-
-        .catch(error => {
-            console.error(error);
         });
 
-         function MyCustomUploadAdapterPlugin(editor2) {
-        editor2.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-            // Configure the URL to the upload script in your back-end here!
-            return new MyUploadAdapter(loader);
-        };
-    }
 
-    ClassicEditor
-        .create(document.querySelector('#editor2'),
-                {
-                    toolbar: {
-                        items: [
-
-                        ]
-                    }
-            }
-        )
-
-        .then(editor2 => {
-            window.editor2 = editor2;
-            editor2.isReadOnly = true;
-        })
-
-        .catch(error => {
-            console.error(error);
-        });
-        </script>
-         <script>
-    function copyPageUrl() {
-        var copyText = "https://edocs.lion.com.my/documentation/wi/preview?id=" + @Model.Id.ToString();
-        navigator.clipboard.writeText(copyText);
-        alert("Copied the WI url to the clipboard: " + copyText);
-    }
-
-     window.onafterprint = function() {
-        window.location.href = "/documentation/wi/Preview?id=" + @Model.Id.ToString() + "&print=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be";
-}
     </script>
-    }
+
+    <script>
+        class MyUploadAdapter {
+            constructor(loader) {
+                // The file loader instance to use during the upload. It sounds scary but do not
+                // worry — the loader will be passed into the adapter later on in this guide.
+                this.loader = loader;
+            }
+
+            // Starts the upload process.
+            upload() {
+                return this.loader.file
+                    .then(file => new Promise((resolve, reject) => {
+                        this._initRequest();
+                        this._initListeners(resolve, reject, file);
+                        this._sendRequest(file);
+                    }));
+            }
+
+            // Aborts the upload process.
+            abort() {
+                if (this.xhr) {
+                    this.xhr.abort();
+                }
+            }
+
+            // Initializes the XMLHttpRequest object using the URL passed to the constructor.
+            _initRequest() {
+                const xhr = this.xhr = new XMLHttpRequest();
+
+                // Note that your request may look different. It is up to you and your editor
+                // integration to choose the right communication channel. This example uses
+                // a POST request with JSON as a data structure but your configuration
+                // could be different.
+                xhr.open('POST', '@Url.Action("UploadImage", "WI")', true);
+                xhr.responseType = 'json';
+            }
+
+            _initListeners(resolve, reject, file) {
+                const xhr = this.xhr;
+                const loader = this.loader;
+                const genericErrorText = `Couldn't upload file: ${file.name}.`;
+
+                xhr.addEventListener('error', () => reject(genericErrorText));
+                xhr.addEventListener('abort', () => reject());
+                xhr.addEventListener('load', () => {
+                    const response = xhr.response;
+
+                    // This example assumes the XHR server's "response" object will come with
+                    // an "error" which has its own "message" that can be passed to reject()
+                    // in the upload promise.
+                    //
+                    // Your integration may handle upload errors in a different way so make sure
+                    // it is done properly. The reject() function must be called when the upload fails.
+                    if (!response || response.error) {
+                        return reject(response && response.error ? response.error.message : genericErrorText);
+                    }
+
+                    // If the upload is successful, resolve the upload promise with an object containing
+                    // at least the "default" URL, pointing to the image on the server.
+                    // This URL will be used to display the image in the content. Learn more in the
+                    // UploadAdapter#upload documentation.
+                    resolve({
+                        default: response.url
+                    });
+                });
+
+                // Upload progress when it is supported. The file loader has the #uploadTotal and #uploaded
+                // properties which are used e.g. to display the upload progress bar in the editor
+                // user interface.
+                if (xhr.upload) {
+                    xhr.upload.addEventListener('progress', evt => {
+                        if (evt.lengthComputable) {
+                            loader.uploadTotal = evt.total;
+                            loader.uploaded = evt.loaded;
+                        }
+                    });
+                }
+            }
+
+            // Prepares the data and sends the request.
+            _sendRequest(file) {
+                // Prepare the form data.
+                const data = new FormData();
+
+                data.append('upload', file);
+
+                // Important note: This is the right place to implement security mechanisms
+                // like authentication and CSRF protection. For instance, you can use
+                // XMLHttpRequest.setRequestHeader() to set the request headers containing
+                // the CSRF token generated earlier by your application.
+
+                // Send the request.
+                this.xhr.send(data);
+            }
+
+        }
+
+        function MyCustomUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                // Configure the URL to the upload script in your back-end here!
+                return new MyUploadAdapter(loader);
+            };
+        }
+
+        ClassicEditor
+            .create(document.querySelector('#editor'),
+                {
+                    toolbar: {
+                        items: [
+
+                        ]
+                    }
+                }
+            )
+
+            .then(editor => {
+                window.editor = editor;
+                editor.isReadOnly = true;
+            })
+
+            .catch(error => {
+                console.error(error);
+            });
+
+        function MyCustomUploadAdapterPlugin(editor2) {
+            editor2.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                // Configure the URL to the upload script in your back-end here!
+                return new MyUploadAdapter(loader);
+            };
+        }
+
+        ClassicEditor
+            .create(document.querySelector('#editor2'),
+                {
+                    toolbar: {
+                        items: [
+
+                        ]
+                    }
+                }
+            )
+
+            .then(editor2 => {
+                window.editor2 = editor2;
+                editor2.isReadOnly = true;
+            })
+
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script>
+        function copyPageUrl() {
+            var copyText = "https://edocs.lion.com.my/documentation/wi/preview?id=" + @Model.Id.ToString();
+            navigator.clipboard.writeText(copyText);
+            alert("Copied the WI url to the clipboard: " + copyText);
+        }
+
+        window.onafterprint = function () {
+            window.location.href = "/documentation/wi/Preview?id=" + @Model.Id.ToString() + "&print=true&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be";
+        }
+    </script>
+}

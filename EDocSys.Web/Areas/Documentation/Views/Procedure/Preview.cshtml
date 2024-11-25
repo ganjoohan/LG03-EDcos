@@ -203,7 +203,8 @@
         @if (((User.IsInRole("E") || ViewBag.RoleE) && ViewBag.IPrint) || User.IsInRole("SuperAdmin") || ViewBag.RoleSA || ViewBag.IPrint)//User.IsInRole("D") || User.IsInRole("A") ||
         {
             @*<button class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</button>*@
-            <a class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</a>
+            @* <a class="btn btn-default" onclick="window.print();"><i class="fas fa-print"></i> Print</a> *@
+            <a class="btn btn-default" onclick="handlePrintClick()"><i class="fas fa-print"></i> Print</a>
         }
 
         @*@if (User.IsInRole("D") || User.IsInRole("A") || User.IsInRole("E") || User.IsInRole("SuperAdmin"))
@@ -324,60 +325,67 @@
             }
         }
     </style>
-    <script>
-        document.getElementById("btnPrint").onclick = function () {
-            printElement(document.getElementById("printThis"));
 
-            var modThis = document.querySelector("#printSection .modifyMe");
-            modThis.appendChild(document.createTextNode(" new"));
-
-            window.print();
-        }
-
-        function printElement(elem) {
-            var domClone = elem.cloneNode(true);
-
-            var $printSection = document.getElementById("printSection");
-
-            if (!$printSection) {
-                var $printSection = document.createElement("div");
-                $printSection.id = "printSection";
-                document.body.appendChild($printSection);
-            }
-
-            $printSection.innerHTML = "";
-
-            $printSection.appendChild(domClone);
-        }
-    </script>
-
-    <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
 
     <script>
-        document.getElementById("btnPrint").onclick = function () {
-            printElement(document.getElementById("printThis"));
 
-            var modThis = document.querySelector("#printSection .modifyMe");
-            modThis.appendChild(document.createTextNode(" new"));
+        async function handlePrintClick() {
+            const result = await Swal.fire({
+                title: 'Important Notice',
+                html: `
+                        <div class="text-left">
+                            <p>Please note:</p>
+                            <ul>
+                                <li>This document can only be printed ONCE</li>
+                                <li>The system will record this printing action</li>
+                                <li>Print count will be incremented</li>
+                            </ul>
+                            <p>Are you sure you want to proceed?</p>
+                        </div>
+                    `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed',
+                cancelButtonText: 'No, cancel',
+                reverseButtons: true,
+                allowOutsideClick: false
+            });
 
-            window.print();
-        }
-
-        function printElement(elem) {
-            var domClone = elem.cloneNode(true);
-
-            var $printSection = document.getElementById("printSection");
-
-            if (!$printSection) {
-                var $printSection = document.createElement("div");
-                $printSection.id = "printSection";
-                document.body.appendChild($printSection);
+            // Wait for the alert to close
+            if (result.isConfirmed) {
+                await Swal.close();
+                // Add a small delay before printing
+                setTimeout(() => {
+                    window.print();
+                }, 500); // Increased delay to 500ms to ensure modal is fully closed
             }
-
-            $printSection.innerHTML = "";
-
-            $printSection.appendChild(domClone);
         }
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Disable keyboard shortcuts
+            document.addEventListener('keydown', function (e) {
+                // Disable Ctrl+P
+                if (e.ctrlKey && (e.key === 'p' || e.keyCode === 80)) {
+                    e.cancelBubble = true;
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    handlePrintClick();
+                }
+
+                // Disable Ctrl+Shift+P
+                if (e.ctrlKey && e.shiftKey && (e.key === 'p' || e.keyCode === 80)) {
+                    e.cancelBubble = true;
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    handlePrintClick();
+                }
+            });
+
+        });
+
+
     </script>
 
     <script src="~/ckeditor5-build-classic/build/ckeditor.js"></script>
