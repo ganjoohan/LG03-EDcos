@@ -642,7 +642,11 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 }
                 if (departmentsResponse.Succeeded)
                 {
-                    if (rolesList.Contains("D"))
+                    if (rolesList.Contains("E"))
+                    {
+                        departmentViewModel = departmentViewModel.Where(d => d.Id != allDeptId).ToList();
+                    }
+                    else if (rolesList.Contains("D"))
                     {
                         if (users.Select(s => s.UserDepartmentId).Contains(allDeptId))
                         {

@@ -583,7 +583,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         var defDate = DateTime.Now;
                         wiViewModel.RevisionDate = defDate;
                         wiViewModel.EffectiveDate = null;
-                        wiViewModel.EstalishedDate = defDate;
+                        //wiViewModel.EstalishedDate = defDate;
                         wiViewModel.PreparedByDate = defDate;
                         wiViewModel.ArchiveId = wiViewModelOld.Id;
                         wiViewModel.PrintCount = 0;

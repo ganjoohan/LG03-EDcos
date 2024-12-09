@@ -589,7 +589,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         sopViewModel.RevisionNo = revNo + 1;
                         sopViewModel.RevisionDate = DateTime.Now;
                         sopViewModel.EffectiveDate = null;
-                        sopViewModel.EstalishedDate = DateTime.Now;
+                        //sopViewModel.EstalishedDate = DateTime.Now;
                         sopViewModel.PreparedByDate = DateTime.Now;
                         sopViewModel.ArchiveId = sopViewModelOld.Id;
                         sopViewModel.PrintCount = 0;

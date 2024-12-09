@@ -114,7 +114,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             {
                 ViewBag.RoleSA = true;
             }
-            var model = new LionSteelViewModel();           
+            var model = new LionSteelViewModel();
             return View(model);
         }
 
@@ -215,7 +215,11 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                 var lionSteelViewModel = new LionSteelViewModel();
                 if (departmentsResponse.Succeeded)
                 {
-                    if (rolesList.Contains("D"))
+                    if (rolesList.Contains("E"))
+                    {
+                        departmentViewModel = departmentViewModel.Where(d => d.Id != allDeptId).ToList();
+                    }
+                    else if (rolesList.Contains("D"))
                     {
                         if (users.Select(s => s.UserDepartmentId).Contains(allDeptId))
                         {
@@ -233,7 +237,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                 if (companiesResponse.Succeeded)
                 {
                     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
-                    if (rolesList.Contains("D"))
+                    if (rolesList.Contains("E") || rolesList.Contains("D"))
                     {
                         companyViewModel = companyViewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.Id)).ToList();
                     }
@@ -482,7 +486,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                 }
-               
+
                 return PartialView("_ViewAll", viewModel);
             }
             return null;
@@ -968,7 +972,7 @@ namespace EDocSys.Web.Areas.ExternalRecord.Controllers
             if (response.Succeeded)
             {
                 var viewModel = _mapper.Map<List<LionSteelViewModel>>(response.Data);
-                var viewModel0 = viewModel.Where(w=> w.ExpiryDate != default(DateTime) && w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
+                var viewModel0 = viewModel.Where(w => w.ExpiryDate != default(DateTime) && w.ExpiryDate <= DateTime.Now.AddDays(-w.InformPeriod) && w.IsActive == true && w.IsArchive == false).ToList();
                 if (viewModel0.Count > 0)
                 {
                     List<string> informedLists = viewModel0.SelectMany(s => s.InformedList.Split(",").ToList()).Distinct().ToList();

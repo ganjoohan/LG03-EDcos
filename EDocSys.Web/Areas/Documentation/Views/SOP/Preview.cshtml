@@ -220,7 +220,7 @@
             }
             }*@
 
-            @if ((Model.SOPStatusView == "New" || Model.SOPStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+            @if ((Model.SOPStatusView == "New" || Model.SOPStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
             {
 
                 @if (Model.Concurred1 != null && Model.ApprovedBy != null)
@@ -332,16 +332,16 @@
             const result = await Swal.fire({
                 title: 'Important Notice',
                 html: `
-                        <div class="text-left">
-                            <p>Please note:</p>
-                            <ul>
-                                <li>This document can only be printed ONCE</li>
-                                <li>The system will record this printing action</li>
-                                <li>Print count will be incremented</li>
-                            </ul>
-                            <p>Are you sure you want to proceed?</p>
-                        </div>
-                    `,
+                                <div class="text-left">
+                                    <p>Please note:</p>
+                                    <ul>
+                                        <li>This document can only be printed ONCE</li>
+                                        <li>The system will record this printing action</li>
+                                        <li>Print count will be incremented</li>
+                                    </ul>
+                                    <p>Are you sure you want to proceed?</p>
+                                </div>
+                            `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, proceed',

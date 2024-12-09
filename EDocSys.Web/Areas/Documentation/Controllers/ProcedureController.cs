@@ -504,7 +504,12 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                 {
                     var departmentViewModel = _mapper.Map<List<DepartmentViewModel>>(departmentsResponse.Data);
                     allDeptId = departmentViewModel.Where(w => w.Name == "All Departments").FirstOrDefault().Id;
-                    if (rolesList.Contains("D"))
+
+                    if (rolesList.Contains("E"))
+                    {
+                        departmentViewModel = departmentViewModel.Where(d => d.Id != allDeptId).ToList();
+                    }
+                    else if (rolesList.Contains("D"))
                     {
                         if (users.Select(s => s.UserDepartmentId).Contains(allDeptId))
                         {
@@ -586,7 +591,7 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                         procedureViewModel.RevisionNo = revNo + 1;
                         procedureViewModel.RevisionDate = DateTime.Now;
                         procedureViewModel.EffectiveDate = null;
-                        procedureViewModel.EstalishedDate = DateTime.Now;
+                        //procedureViewModel.EstalishedDate = DateTime.Now;
                         procedureViewModel.PreparedByDate = DateTime.Now;
                         procedureViewModel.ArchiveId = procedureViewModelOld.Id;
                         procedureViewModel.PrintCount = 0;

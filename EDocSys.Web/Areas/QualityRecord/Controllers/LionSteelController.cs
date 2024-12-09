@@ -126,7 +126,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
-         
+
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
             //var adg = _context.LionSteelStatus;
             //var statusById = _context.LionSteelStatus.Where(a => a.LionSteelId == id).ToList();
@@ -360,7 +360,11 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 var lionSteelViewModel = new LionSteelViewModel();
                 if (departmentsResponse.Succeeded)
                 {
-                    if (rolesList.Contains("D"))
+                    if (rolesList.Contains("E"))
+                    {
+                        departmentViewModel = departmentViewModel.Where(d => d.Id != allDeptId).ToList();
+                    }
+                    else if (rolesList.Contains("D"))
                     {
                         if (users.Select(s => s.UserDepartmentId).Contains(allDeptId))
                         {
@@ -378,7 +382,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 if (companiesResponse.Succeeded)
                 {
                     var companyViewModel = _mapper.Map<List<CompanyViewModel>>(companiesResponse.Data);
-                    if (rolesList.Contains("D"))
+                    if (rolesList.Contains("E") || rolesList.Contains("D"))
                     {
                         companyViewModel = companyViewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.Id)).ToList();
                     }
@@ -407,7 +411,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                         var revNo = lionSteelViewModel.RevisionNo != null ? lionSteelViewModel.RevisionNo : 0;
                         lionSteelViewModel.RevisionNo = revNo + 1;
                         lionSteelViewModel.RevisionDate = DateTime.Now;
-   
+
                         lionSteelViewModel.ArchiveId = lionSteelViewModelOld.Id;
                         lionSteelViewModel.PrintCount = 0;
                     }
@@ -439,7 +443,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
             var users = _userManager.Users.Where(w => w.Email == currentUser.Email).ToList();
             List<string> rolesList = new List<string>();
             List<string> rolesListComp = new List<string>();
-           
+
             var response = await _mediator.Send(new GetLionSteelByIdQuery() { Id = id });
 
             //var statusById = _context.DocumentManualStatus.Where(a => a.DocumentManualId == id).ToList();
@@ -564,7 +568,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                 }
-                foreach(LionSteelViewModel item in viewModel)
+                foreach (LionSteelViewModel item in viewModel)
                 {
                     item.CompanyName = companyViewModel.Where(w => w.Id == item.CompanyId).Select(s => s.Name).FirstOrDefault();
                     item.ProcessName = departmentViewModel.Where(w => w.Id == item.DepartmentId).Select(s => s.Name).FirstOrDefault();
@@ -589,7 +593,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                 }
-                else if(rolesList.Contains("C"))
+                else if (rolesList.Contains("C"))
                 {
                     viewModel = viewModel.Where(a => users.Select(s => s.UserCompanyId).Contains(a.CompanyId)).ToList();
                 }
@@ -710,7 +714,7 @@ namespace EDocSys.Web.Areas.QualityRecord.Controllers
                         }
                     }
                 }
-               if (Request.Form.Files.Count > 0)
+                if (Request.Form.Files.Count > 0)
                 {
                     IFormFile file = Request.Form.Files.FirstOrDefault();
                     var image = file.OptimizeImageSize(700, 700);

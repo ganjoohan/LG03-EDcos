@@ -276,7 +276,7 @@
             }
             }*@
 
-            @if ((Model.IssuanceStatusView == "New" || Model.IssuanceStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+            @if ((Model.IssuanceStatusView == "New" || Model.IssuanceStatusView == "Rejected") && (User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
             {
                 @if (Model.VerifiedBy != null && Model.ApprovedBy != null)
                 {
