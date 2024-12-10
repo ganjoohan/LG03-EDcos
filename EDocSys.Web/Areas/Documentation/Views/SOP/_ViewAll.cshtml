@@ -14,7 +14,6 @@
         pendApp = (User.IsInRole("E") || ViewBag.RoleE) ? (nonAL.Where(w => w.SOPStatusView == "Submitted").ToList()) : (nonAL.Where(w => (userId.Contains(w.Concurred1) && w.SOPStatusView == "Format Checked") || (userId.Contains(w.Concurred2) && w.SOPStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SOPStatusView == "Concurred1") || (userId.Contains(w.ApprovedBy) && w.SOPStatusView == "Concurred2")).ToList());
     }
 }
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> *@
 
 <style>
     .tabs {
@@ -83,7 +82,7 @@
                 {
                     <li class="active"><a href="#tab2">Main</a></li>
                 }
-                @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+                @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
                 {
                     <li><a href="#tab3">Archived</a></li>
                 }
@@ -171,9 +170,6 @@
                                                 <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
                                                     <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
                                                 </form>
-                                                @*   <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                    <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                    </form>*@
                                             }
                                             else if (@sop.SOPStatusView != "New")
                                             {
@@ -222,10 +218,32 @@
                                             Action
                                         </button>
                                         <div class="dropdown-menu shadow animated--grow-in">
+                                            @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit SOP
+                                                </a>
+                                            }
+
                                             <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
                                             <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
                                                 <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
                                             </form>
+
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                               asp-route-wscpno="@sop.WSCPNo"
+                                               asp-route-wscpid="@sop.WSCPId"
+                                               asp-route-departmentId="@sop.DepartmentId"
+                                               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                               asp-route-sopno="@sop.SOPNo"
+                                               asp-route-procedureId="@sop.Id">
+                                                <i class="fa fa-plus-square"></i> Create WI
+                                            </a>
+
+                                            <a href="/documentation/wi/Index?sopno=@sop.SOPNo" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
                                         </div>
                                     </div>
                                 </td>
@@ -241,35 +259,6 @@
                             {
                                 <td></td>
                             }
-
-                            @*<td class="text-right">
-                        <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Action
-                        </button>
-                        <div class="dropdown-menu shadow animated--grow-in">
-                        <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
-
-                        <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                        </form>
-
-                        <div class="dropdown-divider"></div>
-
-                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
-                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
-
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
-                        asp-route-wscpno="@sop.WSCPNo"
-                        asp-route-departmentId="@sop.DepartmentId"
-                        asp-route-procedureId="@sop.Id">
-                        <i class="fa fa-plus-square"></i> Create WI</a>
-                        <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
-                        </div>
-                        </div>
-                        </td>*@
                         </tr>
                     }
                 </tbody>
@@ -347,9 +336,6 @@
                                                 <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
                                                     <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
                                                 </form>
-                                                @*   <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                                    <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                                    </form>*@
                                             }
                                             else if (@sop.SOPStatusView != "New")
                                             {
@@ -398,10 +384,35 @@
                                             Action
                                         </button>
                                         <div class="dropdown-menu shadow animated--grow-in">
+                                            @if (@sop.SOPStatusView == "New" || @sop.SOPStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/sop/CreateOrEdit?id=@sop.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit SOP
+                                                </a>
+                                            }
+
+
                                             <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
                                             <form id="form_deactivate_@sop.Id" asp-area="Documentation" asp-controller="Sop" method="post" asp-action="OnPostDeactivate" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
                                                 <a href="javascript:$('#form_deactivate_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
                                             </form>
+
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
+                                               asp-route-wscpno="@sop.WSCPNo"
+                                               asp-route-wscpid="@sop.WSCPId"
+                                               asp-route-departmentId="@sop.DepartmentId"
+                                               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                               asp-route-sopno="@sop.SOPNo"
+                                               asp-route-procedureId="@sop.Id">
+                                                <i class="fa fa-plus-square"></i> Create WI
+                                            </a>
+
+                                            <a href="/documentation/wi/Index?sopno=@sop.SOPNo&wscpid=@sop.WSCPId" class="dropdown-item"><i class="fa fa-list"></i>  WI List</a>
+
+
                                         </div>
                                     </div>
                                 </td>
@@ -417,35 +428,6 @@
                             {
                                 <td></td>
                             }
-
-                            @*<td class="text-right">
-                        <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Action
-                        </button>
-                        <div class="dropdown-menu shadow animated--grow-in">
-                        <a href="/documentation/sop/CreateOrEdit?id=@sop.Id" class="dropdown-item"><i class="fas fa-pencil-alt"></i>  Edit SOP</a>
-                        <a href="/documentation/sop/Preview?id=@sop.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview SOP</a>
-
-                        <form id="form_delete_@sop.Id" asp-area="Documentation" asp-controller="SOP" method="post" asp-action="OnPostDelete" asp-route-id="@sop.Id" onsubmit="return jQueryModalDelete(this)">
-                        <a href="javascript:$('#form_delete_@sop.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete SOP</a>
-                        </form>
-
-                        <div class="dropdown-divider"></div>
-
-                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.WSCPNo</a>
-                        <a class="dropdown-item" href="#"><i class="fa fa-link" aria-hidden="true"></i> @sop.SOPNo</a>
-
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" asp-area="Documentation" asp-controller="WI" asp-action="CreateOrEdit"
-                        asp-route-wscpno="@sop.WSCPNo"
-                        asp-route-departmentId="@sop.DepartmentId"
-                        asp-route-procedureId="@sop.Id">
-                        <i class="fa fa-plus-square"></i> Create WI</a>
-                        <a class="dropdown-item" href="#"><i class="fa fa-list" aria-hidden="true"></i> WI List</a>
-                        </div>
-                        </div>
-                        </td>*@
                         </tr>
                     }
                 </tbody>

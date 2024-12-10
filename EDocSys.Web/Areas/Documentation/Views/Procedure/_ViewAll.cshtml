@@ -84,7 +84,7 @@
                 {
                     <li class="active"><a href="#tab2">Main</a></li>
                 }
-                @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+                @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
                 {
                     <li><a href="#tab3">Archived</a></li>
                 }
@@ -219,12 +219,34 @@
                                         <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             Action
                                         </button>
+                                        
                                         <div class="dropdown-menu shadow animated--grow-in">
+                                            @if (@procedure.ProcedureStatusView == "New" || @procedure.ProcedureStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit Procedure
+                                                </a>
+                                            }
+
+
                                             <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item"><i class="fas fa-eye"></i>  Preview Procedure</a>
 
                                             <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
                                                 <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
                                             </form>
+
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit"
+                                               asp-route-wscpno="@procedure.WSCPNo"
+                                               asp-route-wscpId="@procedure.Id"
+                                               asp-route-departmentId="@procedure.DepartmentId"
+                                               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                               asp-route-procedureId="@procedure.Id">
+                                                <i class="fa fa-plus-square"></i> Create SOP
+                                            </a>
+                                            <a href="/documentation/sop/Index?wscpno=@procedure.WSCPNo" class="dropdown-item"><i class="fa fa-list"></i>  SOP List</a>
 
                                         </div>
                                     </div>
@@ -365,6 +387,14 @@
                                             Action
                                         </button>
                                         <div class="dropdown-menu shadow animated--grow-in">
+                                            @if (@procedure.ProcedureStatusView == "New" || @procedure.ProcedureStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/procedure/CreateOrEdit?id=@procedure.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit Procedure
+                                                </a>
+                                            }
+
                                             <a href="/documentation/procedure/Preview?id=@procedure.Id" class="dropdown-item">
                                                 <i class="fas fa-eye"></i>
                                                 Preview Procedure
@@ -372,6 +402,18 @@
                                             <form id="form_deactivate_@procedure.Id" asp-area="Documentation" asp-controller="Procedure" method="post" asp-action="OnPostDeactivate" asp-route-id="@procedure.Id" onsubmit="return jQueryModalDelete(this)">
                                                 <a href="javascript:$('#form_deactivate_@procedure.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Procedure</a>
                                             </form>
+
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item" asp-area="Documentation" asp-controller="SOP" asp-action="CreateOrEdit"
+                                               asp-route-wscpno="@procedure.WSCPNo"
+                                               asp-route-wscpId="@procedure.Id"
+                                               asp-route-departmentId="@procedure.DepartmentId"
+                                               asp-route-ce="f11c9d1f-abbb-45a1-8d11-b0a5590e5893"
+                                               asp-route-procedureId="@procedure.Id">
+                                                <i class="fa fa-plus-square"></i> Create SOP
+                                            </a>
+                                            <a href="/documentation/sop/Index?wscpno=@procedure.WSCPNo&wscpid=@procedure.Id" class="dropdown-item"><i class="fa fa-list"></i>  SOP List</a>
 
                                         </div>
                                     </div>

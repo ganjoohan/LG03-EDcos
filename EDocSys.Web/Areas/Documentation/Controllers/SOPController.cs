@@ -986,32 +986,6 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
             }
             return null;
         }
-        //[HttpPost]
-        //public async Task<JsonResult> OnPostDelete(int id)
-        //{
-        //    var deleteCommand = await _mediator.Send(new DeleteSOPCommand { Id = id });
-        //    if (deleteCommand.Succeeded)
-        //    {
-        //        _notify.Information($"SOP with Id {id} Deleted.");
-        //        var response = await _mediator.Send(new GetAllSOPsCachedQuery());
-        //        if (response.Succeeded)
-        //        {
-        //            var viewModel = _mapper.Map<List<SOPViewModel>>(response.Data);
-        //            var html = await _viewRenderer.RenderViewToStringAsync("_ViewAll", viewModel);
-        //            return new JsonResult(new { isValid = true, html = html });
-        //        }
-        //        else
-        //        {
-        //            _notify.Error(response.Message);
-        //            return null;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        _notify.Error(deleteCommand.Message);
-        //        return null;
-        //    }
-        //}
 
         public ActionResult UploadImage(List<IFormFile> files)
         {
