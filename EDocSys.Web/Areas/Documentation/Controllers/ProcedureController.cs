@@ -308,13 +308,13 @@ namespace EDocSys.Web.Areas.Documentation.Controllers
                     ViewBag.RoleAB1 = true;
                     validUser = true;
                 }
-                if (rolesListComp.Contains("B1") && userChk)
+                if (rolesListComp.Contains("B1") && userChkE)
                 {
                     ViewBag.RoleB1 = true;
                     ViewBag.RoleAB1 = true;
                     validUser = true;
                 }
-                if (rolesListComp.Contains("B2") && userChk)
+                if (rolesListComp.Contains("B2") && userChkE)
                 {
                     ViewBag.RoleB2 = true;
                     validUser = true;

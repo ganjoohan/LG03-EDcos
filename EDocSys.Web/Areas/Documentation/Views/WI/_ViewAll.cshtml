@@ -70,7 +70,7 @@
 </style>
 <div class="tabs">
 
-    @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+    @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
     {
         <div class="tab-nav-wrapper">
             <ul>

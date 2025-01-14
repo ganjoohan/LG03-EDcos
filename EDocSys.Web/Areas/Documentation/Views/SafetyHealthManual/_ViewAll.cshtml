@@ -3,11 +3,11 @@
 @{
     var archiveList = new List<SafetyHealthManualViewModel>();
     archiveList = Model.Where(w => w.ArchiveDate <= DateTime.Now && w.ArchiveDate != default(DateTime)).ToList();
-    var nonAL = Model.Where(w=> !archiveList.Contains(w)).ToList();
+    var nonAL = Model.Where(w => !archiveList.Contains(w)).ToList();
     var subAL = nonAL.Where(w => w.ArchiveId != 0).ToList();
     var preAL = archiveList.Where(w => !subAL.Select(s => s.ArchiveId).Contains(w.Id)).ToList();
     var pendApp = new List<SafetyHealthManualViewModel>();
-    if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
+    if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1)
     {
         string userIds = ViewBag.userIds;
         List<string> userId = userIds.Split(',').ToList();
@@ -17,64 +17,64 @@
 @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> *@
 
 <style>
-  .tabs {
-    height: auto;
-    width: 100%;
-    text-align: left;
-  }
-  
-  .tab-nav-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    position: relative !important;
-    z-index: 999 !important;
-    top: 3px;
-  }
-  
-  .tabs ul {
-    display: block;
-    /*width: max-content;*/
-    overflow-y: hidden;
-    margin: 0px;
-    padding-inline-start: 5px;
-  }
-  
-  .tabs ul li {
-    display: inline-block;
-    border: 1px solid grey;
-    border-bottom: 1px solid black;
-    background-color: white;
-  }
-  
-  .tabs ul li.active {
-    border: 1px solid black;
-    border-bottom: 1px solid white;
-  }
-  
-  .tabs ul li a {
-    text-decoration: none;
-    color: black;
-    padding: 10px;
-    line-height: 25px;
-    position: relative;
-    font-weight: bold;
-  }
-  
-  .tab-content-wrapper {
-    position: relative !important;
-    z-index: 1 !important;
-    border: 1px solid black;
-    padding: 20px;
-    min-height: 40px;
-  }
+    .tabs {
+        height: auto;
+        width: 100%;
+        text-align: left;
+    }
+
+    .tab-nav-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        position: relative !important;
+        z-index: 999 !important;
+        top: 3px;
+    }
+
+    .tabs ul {
+        display: block;
+        /*width: max-content;*/
+        overflow-y: hidden;
+        margin: 0px;
+        padding-inline-start: 5px;
+    }
+
+        .tabs ul li {
+            display: inline-block;
+            border: 1px solid grey;
+            border-bottom: 1px solid black;
+            background-color: white;
+        }
+
+            .tabs ul li.active {
+                border: 1px solid black;
+                border-bottom: 1px solid white;
+            }
+
+            .tabs ul li a {
+                text-decoration: none;
+                color: black;
+                padding: 10px;
+                line-height: 25px;
+                position: relative;
+                font-weight: bold;
+            }
+
+    .tab-content-wrapper {
+        position: relative !important;
+        z-index: 1 !important;
+        border: 1px solid black;
+        padding: 20px;
+        min-height: 40px;
+    }
 </style>
 <div class="tabs">
- 
-    @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE  || User.IsInRole("D") || ViewBag.RoleD)
+
+    @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
     {
         <div class="tab-nav-wrapper">
             <ul>
-                 @if(User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
+                @if (User.IsInRole("A") || ViewBag.RoleA || User.IsInRole("B1") || ViewBag.RoleB1 || User.IsInRole("E") || ViewBag.RoleE)
                 {
                     <li class="active"><a href="#tab1">To Be Approved</a></li>
                     <li><a href="#tab2">Main</a></li>
@@ -82,369 +82,369 @@
                 else
                 {
                     <li class="active"><a href="#tab2">Main</a></li>
-                }                
-                @if(User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD)
+                }
+                @if (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("D") || ViewBag.RoleD || User.IsInRole("SuperAdmin") || ViewBag.RoleSA)
                 {
-                <li><a href="#tab3">Archived</a></li>
+                    <li><a href="#tab3">Archived</a></li>
                 }
             </ul>
         </div>
     }
     else
     {
-         <div class="tab-nav-wrapper" hidden>
+        <div class="tab-nav-wrapper" hidden>
             <ul>
                 <li class="active"><a href="#tab2">Main</a></li>
             </ul>
         </div>
     }
 
-  <div class="tab-content-wrapper">
-    <div id="tab1" class="tab-content" style="display:none;">
-<table id="safetyHealthManualPendAppTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
-    <thead>
-        <tr>
-            <th>DOC No</th>
-            <th>DOC Title</th>
-            <th>Company</th>
-           @* <th>Process</th>*@
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="tab-content-wrapper">
+        <div id="tab1" class="tab-content" style="display:none;">
+            <table id="safetyHealthManualPendAppTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>DOC No</th>
+                        <th>DOC Title</th>
+                        <th>Company</th>
+                        @* <th>Process</th>*@
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-        @foreach (var docManual in pendApp)
-        {
-            <tr>
-                <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
-                <td>@docManual.Title</td>
-                <td>@docManual.CompanyName</td>
-                @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
-              @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
-                <td align="center">
-                    @if (!User.IsInRole("None"))
+                    @foreach (var docManual in pendApp)
                     {
-                        if (@docManual.SafetyHealthManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                            <a href="/documentation/SafetyHealthManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (docManual.SafetyHealthManualStatusView == "Approved")
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                        }
-                        else if (@docManual.SafetyHealthManualStatusView == "New")
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                        }
-                    }
-                </td>
-                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department) 
-                {
-                    <td text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                                @*Can only Edit if New or Rejected status *@
-                                @if (@docManual.SafetyHealthManualStatusView == "New" || @docManual.SafetyHealthManualStatusView == "Rejected")
+                        <tr>
+                            <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
+                            <td>@docManual.Title</td>
+                            <td>@docManual.CompanyName</td>
+                            @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
+                            @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
+                            <td align="center">
+                                @if (!User.IsInRole("None"))
                                 {
-                                    <a href="/documentation/SafetyHealthManual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
-                                        <i class="fas fa-pencil-alt"></i>
-                                        Edit Safety and Health Manual
-                                    </a>
+                                    if (@docManual.SafetyHealthManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                        <a href="/documentation/SafetyHealthManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                                    }
+                                    else if (docManual.SafetyHealthManualStatusView == "Approved")
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                    }
+                                    else if (@docManual.SafetyHealthManualStatusView == "New")
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                    }
                                 }
+                            </td>
+                            @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department)
+                            {
+                                <td text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            @*Can only Edit if New or Rejected status *@
+                                            @if (@docManual.SafetyHealthManualStatusView == "New" || @docManual.SafetyHealthManualStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit Safety and Health Manual
+                                                </a>
+                                            }
 
-                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
-                                @if ((@docManual.SafetyHealthManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                                {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Safety and Health Manual
-                                    </a>
-                                    <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
-                                    </form>
+                                            @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                            @if ((@docManual.SafetyHealthManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview Safety and Health Manual
+                                                </a>
+                                                <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                </form>
 
-                                  @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
                                     </form>*@
-                                }
-                                else if (@docManual.SafetyHealthManualStatusView != "New")
-                                {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Safety and Health Manual
-                                    </a>
-                                     <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
-                                    </form>
-                                }
-                            </div>
-                            </div>
-                        </td>
-                }
-                else 
-                {
-                    <td align="center"><a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Safety and Health Manual</a></td>
-                }
-               
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
-    <div id="tab2" class="tab-content" style="display:none;"> 
-        <table id="safetyHealthManualTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
-    <thead>
-        <tr>
-            <th>DOC No</th>
-            <th>DOC Title</th>
-            <th>Company</th>
-           @* <th>Process</th>*@
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+                                            }
+                                            else if (@docManual.SafetyHealthManualStatusView != "New")
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview Safety and Health Manual
+                                                </a>
+                                                <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td align="center"><a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Safety and Health Manual</a></td>
+                            }
 
-        @foreach (var docManual in nonAL)
-        {
-            <tr>
-                <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
-                <td>@docManual.Title</td>
-                <td>@docManual.CompanyName</td>
-                @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
-              @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
-                <td align="center">
-                    @if (!User.IsInRole("None"))
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab2" class="tab-content" style="display:none;">
+            <table id="safetyHealthManualTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>DOC No</th>
+                        <th>DOC Title</th>
+                        <th>Company</th>
+                        @* <th>Process</th>*@
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var docManual in nonAL)
                     {
-                        if (@docManual.SafetyHealthManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                            <a href="/documentation/SafetyHealthManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (docManual.SafetyHealthManualStatusView == "Approved")
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                        }
-                        else if (@docManual.SafetyHealthManualStatusView == "New")
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                        }
-                    }
-                </td>
-                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department) 
-                {
-                    <td text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                                @*Can only Edit if New or Rejected status *@
-                                @if (@docManual.SafetyHealthManualStatusView == "New" || @docManual.SafetyHealthManualStatusView == "Rejected")
+                        <tr>
+                            <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
+                            <td>@docManual.Title</td>
+                            <td>@docManual.CompanyName</td>
+                            @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
+                            @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
+                            <td align="center">
+                                @if (!User.IsInRole("None"))
                                 {
-                                    <a href="/documentation/SafetyHealthManual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
-                                        <i class="fas fa-pencil-alt"></i>
-                                        Edit Safety and Health Manual
-                                    </a>
+                                    if (@docManual.SafetyHealthManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                        <a href="/documentation/SafetyHealthManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                                    }
+                                    else if (docManual.SafetyHealthManualStatusView == "Approved")
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                    }
+                                    else if (@docManual.SafetyHealthManualStatusView == "New")
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                    }
                                 }
+                            </td>
+                            @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department)
+                            {
+                                <td text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            @*Can only Edit if New or Rejected status *@
+                                            @if (@docManual.SafetyHealthManualStatusView == "New" || @docManual.SafetyHealthManualStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit Safety and Health Manual
+                                                </a>
+                                            }
 
-                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
-                                @if ((@docManual.SafetyHealthManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                                {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Safety and Health Manual
-                                    </a>
-                                    <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
-                                    </form>
+                                            @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                            @if ((@docManual.SafetyHealthManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview Safety and Health Manual
+                                                </a>
+                                                <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                </form>
 
-                                  @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
                                     </form>*@
-                                }
-                                else if (@docManual.SafetyHealthManualStatusView != "New")
-                                {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Safety and Health Manual
-                                    </a>
-                                     <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
-                                    </form>
-                                }
-                            </div>
-                            </div>
-                        </td>
-                }
-                else 
-                {
-                    <td align="center"><a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Safety and Health Manual</a></td>
-                }
-               
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
- <div id="tab3" class="tab-content" style="display:none;">
-       <table id="safetyHealthManualArchiveListTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
-           <thead>
-        <tr>
-            <th>DOC No</th>
-            <th>DOC Title</th>
-            <th>Company</th>
-           @* <th>Process</th>*@
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+                                            }
+                                            else if (@docManual.SafetyHealthManualStatusView != "New")
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview Safety and Health Manual
+                                                </a>
+                                                <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td align="center"><a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Safety and Health Manual</a></td>
+                            }
 
-        @foreach (var docManual in archiveList)
-        {
-            <tr>
-                <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
-                <td>@docManual.Title</td>
-                <td>@docManual.CompanyName</td>
-                @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
-              @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
-                <td align="center">
-                    @if (!User.IsInRole("None"))
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div id="tab3" class="tab-content" style="display:none;">
+            <table id="safetyHealthManualArchiveListTable" class="table table-bordered table-hover" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>DOC No</th>
+                        <th>DOC Title</th>
+                        <th>Company</th>
+                        @* <th>Process</th>*@
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var docManual in archiveList)
                     {
-                        if (@docManual.SafetyHealthManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                            <a href="/documentation/SafetyHealthManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
-                        }
-                        else if (docManual.SafetyHealthManualStatusView == "Approved")
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                        }
-                        else if (@docManual.SafetyHealthManualStatusView == "New")
-                        {
-                            <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
-                        }
-                    }
-                </td>
-                @if(User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department) 
-                {
-                    <td text-right">
-                        <div class="btn-group ">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action
-                            </button>
-                            <div class="dropdown-menu shadow animated--grow-in">
-                                @*Can only Edit if New or Rejected status *@
-                                @if (@docManual.SafetyHealthManualStatusView == "New" || @docManual.SafetyHealthManualStatusView == "Rejected")
+                        <tr>
+                            <td style="text-indent: 35px; ">» @docManual.DOCNo</td>
+                            <td>@docManual.Title</td>
+                            <td>@docManual.CompanyName</td>
+                            @* <td><b>@docManual.ProcessName.ToUpper()</b> </td>*@
+                            @*  <td><b>@Html.Encode(@docManual.ProcessName).ToUpper()</b> </td>*@
+                            <td align="center">
+                                @if (!User.IsInRole("None"))
                                 {
-                                    <a href="/documentation/SafetyHealthManual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
-                                        <i class="fas fa-pencil-alt"></i>
-                                        Edit Safety and Health Manual
-                                    </a>
+                                    if (@docManual.SafetyHealthManualStatusView != "New" && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                        <a href="/documentation/SafetyHealthManualStatus/Index?id=@docManual.Id" class="btn btn-success btn-xs"><i class="fa fa-list"></i>  Progress List</a>
+                                    }
+                                    else if (docManual.SafetyHealthManualStatusView == "Approved")
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                    }
+                                    else if (@docManual.SafetyHealthManualStatusView == "New")
+                                    {
+                                        <span class="badge badge-warning">@docManual.SafetyHealthManualStatusView</span>
+                                    }
                                 }
+                            </td>
+                            @if (User.IsInRole("SuperAdmin") || ViewBag.RoleSA || User.IsInRole("E") || ViewBag.RoleE) // SOP Department Admin (Full Access by Department)
+                            {
+                                <td text-right">
+                                    <div class="btn-group ">
+                                        <button type="button" class="btn btn-xs btn-default dropdown-toggle dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            @*Can only Edit if New or Rejected status *@
+                                            @if (@docManual.SafetyHealthManualStatusView == "New" || @docManual.SafetyHealthManualStatusView == "Rejected")
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/CreateOrEdit?id=@docManual.Id&&ce=bd773a2a-ffc6-4ed2-9ba3-c7ea631628be" class="dropdown-item">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                    Edit Safety and Health Manual
+                                                </a>
+                                            }
 
-                                @* Only Deparment Admin Preview if "New" or "Rejected" status *@
-                                @if ((@docManual.SafetyHealthManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
-                                {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Safety and Health Manual
-                                    </a>
-                                    <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
-                                    </form>
+                                            @* Only Deparment Admin Preview if "New" or "Rejected" status *@
+                                            @if ((@docManual.SafetyHealthManualStatusView == "New") && (User.IsInRole("E") || ViewBag.RoleE || User.IsInRole("SuperAdmin") || ViewBag.RoleSA))
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview Safety and Health Manual
+                                                </a>
+                                                <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                </form>
 
-                                  @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                @*  <form id="form_delete_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDelete" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                    <a href="javascript:$('#form_delete_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
                                     </form>*@
-                                }
-                                else if (@docManual.SafetyHealthManualStatusView != "New")
-                                {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
-                                        <i class="fas fa-eye"></i>
-                                        Preview Safety and Health Manual
-                                    </a>
-                                     <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
-                                        <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
-                                    </form>
-                                }
-                                @if (preAL.Select(s => s.Id).Contains(docManual.Id))
-                                 {
-                                    <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id&revert=true" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Revert Safety and Health Manual</a>
-                                 }
-                            </div>
-                            </div>
-                        </td>
-                }
-                else 
-                {
-                    <td align="center"><a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Safety and Health Manual</a></td>
-                }
-               
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
-  </div>
+                                            }
+                                            else if (@docManual.SafetyHealthManualStatusView != "New")
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="dropdown-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    Preview Safety and Health Manual
+                                                </a>
+                                                <form id="form_deactivate_@docManual.Id" asp-area="Documentation" asp-controller="SafetyHealthManual" method="post" asp-action="OnPostDeactivate" asp-route-id="@docManual.Id" onsubmit="return jQueryModalDelete(this)">
+                                                    <a href="javascript:$('#form_deactivate_@docManual.Id').submit();" class="dropdown-item"><i class="fas fa-trash-alt"></i>  Delete Safety and Health Manual</a>
+                                                </form>
+                                            }
+                                            @if (preAL.Select(s => s.Id).Contains(docManual.Id))
+                                            {
+                                                <a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id&revert=true" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Revert Safety and Health Manual</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td align="center"><a href="/documentation/SafetyHealthManual/Preview?id=@docManual.Id" class="btn-xs btn-success"><i class="fas fa-eye"></i>  Preview Safety and Health Manual</a></td>
+                            }
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 <script>
     $(document).ready(function () {
-        $('#safetyHealthManualTable').DataTable( {
-        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2 ]
-        },
-        columnDefs: [ {
-            targets: [ 2 ],
-            visible: false
-        } ]
-    } );
-    });
-      $(document).ready(function () {
-        $('#safetyHealthManualPendAppTable').DataTable( {
-        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2 ]
-        },
-        columnDefs: [ {
-            targets: [ 2 ],
-            visible: false
-        } ]
-    } );
+        $('#safetyHealthManualTable').DataTable({
+            order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+            rowGroup: {
+                dataSrc: [2]
+            },
+            columnDefs: [{
+                targets: [2],
+                visible: false
+            }]
+        });
     });
     $(document).ready(function () {
-        $('#safetyHealthManualArchiveListTable').DataTable( {
-        order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
-        rowGroup: {
-            dataSrc: [ 2 ]
-        },
-        columnDefs: [ {
-            targets: [ 2 ],
-            visible: false
-        } ]
-    } );
+        $('#safetyHealthManualPendAppTable').DataTable({
+            order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+            rowGroup: {
+                dataSrc: [2]
+            },
+            columnDefs: [{
+                targets: [2],
+                visible: false
+            }]
+        });
     });
-     $(document).ready(function() {
-  $(".tab-nav-wrapper li.active").click();
-  $($(".tab-nav-wrapper li.active a").attr("href")).show();
+    $(document).ready(function () {
+        $('#safetyHealthManualArchiveListTable').DataTable({
+            order: [[2, 'asc'], [0, 'asc'], [1, 'asc']],
+            rowGroup: {
+                dataSrc: [2]
+            },
+            columnDefs: [{
+                targets: [2],
+                visible: false
+            }]
+        });
+    });
+    $(document).ready(function () {
+        $(".tab-nav-wrapper li.active").click();
+        $($(".tab-nav-wrapper li.active a").attr("href")).show();
 
-  $(".tab-nav-wrapper li").click(function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+        $(".tab-nav-wrapper li").click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-    $(".tab-nav-wrapper li").removeClass("active");
-    $(this).addClass("active");
+            $(".tab-nav-wrapper li").removeClass("active");
+            $(this).addClass("active");
 
-    var target = $(this).find("a").attr("href");
-    $(".tab-content-wrapper").find(".tab-content").hide();
-    $(".tab-content-wrapper").find(target).show();
-  })
-});
+            var target = $(this).find("a").attr("href");
+            $(".tab-content-wrapper").find(".tab-content").hide();
+            $(".tab-content-wrapper").find(target).show();
+        })
+    });
 </script>
