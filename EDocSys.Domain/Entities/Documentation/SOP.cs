@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.Abstractions.Domain;
 using EDocSys.Domain.Entities.DocumentationMaster;
 using System;
+using System.Collections.Generic;
 
 namespace EDocSys.Domain.Entities.Documentation
 {
@@ -27,6 +28,7 @@ namespace EDocSys.Domain.Entities.Documentation
         public virtual Company Company { get; set; }
 
         public bool hasWI { get; set; }
+        public ICollection<SOPStatus> SOPStatus { get; set; }
 
         public string PreparedBy { get; set; }
         public string PreparedByPosition { get; set; }

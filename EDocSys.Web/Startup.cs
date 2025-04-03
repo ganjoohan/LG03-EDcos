@@ -27,6 +27,7 @@ using System;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using System.Text.Json;
+using EDocSys.Infrastructure;
 
 namespace EDocSys.Web
 {
@@ -294,6 +295,7 @@ namespace EDocSys.Web
                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 });
 
+            services.AddQuartzServices(_configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
